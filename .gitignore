@@ -5,7 +5,7 @@ resources/models/llm*
 resources/models/spacy*
 resources/models/styletts2*
 resources/models/whisper*
-resources/StyleTTS2*
+#resources/StyleTTS2*
 
 # exclude workspace files
 resources/downloads*
