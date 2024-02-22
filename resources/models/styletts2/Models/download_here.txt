@@ -1,0 +1,4 @@
+# Make sure you have git-lfs installed (https://git-lfs.com)
+git lfs install
+git clone https://huggingface.co/mychen76/styletts2
+
