@@ -3,7 +3,7 @@ resources/models/emotion_text_classifier*
 resources/models/grammar*
 resources/models/llm*
 resources/models/spacy*
-resources/models/styletts2*
+#resources/models/styletts2/*
 resources/models/whisper*
 #resources/StyleTTS2*
 
