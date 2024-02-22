@@ -1,0 +1,66 @@
+version: "3.4"
+
+# Don't expose credentials like this in production!
+x-common-variables: &common-variables
+  RABBITMQ_DEFAULT_USER: DEV_USER
+  RABBITMQ_DEFAULT_PASS: CHANGE_ME
+  RABBITMQ_HOST: rabbit
+  MONGO_INITDB_ROOT_USERNAME: DEV_USER
+  MONGO_INITDB_ROOT_PASSWORD: CHANGE_ME
+  MONGO_INITDB_DATABASE: mousetrap
+  MONGO_HOST: mongo
+  ME_CONFIG_MONGODB_ADMINUSERNAME: DEV_USER
+  ME_CONFIG_MONGODB_ADMINPASSWORD: CHANGE_ME
+  ME_CONFIG_MONGODB_SERVER: mongo
+  ME_CONFIG_MONGODB_PORT: 27017
+  ME_CONFIG_BASICAUTH_USERNAME: DEV_USER
+  ME_CONFIG_BASICAUTH_PASSWORD: CHANGE_ME
+
+##     restart: unless-stopped
+
+services:
+  rabbit:
+    image: rabbitmq:management
+    ports:
+      - 5672:5672
+      - 15672:15672
+    environment: *common-variables
+
+  mongo:
+    image: mongo
+    ports:
+      - 27017:27017
+    environment: *common-variables
+
+  mongo-express:
+    image: mongo-express
+    ports:
+      - 8081:8081
+    environment: *common-variables
+    depends_on:
+      - mongo
+
+  worker_1:
+    image: pavai/finetune_worker1:latest
+    restart: manual
+    environment: *common-variables
+    depends_on:
+      - rabbit
+
+  worker_2:
+    image: pavai/finetune_worker2:latest
+    restart: manual
+    environment: *common-variables
+    depends_on:
+      - rabbit
+      - mongo
+
+  api_app:
+    image: pavai/finetune_app:latest
+    restart: manual
+    ports:
+      - 8000:8000
+    environment: *common-variables
+    depends_on:
+      - rabbit
+      - mongo

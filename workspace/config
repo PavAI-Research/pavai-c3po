@@ -1,0 +1,51 @@
+#### ----------------
+#### SYSTEM SETTINGS
+#### ----------------
+
+# DEFAULT_SYSTEM_MODE=system_mode_all_in_one
+
+# DEFAULT_SYSTEM_AI_NAME="Q.Spec-1"
+# DEFAULT_SYSTEM_STARTUP_MSG_INTRO="Hi, I am Q.Spec-1 your AI voice assistant, how may I help you today?"
+# DEFAULT_SYSTEM_STARTUP_MSG_OPEN_BROWSER="open your browsers and type in web url http://localhost:7860; or enter secured shared url. this is required for use of microphone in the web browser."
+# DEFAULT_SYSTEM_STARTUP_MSG_SYSTEM_CHECK_RUNNING="Running system startup checks...one moment, please!"
+# DEFAULT_SYSTEM_STARTUP_MSG_SYSTEM_CHECK_SUCCESS="System startup check success!"
+# DEFAULT_SYSTEM_STARTUP_MSG_SYSTEM_CHECK_FAILED="Oops, system startup check failed!"
+# DEFAULT_SYSTEM_STARTUP_MSG_SYSTEM_CHECK_FAILED_RECOVER="please check the console log for cause of failure, fix the issue then try start again."
+
+## available themes: 
+## [default, soft, glass]
+SYSTEM_THEME="default"
+
+DEFAULT_SYSTEM_WORKSPACE=workspace
+
+DEFAULT_SYSTEM_LLM_MODEL_PATH=resources/models/llm
+DEFAULT_SYSTEM_VOICE_MODEL_PATH=resources/models/llm
+
+DEFAULT_SYSTEM_DOWNLOADS_PATH=workspace/downloads
+DEFAULT_SYSTEM_SAMPLES_PATH=workspace/samples
+DEFAULT_SYSTEM_AUDIO_TEST_FILE=workspace/samples/jfk.wav
+DEFAULT_SYSTEM_GRAMMAR_TEST_FILE=workspace/samples/grammar_sample.txt
+
+#### LLM Model and hyper-parameters
+DEFAULT_LLM_MODEL_PATH=resources/models/llm/
+DEFAULT_LLM_MODEL_FILE=zephyr-7b-beta.Q5_K_M.gguf
+DEFAULT_LLM_MODEL_CHAT_FORMAT=chatml
+DEFAULT_LLM_OFFLOAD_GPU_LAYERS=35
+
+#### Grammar synthesis model
+DEFAULT_GRAMMAR_MODEL_ID="pszemraj/grammar-synthesis-small"
+
+#### Image Generation Model
+DEFAULT_TEXT_TO_IMAGE_MODEL_ID="segmind/SSD-1B"
+
+#### speech-to-text Whisper Model
+DEFAULT_STT_MODEL_SIZE=large
+DEFAULT_STT_MODEL_ID="Systran/faster-whisper-large-v3"
+
+#### text-to-speech Voice model
+#DEFAULT_TTS_VOICE_MODEL_PATH=/home/pop/development/mclab/talking-llama/models/voices/
+DEFAULT_TTS_VOICE_MODEL_PATH=resources/models/voices/
+DEFAULT_TTS_VOICE_MODEL_LANGUAGE=en
+DEFAULT_TTS_VOICE_MODEL_GENDER=Amy
+DEFAULT_TTS_VOICE_MODEL_ONNX_FILE=en_US-amy-medium.onnx
+DEFAULT_TTS_VOICE_MODEL_ONNX_JSON=en_US-amy-medium.onnx.json

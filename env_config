@@ -1,0 +1,103 @@
+#### ----------------
+#### SYSTEM THEMES
+#### ----------------
+## [default, soft, glass]
+SYSTEM_THEME="glass"
+## ---------------------------------------------------
+## available system model:
+## ---------------------------------------------------
+## AIO   -- run all-in-one mode locally
+## SOLAR -- run in distributed-mode using many API servers
+## ---------------------------------------------------
+GLOBAL_SYSTEM_MODE="AIO"
+
+## Available Voice Systems: 
+## LINUX     -- default linux sd-speech to text  
+## GTTS      -- google 
+## PIPER     -- AI voice systhesizer (default)
+## LIBRETTS  -- human-liked voices
+
+GLOBAL_TTS="PIPER"
+GLOBAL_TTS_LIBRETTS_VOICE="Ryan"
+GLOBAL_TTS_PIPER_VOICE="en_ryan"
+GLOBAL_TTS_PIPER_VOICE_MODEL="en_US-ryan-medium.onnx"
+
+GLOBAL_STT="WHISPER"
+GLOBAL_VAD="WHISPER"
+
+DEFAULT_SYSTEM_WORKSPACE="workspace"
+
+## system resources
+DEFAULT_SYSTEM_LLM_MODEL_PATH="resources/models/llm"
+DEFAULT_SYSTEM_VOICE_MODEL_PATH="resources/models/llm"
+DEFAULT_SYSTEM_VOICE_MODEL_PATH="resources/models/voices"
+
+## user resources
+DEFAULT_SYSTEM_DOWNLOADS_PATH="workspace/downloads"
+DEFAULT_SYSTEM_SAMPLES_PATH="workspace/samples"
+DEFAULT_SYSTEM_AUDIO_TEST_FILE="workspace/samples/jfk.wav"
+DEFAULT_SYSTEM_GRAMMAR_TEST_FILE="workspace/samples/grammar_sample.txt"
+
+#### SYSTEM_MODE: AIO
+#### LLM Model and Hyper-parameters
+DEFAULT_LLM_MODEL_PATH="resources/models/llm/"
+DEFAULT_LLM_MODEL_NAME_OR_PATH="TheBloke/zephyr-7B-beta-GGUF"
+DEFAULT_LLM_MODEL_FILE="zephyr-7b-beta.Q4_K_M.gguf"
+DEFAULT_LLM_MODEL_WEB_URL="https://huggingface.co/TheBloke/zephyr-7B-beta-GGUF/resolve/main/zephyr-7b-beta.Q4_K_M.gguf"
+DEFAULT_LLM_MODEL_CHAT_FORMAT="chatml"
+DEFAULT_LLM_MODEL_DOWNLOAD_PATH='resources/models/llm/models--TheBloke--zephyr-7B-beta-GGUF/snapshots/e4714d14e9652aa9658fa937732cceadc63ac42e/zephyr-7b-beta.Q4_K_M.gguf'
+DEFAULT_LLM_OFFLOAD_GPU_LAYERS="35"
+#DEFAULT_LLM_SYSTEM_PROMPT="35"
+USE_VOICE_API="false"
+USE_ONNX="true"
+
+#### SYSTEM_MODE: SOLAR
+### LLM Solar Servers
+SOLAR_LLM_DEFAULT_SERVER_URL="http://192.168.0.29:8002/v1"
+SOLAR_LLM_DEFAULT_API_KEY="sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+SOLAR_LLM_DOMAIN_SERVER_URL="http://192.168.0.29:8004/v1"
+SOLAR_LLM_DOMAIN_API_KEY="sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+SOLAR_SKIP_CONTENT_SAFETY_CHECK="false"
+SOLAR_SKIP_DATA_SECURITY_CHECK="true"
+SOLAR_SKIP_SELF_CRITIQUE_CHECK="false"
+
+## TTS-VOSK Server
+GLOBAL_TTS_API_ENABLE="false"
+GLOBAL_TTS_API_URL="http://192.168.0.29:7000/predict"
+GLOBAL_TTS_API_LANGUAGE="en_US"
+GLOBAL_TTS_API_SPEAKER_MODEL="./models/voices/en_US-ryan-medium.onnx"
+
+#### Grammar Synthesis model
+DEFAULT_GRAMMAR_MODEL_ID="pszemraj/grammar-synthesis-small"
+
+#### Image Generation Model
+DEFAULT_TEXT_TO_IMAGE_MODEL_ID="segmind/SSD-1B"
+
+#### speech-to-text Whisper Model
+DEFAULT_STT_MODEL_SIZE="large"
+DEFAULT_STT_MODEL_ID="Systran/faster-whisper-large-v3"
+
+#### text-to-speech Voice model
+#DEFAULT_TTS_VOICE_MODEL_PATH=/home/pop/development/mclab/talking-llama/models/voices/
+DEFAULT_TTS_VOICE_MODEL_PATH="resources/models/voices/"
+DEFAULT_TTS_VOICE_MODEL_LANGUAGE="en"
+
+DEFAULT_TTS_VOICE_MODEL_VOCIE="Amy"
+DEFAULT_TTS_VOICE_MODEL_VOCIE_ONNX_FILE="en_US-amy-medium.onnx"
+DEFAULT_TTS_VOICE_MODEL_VOCIE_ONNX_JSON="en_US-amy-medium.onnx.json"
+
+DEFAULT_TTS_VOICE_MODEL_TALKIE_AGENT="Ryan"
+DEFAULT_TTS_VOICE_MODEL_TALKIE_ONNX_FILE="en_US-ryan-medium.onnx"
+DEFAULT_TTS_VOICE_MODEL_TALKIE_ONNX_JSON="en_US-ryan-medium.onnx.json"
+
+ACTIVE_TTS_VOICE_MODEL_AGENT="Ryan"
+ACTIVE_TTS_VOICE_MODEL_ONNX_FILE="en_US-ryan-medium.onnx"
+ACTIVE_TTS_VOICE_MODEL_ONNX_JSON="en_US-ryan-medium.onnx.json"
+ACTIVE_TTS_VOICE_MODEL_LANGUAGE="en"
+
+#### authorized users
+VOCIE_APP_USERS=[("abc:123"),("admin:123"),("john:smith")]
+VOCIE_APP_PORT=7860
+VOCIE_APP_HOST="localhost"
+VOCIE_APP_SHARE=False
+

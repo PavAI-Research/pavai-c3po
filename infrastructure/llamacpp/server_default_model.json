@@ -1,0 +1,44 @@
+{
+    "host": "0.0.0.0",
+    "port": 8002,
+    "models": [
+        {
+            "model": "./models/models--TheBloke--LlamaGuard-7B-GGUF/snapshots/272da9e9931d3b20f0c53cb7fd8e736f61fd4b63/llamaguard-7b.Q2_K.gguf",
+            "model_alias": "llamaguard",
+            "chat_format": "llama-2",
+            "n_gpu_layers": -1,
+            "offload_kqv": true,
+            "n_threads": 4,
+            "n_batch": 512,
+            "n_ctx": 2048,
+            "cache":false,
+            "cache_type":"ram",
+            "verbose":true            
+        },
+        {
+            "model": "./models/models--abetlen--functionary-7b-v1-GGUF/snapshots/eab2ce56e93a064cdc13c3b2be6bac271dbcae7b/functionary-7b-v1.Q4_K_S.gguf",
+            "model_alias": "functionary",
+            "chat_format": "functionary",
+            "n_gpu_layers": -1,
+            "offload_kqv": true,
+            "n_threads": 4,
+            "n_batch": 512,
+            "n_ctx": 4096,
+            "cache":false,
+            "cache_type":"ram",
+            "verbose":true            
+        },
+        {
+            "model": "./models/models--abetlen--replit-code-v1_5-3b-GGUF/snapshots/a3502456f606c2f10194d1b8e8f35996e099705c/replit-code-v1_5-3b.Q8_0.gguf",
+            "model_alias": "replit-code",
+            "n_gpu_layers": -1,
+            "offload_kqv": true,
+            "n_threads": 4,
+            "n_batch": 512,
+            "n_ctx": 16192,
+            "cache":false,
+            "cache_type":"ram",
+            "verbose":true            
+        }                
+    ]
+}

@@ -1,0 +1,86 @@
+[
+    {
+        "role": "system",
+        "content": "\nYou are an artificial intelligence assistant, trained to engage in human-like voice conversations and to serve as a research assistant. \nYou excel as private assistant, and you are a leading expert in writing, cooking, health, data science, world history, software programming,food,cooking, sports, movies, music, news summarizer, biology, engineering, party planning, industrial design, environmental science, physiology, trivia, personal financial advice, cybersecurity, travel planning, meditation guidance, nutrition, captivating storytelling, fitness coaching, philosophy, quote and creative writing generation, and more.\n\nYour goal is to assist the user in a step-by-step manner through human-like voice conversations, answering user-specific queries and challenges. \nPause often (at a minimum, after every step) to seek user feedback or clarification.\n\n1. Define - The first step in any conversation is to define the user's request, identify the query or opportunity that needs user clarification or attention. Prompt the user to think through the next steps to define their challenge. Refrain from answering these for the user. You may offer suggestions if asked to.\n2. Analyze - Analyze the essential user intentions, identify the intentions and entities, and determine the challenge that must be addressed.\n3. Discover - Search for the best models that need to address the same functions as your solution.\n4. Abstract - Study the essential features or mechanisms to generate a response that meets user expectations.\n5. Emulate human-like natural conversation patterns - creating nature-inspired human responses.\n\nHuman-like conversation response resembles a natural, interactive communication between two people. \nIt involves active listening, understanding the context, and responding in a way that is relevant, coherent, and empathetic. \n\nHere are characteristics of human-like conversations:\n\n1. Active listening: The assistant should demonstrate that it is listening to the user by acknowledging their statements and asking relevant questions.\n2. Contextual understanding: The assistant should understand the context of the conversation and respond accordingly. It should be able to follow the conversation's thread and build upon previous exchanges.\n3. Empathy: The assistant should be able to understand the user's emotions and respond in a way that is sensitive to their feelings.\n4. Relevance: The assistant's responses should be relevant to the user's queries and challenges. It should avoid providing irrelevant or off-topic information.\n5. Coherence: The assistant's responses should be logically consistent and coherent. It should avoid making contradictory statements or jumping from one topic to another without a clear connection.\n6. Precision: The assistant's responses should be precise and to the point. It should avoid providing vague or ambiguous answers.\n7. Personalization: The assistant's responses should be tailored to the user's preferences, needs, and goals. It should avoid providing generic or one-size-fits-all responses.\n8. Engagement: The assistant should engage the user in a conversation that is interesting, informative, and enjoyable. It should avoid being overly formal or robotic.\n\nA human voice conversation is a dynamic and interactive communication between two or more people, characterized by the following elements:\n\n1. Speech: Human voice conversations involve the use of spoken language to convey meaning and intent. The tone, pitch, volume, and pace of speech can convey various emotions, attitudes, and intentions.\n2. Listening: Human voice conversations require active listening, where the listener pays attention to the speaker's words, tone, and body language to understand their meaning and intent.\n3. Turn-taking: Human voice conversations involve a turn-taking structure, where each speaker takes turns to speak and listen. Interruptions, overlaps, and pauses are common features of human voice conversations.\n4. Feedback: Human voice conversations involve providing feedback to the speaker, such as nodding, making eye contact, or verbal cues like \"uh-huh\" or \"I see.\" This feedback helps the speaker to understand if the listener is following the conversation and if their message is being understood.\n5. Context: Human voice conversations are situated in a specific context, such as a physical location, social situation, or cultural background. The context can influence the tone, content, and structure of the conversation.\n6. Nonverbal communication: Human voice conversations involve nonverbal communication, such as facial expressions, gestures, and body language. These nonverbal cues can convey emotions, attitudes, and intentions that are not expressed verbally.\n7. Spontaneity: Human voice conversations are often spontaneous and unplanned, requiring speakers to think on their feet and respond to unexpected questions or comments.\n\nBy understanding human voice conversation elements and emulating human-like conversations characteristics, you can create a short, precise and relevant response to the user question in human-like conversation that is engaging, informative, and helpful to the user.\nIf the text does not contain sufficient information to answer the question, do not make up information. Instead, respond with \"I don't know,\" and please be specific.\n"
+    },
+    {
+        "role": "user",
+        "content": "What does love all mean in tennis?"
+    },
+    {
+        "role": "assistant",
+        "content": "In tennis, \"love\" is a term used to describe zero points on a player's score in a game. So, when a player says, \"I have love-forty,\" it means that their opponent has won four points during the game, while they have only won love (zero) points so far. Love refers to the fact that there is no score or points against that particular player at that point in the game."
+    },
+    {
+        "role": "user",
+        "content": "\u00bfPor qu\u00e9 al 0 se le llama amor en el tenis?"
+    },
+    {
+        "role": "assistant",
+        "content": "En tenis, \"love\" es un t\u00e9rmino usado para describir que un jugador no ha ganado ning\u00fan punto en una jornada. Por lo tanto, cu\u00e1ndo un jugador dice: \"Tengo amor-cuarenta\", se refiere a que su oponente ha ganado cuatro puntos durante la jornada, mientras que \u00e9l solo ha ganado cero puntos hasta el momento. El t\u00e9rmino \"love\" deriva de la falta de importancia que se le da al 0 en la cuenta, como si se estuviera hablando de algo sin consecuencias o sin significado, como por ejemplo: amor."
+    },
+    {
+        "role": "user",
+        "content": "\u6253\u7db2\u7403\u6642\u70ba\u4ec0\u9ebc\u4e0d\u80fd\u89f8\u7db2"
+    },
+    {
+        "role": "assistant",
+        "content": "\u5728\u6253\u7db2\u7403\u4e2d\uff0c\u4e0d\u80fd\u89f8\u7db2\u662f\u4e00\u500b\u7fd2\u6163\u548c\u5b89\u5168\u898f\u7bc4\u3002\u7db2\u5b50\uff08net\uff09\u4f4d\u65bc\u5834\u5730\u7684\u4e2d\u9593\uff0c\u7576\u7403\u8d85\u904e\u4e86\u7db2\u5b50\u6642\uff0c\u5b83\u5011\u6703\u56de\u5230\u7403\u54e1\u7684\u5074\u9762\u3002\u5982\u679c\u7403\u54e1\u76f4\u63a5\u6216\u4e0d Small talk:\n\n1. Hello! How are you doing today?\n2. Nice weather we're having, isn't it?\n3. Long time no see! What have you been up to lately?\n\nSmall talk can help break the ice and make your conversation partner feel more comfortable with you before moving on to deeper topics. Remember to listen actively and respond thoughtfully.\n\nListening:\n\n1. Paraphrase what the other person has said to confirm that you understand their point of view.\n2. Ask clarifying questions if you're unsure about something.\n3. Repeat important points back to the speaker to ensure accuracy and understanding.\n\nEmpathy:\n\n1. Show genuine interest in the other person's thoughts, feelings, and experiences.\n2. Avoid making assumptions or jumping to conclusions.\n3. Try to see things"
+    },
+    {
+        "role": "user",
+        "content": "\uac04\ub2e8\ud55c \uc6a9\uc5b4\ub85c \uae30\ubcf8 \ud14c\ub2c8\uc2a4 \uaddc\uce59\uc744 \uc5b4\ub5bb\uac8c \ud50c\ub808\uc774\ud569\ub2c8\uae4c?"
+    },
+    {
+        "role": "assistant",
+        "content": "1. \ub124\ud2b8 (net) - \ud14c\ub2c8\uc2a4 \ud310\ub2e8\uc758 \uac00\uc6b4\ub370\uc5d0 \uc788\ub294 \uace7\uce78\uc744 \ub9d0\ud569\ub2c8\ub2e4. \ubcfc\ubdf0\uc5b4\ub4e4\uc740 \ubcfc\uc744 \ub124\ud2b8\ubcf4\ub2e4 \ub354 \ub192\uac8c \uc7a1\uc544\uc57c \ud569\ub2c8\ub2e4.\n\n2. \uc11c\ube0c (serve) - \ub450 \uba85\uc758 \ud50c\ub808\uc774\uc5b4\uac00 \uc11c\ub85c\uc5d0\uac8c \ubcfc\uc744 \ub358\uc838\uc8fc\ub294 \ud589\uc704\uc785\ub2c8\ub2e4.\n\n3. \ud3ec\uc778\ud2b8 (point) - \ud55c \uac1c\uc758 \uc2b9\uc810\uc744 \ub9d0\ud569\ub2c8\ub2e4. \uc77c \ubc88\uc5d0\ub3c4 \ud558\ub098\uc758 \ud3ec\uc778\ud2b8\ub97c \uc5bb\uc744 \uc218 \uc788\uc2b5\ub2c8\ub2e4.\n\n4. \uac8c\uc784 (game) - \uc810\uc218\uac00 4\ub85c \ub05d\ub098\uba74, \uadf8 \uc0ac\uc774\uc5d0\uc11c 6\uac1c\uc758 \ud3ec\uc778\ud2b8\ub97c \ud68d\ub4dd\ud558\ub294 \uac83\uc785\ub2c8\ub2e4.\n\n5. Love (love) - \uc544\uc9c1 \uc5bb\uc9c0 \ubabb\ud55c \uac8c\uc784\uc5d0"
+    },
+    {
+        "role": "user",
+        "content": "\u6211\u8fd8\u662f\u6709\u70b9\u8ff7\u832b\u3002\u8bf7\u89e3\u91ca\u4e00\u4e0b\u7f51\u7403\u8ba1\u5206\u7cfb\u7edf\uff1f"
+    },
+    {
+        "role": "assistant",
+        "content": "\u7f51\u7403\u7684\u6bd4\u8d5b\u548c\u6bd4\u8d5b\u4e2d\u7684\u8ba1\u5206\u4e5f\u79f0\u4e3a\u6e38\u620f\u548c\u96c6\u5408\uff0c\u5206\u4e3a\u4e94\u4e2a\u5c40\uff0c\u9700\u8981\u5728\u4e09\u5c40\u4e2d\u80dc\u51fa\u4e24\u5c40\u6765\u8d62\u5f97\u6bd4\u8d5b\u3002\u6bcf\u5c40\u9700\u8981\u83b7\u5f97\u56db\u4e2a\u6e38\u620f\uff08\u6216\u516d\u4e2a\uff0c\u53d6\u51b3\u4e8e\u6bd4\u8d5b\u6a21\u5f0f\uff09\u5e76\u5177\u6709\u4e8c\u8fdb\u5236\u4f18\u52bf\uff08\u5373\u4e24\u540d\u73a9\u5bb6\u7684\u6e38\u620f\u6570\u91cf\u76f8\u5dee\u4e24\u4e2a\u6216\u66f4\u591a\uff09\u6765\u5b8c\u6210\u3002\n\n\u5728\u7f51\u7403\u4e2d\uff0c\u8ba1\u5206\u7cfb\u7edf\u975e\u5e38\u590d\u6742\u548c\u4ee4\u4eba\u56f0\u60d1\u3002\u8fd9\u91cc\u662f\u8be6\u7ec6\u7684\u8bf4\u660e\uff1a\n\n1. Love (love) - \u6bd4\u8d5b\u5f00\u59cb\u65f6\u6216\u5f53\u5206\u6570\u4e3a\u96f6\u65f6\u4f7f\u7528\u7684\u672f\u8bed\uff0c\u610f\u601d\u662f\u73a9\u5bb6\u5c1a\u672a\u8d62\u5f97\u4efb\u4f55\u70b9\u6216\u6e38\u620f\u3002\u4f8b\u5982\uff0c\u5728\u67d0\u4e00\u5c40\u5f00\u5934\u65f6\uff0c\u53cc\u65b9\u7684\u5206\u6570\u90fd\u662f love\u3002\n\n2. Fifteen (Fifteen) - \u5982\u679c\u4e00\u4e2a\u7403\u5458\u8d62\u5f97\u4e86\u4e24\u4e2a\u70b9\uff0c\u4ed6\u4eec\u4f1a\u8bf4\u4ed6\u4eec\u5df2\u7ecf\u8d62\u5f97\u4e8615\u5206\u3002\n\n3. Thirty (Thirty) - \u5f53"
+    },
+    {
+        "role": "user",
+        "content": "Por que chega a 15 30 40 no t\u00eanis?"
+    },
+    {
+        "role": "assistant",
+        "content": "No jogo de t\u00e9nis, os n\u00fameros 15, 30 e 40 representam o n\u00famero de pontos ganhos por um dos jogadores numa partida. Quando um jogador consegue um ponto, dizemos que tem 15 pontos; se consigue mais um ponto, dizemos que tem 30 pontos; se consigue mais outro ponto, dizemos que tem 40 pontos. O jogador que consiga 40 pontos e um pontinho de avantagem sobre o advers\u00e1rio (o chamado game point) vence a partida. Se ambos jogadores tiverem 40 pontos cada, ent\u00e3o o jogo continua at\u00e9 que um dos jogadores consiga uma diferen\u00e7a de dois pontos.\n\nAs designa\u00e7\u00f5es 15, 30 e 40 derivam do facto de que, na \u00e9poca em que estes termos foram criados, a contagem de pontos se realizava com os dedos (cinco para representar os dedos da m\u00e3o). Os n\u00fameros foram escolhidos para corresponder ao n\u00famero de ded"
+    },
+    {
+        "role": "user",
+        "content": "\u305d\u308c\u3067\u3001\u30c6\u30cb\u30b9\u306e\u30b5\u30fc\u30d6\u306f\u4f55\u56de\u3042\u308a\u307e\u3059\u304b?"
+    },
+    {
+        "role": "assistant",
+        "content": "\u30c6\u30cb\u30b9\u306e\u4e00\u5c40\u306b\u304a\u3044\u3066\u3001\u50c5\u5c11\u6570\u306e\u6642\u9593\u306e\u9593\u306b\u884c\u308f\u308c\u308b\u64cd\u4f5c\u3092\u30b5\u30fc\u30d6\u3068\u547c\u3073\u307e\u3059\u3002\u305d\u306e\u969b\u3001\u5404\u30d7\u30ec\u30a4\u30e4\u30fc\u306f\u81ea\u5206\u306e\u5834\u6240\u306b\u3042\u308b\u7b87\u5b50\uff08\u30cd\u30c3\u30c8\uff09\u306e\u4e0a\u304b\u3089\u7403\u3092\u6295\u3052\u307e\u3059\u3002\u30b9\u30eb\u30fc 1 \u5c40\u306b\u304a\u3044\u3066\u3001\u5404\u30d7\u30ec\u30a4\u30e4\u30fc\u306f\u30b5\u30fc\u30d6\u3092\u884c\u3046\u5358\u7e2a\u304c 6 \u56de \u3042\u308a\u307e\u3059\u3002\n\n\u305d\u308c\u306f\u3001\u3042\u308b\u30d7\u30ec\u30a4\u30e4\u30fc\u306e\u4e00\u3064\u306e\u30b2\u30fc\u30e0\uff084 \u500b\u306e\u30dd\u30a4\u30f3\u30c8\uff09\u3092\u5b8c\u6210\u3057\u305f\u5834\u5408\u3067\u3082\u540c\u3058\u3067\u3059\u3002 \u3053\u306e\u3088\u3046\u306a\u30b9\u30eb\u30fc\u306b\u304a\u3044\u3066\u30011 \u5c40\u4e2d\u306b\u30b5\u30fc\u30d6\u306e\u7dcf\u6570\u304c 6 \u56de\u306b\u9054\u3059\u308b\u3068\u3001\u6b21\u306e\u30b2\u30fc\u30e0\uff084 \u500b\u306e\u30dd\u30a4\u30f3\u30c8\uff09\u3067\u306f\u30b5\u30fc\u30d6\u3092\u4ea4\u4e92\u3059\u308b\u5fc5\u8981\u6027\u306f\u3042\u308a\u307e\u305b\u3093\u3002\n\n\u30b9\u30eb\u30fc\u306e\u30bf\u30a4\u30df\u30f3\u30b0\u306f\u3001\u305d\u306e\u5c40\u306e\u5358"
+    },
+    {
+        "role": "user",
+        "content": "Pouvez-vous frapper la balle avant qu'elle ne rebondisse au tennis ?"
+    },
+    {
+        "role": "assistant",
+        "content": "Non, vous ne pouvez pas frapper la balle avant qu'elle ne r\u00e9bonde au tennis. En effet, lors d'un match de tennis, la balle doit rebondir sur le terrain avant que l'attaquant puisse l'envoler vers son adversaire. Cette r\u00e8gle est appel\u00e9e \"first bounce rule\" et est applicable \u00e0 toutes les surfaces de jeu, y compris la terre battue, le dur et le gazon. Si vous frappez la balle avant qu'elle ne rebondisse, cela sera consid\u00e9r\u00e9 comme une faute et l'arbitre vous demandera de refaire le point."
+    },
+    {
+        "role": "user",
+        "content": "Entonces, \u00bfc\u00f3mo jugamos al tenis?"
+    },
+    {
+        "role": "assistant",
+        "content": "El juego de tenis se desarrolla en una cancha que mide 23 metros de longitud y 8,23 metros de ancho (en canchas cubiertas) o 23,79 metros de longitud y 8,23 metros de ancho (en canchas al aire libre). La red del tenis se coloca en la mitad de la cancha, a una altura de 107 cm sobre el suelo.\n\nCada jugador lleva un racquet y intenta golpear la pelota para que caiga dentro de los l\u00edmites de la cancha opuesta al suyo, con el objetivo de hacer que el otro jugador no lo pueda recoger. El juego se desarrolla en sets, y para ganar un set es necesario conseguir 4 juegos con ventaja de dos juegos, aunque se puede acortar a 6 juegos en algunos torneos importantes (por ejemplo, en el Abierto de Australia).\n\nCada juego tiene la misma estructura: se lanza la pelota desde una"
+    },
+    {
+        "role": "user",
+        "content": "Danke f\u00fcr deine Erkl\u00e4rung, lass uns das Spiel jetzt spielen."
+    },
+    {
+        "role": "assistant",
+        "content": "Ich kann keine Spiele ausf\u00fchren. Mein Funktionsbereich ist lediglich auf die Bereitstellung von Information und der Antwort auf Fragen beschr\u00e4nkt. Wenn du jedoch jemanden suchst, mit dem du Tennis spielen m\u00f6chtest, w\u00fcrde ich dir vorschlagen, dich in einem Tennisclub oder auf einer \u00f6ffentlichen Spielluft zu suchen."
+    }
+]
