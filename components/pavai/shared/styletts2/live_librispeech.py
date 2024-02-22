@@ -52,6 +52,7 @@ from .utils import maximum_path,get_data_path_list,length_to_mask,log_norm,get_i
 from .text_utils import TextCleaner
 from .Modules.diffusion.sampler import DiffusionSampler, ADPM2Sampler, KarrasSchedule
 from .Utils.PLBERT.util import load_plbert
+from pavai.shared.styletts2.download_models import get_styletts2_model_files
 
 ## System Configuration
 StyleTTS2_LANGUAGE="en-us"
@@ -71,7 +72,13 @@ mean, std = -4, 4
 # load phonemizer
 global_phonemizer = phonemizer.backend.EspeakBackend(language=StyleTTS2_LANGUAGE, preserve_punctuation=True,  with_stress=True)
 
-config = yaml.safe_load(open(StyleTTS2_CONFIG_FILE))
+try:
+    config = yaml.safe_load(open(StyleTTS2_CONFIG_FILE))
+except:
+    print("StyleTTS2_CONFIG_FILE Not Found!")
+    get_styletts2_model_files()
+    ## read file downloaded
+    config = yaml.safe_load(open(StyleTTS2_CONFIG_FILE))
 
 # load pretrained ASR model
 ASR_config = config.get('ASR_config', False)

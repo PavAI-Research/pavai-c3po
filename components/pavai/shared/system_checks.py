@@ -41,6 +41,7 @@ from pavai.shared.audio.voices_piper import espeak,get_voice_model_file
 from pavai.shared.audio.tts_client import text_speaker_ai
 import pavai.shared.solar.llmchat as llmchat
 from pathlib import Path
+from pavai.shared.styletts2.download_models import get_styletts2_model_files
 
 __RELEASE_VERSION__="alpha-0.0.3"
 __RELEASE_DATE__="2024/01/07"
@@ -275,7 +276,7 @@ def system_resources_check(output_voice:str="en"):
     logger.info("***running system resources checks***")    
     with Progress(transient=True) as progress: 
         try:       
-            task = progress.add_task("checking system resources...", total=7)
+            task = progress.add_task("checking system resources...", total=8)
 
             # 1. nltk downloads
             logger.info("download nltk [punk] resource files")                                              
@@ -375,6 +376,12 @@ def system_resources_check(output_voice:str="en"):
                 table.add_row("resource_check", f"get VAD model file", "[red]Missing[/]")
                 logger.error(f"Missing VAD model file!!!")                                                                                 
             progress.advance(task)  
+
+            # 8. styletts2 model files
+            logger.info("download styletts2 model files")                                                          
+            get_styletts2_model_files()
+            progress.advance(task)              
+
         except Exception as e:
             print(e)
             logger.error("system_resources_check error.")
