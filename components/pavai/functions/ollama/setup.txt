@@ -1,0 +1,4 @@
+## Ollama Function Calling
+
+pip install yfinance pydantic instructor openai
+

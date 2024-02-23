@@ -52,7 +52,6 @@ from .utils import maximum_path,get_data_path_list,length_to_mask,log_norm,get_i
 from .text_utils import TextCleaner
 from .Modules.diffusion.sampler import DiffusionSampler, ADPM2Sampler, KarrasSchedule
 from .Utils.PLBERT.util import load_plbert
-
 from pavai.shared.styletts2.download_models import get_styletts2_model_files
 
 ## System Configuration

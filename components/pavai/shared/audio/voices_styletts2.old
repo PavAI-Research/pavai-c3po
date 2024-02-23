@@ -27,9 +27,6 @@ logging.basicConfig(level=logging.INFO, format="%(message)s",
 logger = logging.getLogger(__name__)
 pretty.install()
 
-import traceback
-from pavai.shared.styletts2.download_models import get_styletts2_model_files
-
 # from os.path import dirname, join, abspath
 # sys.path.insert(0, abspath(join(dirname(__file__), '../shared')))
 
@@ -116,49 +113,20 @@ def librispeak(text: str, compute_style: str = "Jane", alpha=0.3, beta=0.7, chun
 
 # librispeak("hello world")
 
-# def download_file(url, local_path: str = None):
-#     local_filename = url.split('/')[-1]
-#     if local_path is not None:
-#         local_filename = local_path+local_filename
-#     with requests.get(url, stream=True) as r:
-#         with open(local_filename, 'wb') as f:
-#             shutil.copyfileobj(r.raw, f)
-#     return local_filename
+def download_file(url, local_path: str = None):
+    local_filename = url.split('/')[-1]
+    if local_path is not None:
+        local_filename = local_path+local_filename
+    with requests.get(url, stream=True) as r:
+        with open(local_filename, 'wb') as f:
+            shutil.copyfileobj(r.raw, f)
+    return local_filename
 
-# # @functools.lru_cache
-# # def load_speech_synthesize_model(voice_model_name):
-# #     global _voice_synthesize
-# #     _voice_synthesize = load_speech_synthesizer(_voice_model_name)
-# #     return _voice_synthesize
-
-# def get_styletts2_model_files(local_voice_path: str="resources/models/styletts2", remote_folder: str = "https://huggingface.co/mychen76") -> str:
-#     """download styletts model file from remote location"""
-#     try:
-#         LibriTTS=local_voice_path+"/LibriTTS"
-#         if not os.path.exists(LibriTTS):
-#             os.mkdir(LibriTTS)
-#             LibriTTS_model_config_url=f"{remote_folder}/styletts2/resolve/main/Models/LibriTTS/config.yml"
-#             download_file(url=LibriTTS_model_config_url,local_path=LibriTTS)
-#             LibriTTS_model_bin=f"{remote_folder}/styletts2/resolve/main/Models/LibriTTS/epochs_2nd_00020.pth"
-#             download_file(url=LibriTTS_model_bin,local_path=LibriTTS)
-#             print(f"styletts2_model downloaded {LibriTTS}")
-#         else:
-#             print(f"styletts2_model already exist: {LibriTTS}")            
-
-#         LJSpeech=local_voice_path+"/LJSpeech"
-#         if not os.path.exists(LJSpeech):
-#             os.mkdir(LJSpeech)
-#             LJSpeech_model_config_url=f"{remote_folder}/styletts2/resolve/main/Models/LJSpeech/config.yml"
-#             download_file(url=LJSpeech_model_config_url,local_path=LJSpeech)
-#             LJSpeech_model_bin=f"{remote_folder}/styletts2/resolve/main/Models/LJSpeech/epoch_2nd_00100.pth"
-#             download_file(url=LJSpeech_model_bin,local_path=LJSpeech)
-#             print(f"styletts2_model downloaded {LJSpeech}")          
-#         else:
-#             print(f"styletts2_model already exist: {LJSpeech}")            
-#     except Exception as e:
-#         print("Exception occured ",e.args)
-#         print(traceback.format_exc())
-#         raise Exception("Failed to download styletts2 model files!")
+# @functools.lru_cache
+# def load_speech_synthesize_model(voice_model_name):
+#     global _voice_synthesize
+#     _voice_synthesize = load_speech_synthesizer(_voice_model_name)
+#     return _voice_synthesize
 
 
 def get_voice_model_file(local_voice_path: str, spoken_language: str = "en") -> str:

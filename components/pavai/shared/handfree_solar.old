@@ -23,7 +23,7 @@ import sounddevice as sd
 import torch
 from faster_whisper import WhisperModel
 import faster_whisper
-logging.getLogger("handfree_whisper").setLevel(logging.WARN)
+logging.getLogger("faster_whisper").setLevel(logging.WARN)
 
 import openai
 from openai import OpenAI
@@ -115,16 +115,13 @@ def speaker_announce(instruction:str,output_voice:str="en_ryan"):
 ## -----------------------------------------
 ## LLM
 ## -----------------------------------------
-import pavai.functions.talkiellm as talkiellm
-
-talkieapi=None
+llmsolar=None
 def chat_service(user_prompt:str=None, history:list=[], 
                    system_prompt: str = system_prompt_assistant,
                    stop_criterias=["</s>"],target_model_id:str=None,ask_expert:str=None):    
-    global talkieapi
-
+    global llmsolar
     if _GLOBAL_SYSTEM_MODE=="SOLAR":
-        if talkieapi is None:
+        if llmsolar is None:
             default_url=system_config["SOLAR_LLM_DEFAULT_SERVER_URL"] 
             default_api_key=system_config["SOLAR_LLM_DEFAULT_API_KEY"]             
             domain_url=system_config["SOLAR_LLM_DOMAIN_SERVER_URL"] 
@@ -143,7 +140,7 @@ def chat_service(user_prompt:str=None, history:list=[],
             logger.debug(f"SKIP_CONTENT_SAFETY_CHECK: {skip_content_safety_check}")
             logger.debug(f"SKIP_DATA_SECURITY_CHECK: {skip_data_security_check}")
             logger.debug(f"SKIP_SELF_CRITIQUE_CHECK: {skip_self_critique_check}")
-            talkieapi = llmcognitive.LLMSolarClient(default_url=default_url,
+            llmsolar = llmcognitive.LLMSolarClient(default_url=default_url,
                                                    default_api_key=default_api_key,
                                                    domain_url=domain_url,
                                                    domain_api_key=domain_api_key,
@@ -160,15 +157,11 @@ def chat_service(user_prompt:str=None, history:list=[],
                 input_data = {"input_query": user_prompt,"ask_expert":ask_expert ,"input_model_id": target_model_id}          
         else:
             input_data = {"input_query": user_prompt}
-        output,history=talkieapi.chat(input_data,history,cleanup)
+        output,history=llmsolar.chat(input_data,history,cleanup)
         logger.debug(f"[blue]{output['output_text']}[/blue]",extra=dict(markup=True))
         reply =output['output_text']
     else:
-        ## REPLACEMENT
-        if talkieapi is None:
-            talkieapi = talkiellm.TalkieAPI(use_local=True,options=talkiellm.LLM_OPTIONS)
-        reply, history = talkieapi.chat(user_prompt=user_prompt,system_prompt = system_prompt,history=history)
-        ### messages, history, reply = llm_chat_completion(user_Prompt=user_prompt, history= history,system_prompt = system_prompt,stop_criterias=stop_criterias)
+        messages, history, reply = llm_chat_completion(user_Prompt=user_prompt, history= history,system_prompt = system_prompt,stop_criterias=stop_criterias)
         logger.debug(f"[blue]{reply}[/blue]",extra=dict(markup=True))
     return reply,history
 
@@ -200,11 +193,8 @@ def process_conversation(new_query:str,history:list, context_size:int=4096*2,
 @functools.lru_cache
 def _get_whisper_model(model_path:str="large-v2",
                       download_root="resources/models/whisper",
-                      local_files_only=True,
-                      device:str=None):
+                      local_files_only=True):
     global whisper_model
-    if device is None:
-        device='cuda' if torch.cuda.is_available() else 'cpu'
     whisper_model = faster_whisper.WhisperModel(model_size_or_path=model_path,
                                             download_root=download_root,
                                             local_files_only=local_files_only,
@@ -217,15 +207,11 @@ def init_whisper(model_path:str="large-v2",download_root="resources/models/whisp
         # get local copy first
         whisper_model = _get_whisper_model(model_path=model_path,local_files_only=True)
     except Exception as e:
-        print("An error occurred:", str(e.args))
-        print(traceback.format_exc())
-        logger.error(f"An exception occurred at init_whisper!")        
-        if "CUDA failed with error out of memory" in str(e.args):
-            print("attempt load whisper model into CPU only")
-            whisper_model = _get_whisper_model(model_path=model_path,local_files_only=True,device="cpu")
-        else:
-            # otherwise, attempt download from huggingface        
-            whisper_model = _get_whisper_model(model_path=model_path,download_root=download_root,local_files_only=False)
+        traceback.print_exc()        
+        print("An error occurred:", e)                
+        logger.error(f"An exception occurred at init_whisper!")
+        # otherwise, attempt download from huggingface        
+        whisper_model = _get_whisper_model(model_path=model_path,download_root=download_root,local_files_only=False)
     return whisper_model
 
 def whisper_transcribe(model:WhisperModel,audio,language:str=None):
@@ -450,8 +436,8 @@ def moderate_conversation(whisper_model,audio_chunk,language:str=_CONVERSATION_L
             speaker_announce(instruction=f"{assistant_response}") #is that good?                           
         except Exception as e:
             status=1
-            print("An error occurred:", e)                            
-            print(traceback.print_exc())        
+            traceback.print_exc()        
+            print("An error occurred:", e)                
             logger.error(f"An exception occurred at conversation_query!")
             speaker_announce(instruction="oops!, request failed due error. please check console log.") 
         return "ok", status

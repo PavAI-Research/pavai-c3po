@@ -42,6 +42,7 @@ import httpx
 import json
 import copy
 from pavai.shared.aio.llmtokens import HistoryTokenBuffer
+import traceback
 
 __author__ = "mychen76@gmail.com"
 __copyright__ = "Copyright 2023, "
@@ -910,6 +911,7 @@ class LLMllamaLocal(AbstractLLMClass):
             logger.debug(f"LLMllamaLocal chat reply: {reply}")                                
         except Exception as e:
             print(e)
+            print(traceback.format_exc())
             logger.error(f"Error chat_completion")
         took_in_seconds = time.perf_counter()-t0
         status_msg = f"chat completed took {took_in_seconds:.2f} seconds"
