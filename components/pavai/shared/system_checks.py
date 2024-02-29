@@ -68,12 +68,12 @@ PRODUCT_NAME = "PavAI"
 #DEFAULT_SYSTEM_AI_NAME = "Amy"
 
 PAVAI_APP_VOCIE="PavAI.Vocie"
-DEFAULT_PAVAI_VOCIE_AGENT="Amy"
+DEFAULT_PAVAI_VOCIE_AGENT="Jane"
 
 DEFAULT_PAVAI_STARTUP_MSG_INTRO = ". your personal multilingual AI assistant for everyday tasks, how may I help you today?"
 DEFAULT_PAVAI_STARTUP_MSG_INTRO2 = ". an AI assistant. I can help you find answers on everyday tasks, do you have a question for me?"
 DEFAULT_PAVAI_STARTUP_MSG_INTRO3 = ". I am not a human being but rather an advanced artificial intelligence system designed to understand and respond to your queries. do you have any questions for me?"
-DEFAULT_PAVAI_STARTUP_MSG_INTRO4 = ". I can perform a wide range of tasks to assist you, including Answering questions, Providing recommendations, Generating text, Translating text, Solving math problems, Providing definitions, Searching the web. These are just a few examples of what I can do."
+DEFAULT_PAVAI_STARTUP_MSG_INTRO4 = ". I can perform a wide range of tasks to assist you, including Answering questions, Providing recommendations, Generating text, Translating text, Solving math problems, Providing definitions so these are just a few examples of what I can do."
 DEFAULT_PAVAI_STARTUP_MSG_INTRO5 = ". how may I help you today?"
 #DEFAULT_PAVAI_STARTUP_MSG_INTRO6 = """an AI-powered assistant, and my primary role is to answer questions and provide information to users like you. what can I do for you today?"""
 

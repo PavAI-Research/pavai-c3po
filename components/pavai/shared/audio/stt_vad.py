@@ -153,7 +153,7 @@ def _get_vad_model(repo_or_dir:str='snakers4/silero-vad',silaro_model_name:str="
     return model, utils
 
 def init_vad_model(repo_or_dir:str='snakers4/silero-vad',silaro_model_name:str="silero_vad",
-                   reload:bool=False,silero_use_onnx:bool=True,download_root:str="workspace/models"):
+                   reload:bool=False,silero_use_onnx:bool=True,download_root:str="resources/models"):
     """Silero VAD - pre-trained enterprise-grade Voice Activity Detector"""
     logger.debug(f"init_vad_model {repo_or_dir} saved to {download_root}")
     torchaudio.set_audio_backend("soundfile")
@@ -161,6 +161,7 @@ def init_vad_model(repo_or_dir:str='snakers4/silero-vad',silaro_model_name:str="
     utils=None
     try:
         # get local copy first
+        # credit original: https://github.com/snakers4/silero-vad.git
         repo_or_dir=download_root+"/silero-vad"
         model, utils = _get_vad_model(repo_or_dir=repo_or_dir,
                                       silaro_model_name=silaro_model_name,
@@ -170,7 +171,7 @@ def init_vad_model(repo_or_dir:str='snakers4/silero-vad',silaro_model_name:str="
     except Exception as e:
         try:
             # get files from github
-            repo = git.Repo.clone_from(url='https://github.com/snakers4/silero-vad.git',
+            repo = git.Repo.clone_from(url='https://github.com/minyang-chen/silero-vad.git',
                                    to_path=download_root,branch='master')
             repo_or_dir=download_root+"/silero-vad"
             model, utils = _get_vad_model(repo_or_dir=repo_or_dir,

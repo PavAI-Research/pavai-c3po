@@ -85,7 +85,6 @@ class DownSample(nn.Module):
         else:
             raise RuntimeError('Got unexpected donwsampletype %s, expected is [none, timepreserve, half]' % self.layer_type)
 
-
 class UpSample(nn.Module):
     def __init__(self, layer_type):
         super().__init__()
@@ -100,7 +99,6 @@ class UpSample(nn.Module):
             return F.interpolate(x, scale_factor=2, mode='nearest')
         else:
             raise RuntimeError('Got unexpected upsampletype %s, expected is [none, timepreserve, half]' % self.layer_type)
-
 
 class ResBlk(nn.Module):
     def __init__(self, dim_in, dim_out, actv=nn.LeakyReLU(0.2),
@@ -352,8 +350,6 @@ class TextEncoder(nn.Module):
         mask = torch.arange(lengths.max()).unsqueeze(0).expand(lengths.shape[0], -1).type_as(lengths)
         mask = torch.gt(mask+1, lengths.unsqueeze(1))
         return mask
-
-
 
 class AdaIN1d(nn.Module):
     def __init__(self, style_dim, num_features):

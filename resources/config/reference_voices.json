@@ -1,0 +1,17 @@
+{
+    "ryan": "resources/models/styletts2/reference_audio/Ryan.wav",
+    "jane": "resources/models/styletts2/reference_audio/Jane.wav",
+    "me1": "resources/models/styletts2/reference_audio/Me1.wav",
+    "me2": "resources/models/styletts2/reference_audio/Me2.wav",
+    "me3": "resources/models/styletts2/reference_audio/Me3.wav",
+    "vinay": "resources/models/styletts2/reference_audio/Vinay.wav",
+    "nima": "resources/models/styletts2/reference_audio/Nima.wav",
+    "yinghao": "resources/models/styletts2/reference_audio/Yinghao.wav",
+    "keith": "resources/models/styletts2/reference_audio/Keith.wav",
+    "may": "resources/models/styletts2/reference_audio/May.wav",
+    "anthony": "resources/models/styletts2/reference_audio/anthony.wav",
+    "c3p013": "resources/models/styletts2/reference_audio/c3p013.wav",
+    "c3p0voice8": "resources/models/styletts2/reference_audio/c3p0_voice8.wav",
+    "c3p0voice13": "resources/models/styletts2/reference_audio/c3p0_voice13.wav",
+    "c3p0voice1": "resources/models/styletts2/reference_audio/c3p0_voice1.wav"
+}

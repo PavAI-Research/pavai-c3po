@@ -1,39 +1,45 @@
-from rich import print, pretty, console
-from ..styletts2 import librispeech, compute_style, test_libris_speech
-from gtts import gTTS
-import sys
-from rich.pretty import (Pretty, pprint)
-from pydub import AudioSegment
+from pavai.shared.fileutil import download_file
+from pavai.shared.styletts2 import (librispeech, librispeech_v2, librispeech_v3, compute_style,
+                                    test_libris_speech, test_libris_speech_emotions, test_libris_speech_longspeech)
+from pavai.shared.styletts2 import (
+    ljspeech, ljspeech_v2, test_lj_speech, test_lj_speech_v2)
+import gc
+import torch
+import cleantext
+from pavai.shared.audio.tts_piper import load_speech_synthesizer, load_speech_synthesizer_model
+from pavai.shared.styletts2.download_models import get_styletts2_model_files
 from pydub.playback import play
-from io import BytesIO
-from typing import BinaryIO, Iterable, List, NamedTuple, Optional, Tuple, Union
-from .tts_piper import load_speech_synthesizer, load_speech_synthesizer_model
-import sounddevice as sd
+from pydub import AudioSegment
 import pydub
+from gtts import gTTS
+import sounddevice as sd
 import numpy as np
-import functools
-import requests
-import shutil
 from pathlib import Path
-import time
+from typing import BinaryIO, Iterable, List, NamedTuple, Optional, Tuple, Union
+from io import BytesIO
 import os
-from rich.panel import Panel
-from rich.logging import RichHandler
+import sys
+import time
+import json
 import logging
+import traceback
+from rich import print, pretty, console
+from rich.logging import RichHandler
+from rich.pretty import (Pretty, pprint)
 from dotenv import dotenv_values
 system_config = dotenv_values("env_config")
 logging.basicConfig(level=logging.INFO, format="%(message)s",
                     datefmt="[%X]", handlers=[RichHandler(rich_tracebacks=True)])
 logger = logging.getLogger(__name__)
+
+# import functools
+# import requests
+# import shutil
+# from rich.panel import Panel
+
 pretty.install()
-
-import traceback
-from pavai.shared.styletts2.download_models import get_styletts2_model_files
-
 # from os.path import dirname, join, abspath
 # sys.path.insert(0, abspath(join(dirname(__file__), '../shared')))
-
-# google
 
 # stylett2
 # from styletts2 import  ljspeech
@@ -54,29 +60,56 @@ DEFAULT_ESPEAK_VOICE_AGENT = system_config["ACTIVE_TTS_VOICE_MODEL_AGENT"]
 DEFAULT_ESPEAK_VOICE_MODEL = system_config["ACTIVE_TTS_VOICE_MODEL_ONNX_FILE"]
 DEFAULT_ESPEAK_VOICE_LANGUAGE = system_config["ACTIVE_TTS_VOICE_MODEL_LANGUAGE"]
 
-# styleTTs2 reference voices
-human_reference_voices = {
-    "Ryan": compute_style("resources/models/styletts2/reference_audio/Ryan.wav"),
-    "Jane": compute_style("resources/models/styletts2/reference_audio/Jane.wav"),
-    "Me1": compute_style("resources/models/styletts2/reference_audio/Me1.wav"),
-    "Me2": compute_style("resources/models/styletts2/reference_audio/Me2.wav"),
-    "Me3": compute_style("resources/models/styletts2/reference_audio/Me3.wav"),
-    "Vinay": compute_style("resources/models/styletts2/reference_audio/Vinay.wav"),
-    "Nima": compute_style("resources/models/styletts2/reference_audio/Nima.wav"),
-    "Yinghao": compute_style("resources/models/styletts2/reference_audio/Yinghao.wav"),
-    "Keith": compute_style("resources/models/styletts2/reference_audio/Keith.wav"),
-    "May": compute_style("resources/models/styletts2/reference_audio/May.wav"),
-    "June": compute_style("resources/models/styletts2/reference_audio/June.wav")
-}
+try:
+    with open('resources/config/reference_voices.json') as handle:
+        reference_voices = json.loads(handle.read())
+        print(reference_voices)
+except Exception as e:
+    print(e)
+    raise ValueError("Missing reference voices config file. please check!")
 
-# demo-1
+# styleTTs2 reference voices
+
+
+def lookup_voice(name: str = "Jane"):
+    global reference_voices
+    if reference_voices is None:
+        reference_voices = {
+            "ryan": "resources/models/styletts2/reference_audio/Ryan.wav",
+            "jane": "resources/models/styletts2/reference_audio/Jane.wav",
+            "me1": "resources/models/styletts2/reference_audio/Me1.wav",
+            "me2": "resources/models/styletts2/reference_audio/Me2.wav",
+            "me3": "resources/models/styletts2/reference_audio/Me3.wav",
+            "vinay": "resources/models/styletts2/reference_audio/Vinay.wav",
+            "nima": "resources/models/styletts2/reference_audio/Nima.wav",
+            "yinghao": "resources/models/styletts2/reference_audio/Yinghao.wav",
+            "keith": "resources/models/styletts2/reference_audio/Keith.wav",
+            "may": "resources/models/styletts2/reference_audio/May.wav",
+            "anthony": "resources/models/styletts2/reference_audio/anthony.wav",
+            "c3p013": "resources/models/styletts2/reference_audio/c3p013.wav",
+            "c3p0voice8": "resources/models/styletts2/reference_audio/c3p0_voice8.wav",
+            "c3p0voice13": "resources/models/styletts2/reference_audio/c3p0_voice13.wav",
+            "c3p0voice1": "resources/models/styletts2/reference_audio/c3p0_voice1.wav"
+        }
+    if name in reference_voices.keys():
+        voice_path = reference_voices[name.lower()]
+        voice = compute_style(voice_path)
+    else:
+        print(f" Error Missing voice file {name}, fallback to default")
+        name = "Jane"
+        voice_path = reference_voices[name.lower()]
+        voice = compute_style(voice_path)
+    return voice
+
 # librispeech(text=text,compute_style=ref_s2, voice='Jane',alpha=0.3, beta=0.5, diffusion_steps=10)
+
 
 # cached data
 cache_voices_files = {}
 cache_voices_models = {}
 
-def get_speaker_audio_file(workspace_temp:str="workspace/temp")->str:
+
+def get_speaker_audio_file(workspace_temp: str = "workspace/temp") -> str:
     Path.mkdir(workspace_temp, exist_ok=True)
     # if not os.path.exists(workspace_temp):
     #     os.mkdir(workspace_temp)
@@ -99,66 +132,72 @@ def slice_text_into_chunks(input_text: str, chunk_size: int = 100):
         return result
 
 
-def librispeak(text: str, compute_style: str = "Jane", alpha=0.3, beta=0.7, chunk_size=350,
-               diffusion_steps=10, output_voice_lang: str = "en"):
-    ref_s2 = human_reference_voices[compute_style]
-    if len(text) > chunk_size:
-        text_chunks = slice_text_into_chunks(
-            input_text=text, chunk_size=chunk_size)
-        for chunks in text_chunks:
-            wav = librispeech(text=chunks, compute_style=ref_s2, 
-                              voice=compute_style, alpha=alpha,
-                              beta=beta, diffusion_steps=diffusion_steps)
-    else:
-        wav = librispeech(text=text, compute_style=ref_s2, voice=compute_style, alpha=alpha,
-                          beta=beta, diffusion_steps=diffusion_steps)
-    return wav
+def free_memory(to_delete: list = None, debug: bool = False):
+    import gc
+    import torch
+    import inspect
+    # print("Before:")
+    # memory_stats()
+    gc.collect()
+    torch.cuda.empty_cache()
+    # print("After:")
+    memory_stats()
 
-# librispeak("hello world")
 
-# def download_file(url, local_path: str = None):
-#     local_filename = url.split('/')[-1]
-#     if local_path is not None:
-#         local_filename = local_path+local_filename
-#     with requests.get(url, stream=True) as r:
-#         with open(local_filename, 'wb') as f:
-#             shutil.copyfileobj(r.raw, f)
-#     return local_filename
+def memory_stats():
+    print(torch.cuda.memory_allocated()/1024**2)
+    print(torch.cuda.memory_cached()/1024**2)
 
-# # @functools.lru_cache
-# # def load_speech_synthesize_model(voice_model_name):
-# #     global _voice_synthesize
-# #     _voice_synthesize = load_speech_synthesizer(_voice_model_name)
-# #     return _voice_synthesize
 
-# def get_styletts2_model_files(local_voice_path: str="resources/models/styletts2", remote_folder: str = "https://huggingface.co/mychen76") -> str:
-#     """download styletts model file from remote location"""
-#     try:
-#         LibriTTS=local_voice_path+"/LibriTTS"
-#         if not os.path.exists(LibriTTS):
-#             os.mkdir(LibriTTS)
-#             LibriTTS_model_config_url=f"{remote_folder}/styletts2/resolve/main/Models/LibriTTS/config.yml"
-#             download_file(url=LibriTTS_model_config_url,local_path=LibriTTS)
-#             LibriTTS_model_bin=f"{remote_folder}/styletts2/resolve/main/Models/LibriTTS/epochs_2nd_00020.pth"
-#             download_file(url=LibriTTS_model_bin,local_path=LibriTTS)
-#             print(f"styletts2_model downloaded {LibriTTS}")
-#         else:
-#             print(f"styletts2_model already exist: {LibriTTS}")            
+def librispeak_v1(text: str, compute_style: str = "jane", chunk_size=350, output_voice_lang: str = "en", autoplay: bool = True):
+    ref_voice = lookup_voice(compute_style)
+    result = librispeech(text=text, compute_style=ref_voice, alpha=0.3, beta=0.7, autoplay=autoplay)
+    free_memory
+    return result
 
-#         LJSpeech=local_voice_path+"/LJSpeech"
-#         if not os.path.exists(LJSpeech):
-#             os.mkdir(LJSpeech)
-#             LJSpeech_model_config_url=f"{remote_folder}/styletts2/resolve/main/Models/LJSpeech/config.yml"
-#             download_file(url=LJSpeech_model_config_url,local_path=LJSpeech)
-#             LJSpeech_model_bin=f"{remote_folder}/styletts2/resolve/main/Models/LJSpeech/epoch_2nd_00100.pth"
-#             download_file(url=LJSpeech_model_bin,local_path=LJSpeech)
-#             print(f"styletts2_model downloaded {LJSpeech}")          
-#         else:
-#             print(f"styletts2_model already exist: {LJSpeech}")            
-#     except Exception as e:
-#         print("Exception occured ",e.args)
-#         print(traceback.format_exc())
-#         raise Exception("Failed to download styletts2 model files!")
+
+def librispeak_v2(text: str, compute_style: str = "jane", emotion: str = None, chunk_size=350, output_voice_lang: str = "en", autoplay: bool = True):
+    ref_voice = lookup_voice(compute_style)
+    result= librispeech_v2(text=text, compute_style=ref_voice, emotion=emotion, autoplay=autoplay)
+    free_memory
+    return result
+
+def librispeak_v3(text: str, compute_style: str = "jane", alpha=0.3, beta=0.7, chunk_size=350, output_voice_lang: str = "en", autoplay: bool = True):
+    ref_voice = lookup_voice(compute_style)
+    result = librispeech_v3(text=text, compute_style=ref_voice, alpha=0.3, beta=0.7, autoplay=autoplay)
+    free_memory
+    return result
+
+def librispeak(text: str, compute_style: str = "jane", emotion: str = None, chunk_size: int = 450, autoplay: bool = True, output_voice_lang: str = "en"):
+    text = cleantext.clean(text, extra_spaces=True, punct=True)
+    text = text+"."
+    wavs = []
+    try:
+        if len(text) > chunk_size:
+            text_chunks = slice_text_into_chunks(
+                input_text=text, chunk_size=chunk_size)
+            for chunks in text_chunks:
+                wav = librispeak_v1(
+                    text=chunks, compute_style=compute_style, autoplay=autoplay)
+                wavs.append(wav)
+        else:
+            if emotion is not None:
+                wav = librispeak_v2(
+                    text=text, compute_style=compute_style, emotion=emotion, autoplay=autoplay)
+                wavs.append(wav)
+            else:
+                wav = librispeak_v1(
+                    text=text, compute_style=compute_style, autoplay=autoplay)
+                wavs.append(wav)
+    except Exception as e:
+        print(e)
+        print(traceback.format_exc())
+        free_memory()
+        # fallback to system default speaker
+        wavs = system_speak(text, autoplay=autoplay)
+    finally:
+        free_memory()
+    return wavs
 
 
 def get_voice_model_file(local_voice_path: str, spoken_language: str = "en") -> str:
@@ -290,10 +329,14 @@ def write_audio_file(f, sr, x, normalized=False):
 
 
 def espeak(sd, text: str, output_voice: str = "en"):
-    response = convert_text_to_speech(text, output_voice)
-    npa = np.asarray(response['data'], dtype=np.int16)
-    sd.play(npa, response['sample-rate'], blocking=True)
-    sd.wait()
+    if system_config["GLOBAL_TTS"] == "LIBRETTS":
+        librispeak(text=text, compute_style="jane",
+                   emotion="happy", autoplay=True)
+    else:
+        response = convert_text_to_speech(text, output_voice)
+        npa = np.asarray(response['data'], dtype=np.int16)
+        sd.play(npa, response['sample-rate'], blocking=True)
+        sd.wait()
 
 
 def speech_to_file(text, out_file, output_voice):
@@ -309,7 +352,7 @@ def text_to_speech(text: str, output_voice: str = "en", mute=False, autoplay=Fal
         return None
     if output_voice is None:
         output_voice = "en"
-    out_file = get_speaker_audio_file()#'espeak_text_to_speech.mp3'
+    out_file = get_speaker_audio_file()  # 'espeak_text_to_speech.mp3'
     try:
         if isinstance(output_voice, str):
             outfile = speech_to_file(text, out_file, output_voice)
@@ -345,60 +388,133 @@ def text_to_speech_gtts(text, autoplay=False):
 
 def speak_acknowledge():
     import random
-    acknowledges = ["Great question!",
-                    "Nice,",
+    acknowledges = ["Nice,",
                     "Sure thing,",
-                    "Yes! It's great/good",
-                    "Fantastic! or I like it!",
+                    "Yes! It's great",
+                    "okay! or I like it!",
                     "So true",
                     "Got it.",
-                    " Do you mind waiting for a moment while I look up this information.",
+                    "Please stay online.",
+                    "Do you mind waiting for a moment while I look up this information.",
                     "Please give me a moment while I look into this for you.",
                     "It will take me just a moment to process your request.",
                     "Oh! I had no idea",
                     "I totally get what you're saying",
-                    "Love it.",
+                    "yea, Love it.",
                     "Good one"]
-
-    wait_phases = [", please wait...", "one moment...", ". thanks!",
-                   ", Please stay online.", " Thank you for waiting."]
+    wait_phases = [", please wait", " one moment", " thanks!",
+                   ", Please stay online", " Thank you!"]
     waiting = str(random.choice(wait_phases))
-
     ack_text = str(random.choice(acknowledges))+waiting
     print("speak_acknowledge: ", ack_text)
-    text_to_speech(text=ack_text, output_voice="en", autoplay=True)
+    # text_to_speech(text=ack_text, output_voice="en", autoplay=True)
+    system_speak(text=ack_text, autoplay=True)
 
 
 def speak_wait():
     import random
-    acknowledges = ["okay! please wait...",
-                    "got it!, one moment...",
-                    "certainly!, one moment...",
-                    "sure, one moment...",
+    acknowledges = ["okay! please wait.",
+                    "got it!, one moment.",
+                    "certainly!, one moment.",
+                    "sure, one moment.",
                     "process your request.",
                     "working on it."]
     ack_text = str(random.choice(acknowledges))
     print("speak_wait: ", ack_text)
-    text_to_speech(text=ack_text, output_voice="en", autoplay=True)
+    # text_to_speech(text=ack_text, output_voice="en", autoplay=True)
+    system_speak(text=ack_text, autoplay=True)
 
 
 def speak_done():
     import random
-    acknowledges = ["all done!, please check.",
-                    "process complete!..., please check",
-                    "finish processing!, please check",
-                    "completed your request! , please check"
+    acknowledges = ["all done, please check.",
+                    "process complete, please check",
+                    "finish processing, please check",
+                    "completed your request, please check"
                     ]
     ack_text = str(random.choice(acknowledges))
     # print("speak_done: ", ack_text)
-    text_to_speech(text=ack_text, output_voice="en", autoplay=True)
+    # text_to_speech(text=ack_text, output_voice="en", autoplay=True)
+    system_speak(text=ack_text, autoplay=True)
 
 
 def speak_instruction(instruction: str, output_voice: str = "en"):
     logger.info(f"speak_instruction: {instruction}")
-    text_to_speech(text=instruction, output_voice=output_voice, autoplay=True)
+    # text_to_speech(text=instruction, output_voice=output_voice, autoplay=True)
+    system_speak(text=instruction, autoplay=True)
+
+
+def system_speak(text: str, autoplay: bool = True) -> list:
+    return ljspeech_v2(text=text, autoplay=autoplay)
 
 
 """MAIN"""
 if __name__ == "__main__":
-    test_libris_speech()
+    # test_libris_speech()
+
+    sample_text = """
+    Thank you for this! I have one more question if anyone can bite: I am trying to take the average of the first elements in these datapoints(i.e. datapoints[0][0]). Just to list them, I tried doing datapoints[0:5][0] but all I get is the first datapoint with both elements as opposed to wanting to get the first 5 datapoints containing only the first element. Is there a way to do this?
+    """
+    sample_text2="""
+    Hi there! I'm programmed to assist you with your requests. How may I help you today? Feel free to ask any question or provide any challenge, and I'll do my best to provide the most accurate and helpful response possible. Let's begin!
+    """
+    print("text size:", len(sample_text2))
+    # system_speak(text=sample_text)
+    librispeak(text=sample_text2, compute_style="jane", autoplay=True)
+    librispeak(text=sample_text2, compute_style="jane",
+               emotion="happy", autoplay=True)
+
+    # librispeak_v1(text=sample_text)
+    # librispeak_v2(text=sample_text, emotion="happy", autoplay=True)
+    # librispeak_v3(text=sample_text, autoplay=True)
+    # test_lj_speech()
+    # test_lj_speech_v2()
+    # test_libris_speech()
+    # test_libris_speech_emotions()
+    # test_libris_speech_longspeech(1)
+
+    # librispeak("hello world")
+
+# def download_file(url, local_path: str = None):
+#     local_filename = url.split('/')[-1]
+#     if local_path is not None:
+#         local_filename = local_path+local_filename
+#     with requests.get(url, stream=True) as r:
+#         with open(local_filename, 'wb') as f:
+#             shutil.copyfileobj(r.raw, f)
+#     return local_filename
+
+# # @functools.lru_cache
+# # def load_speech_synthesize_model(voice_model_name):
+# #     global _voice_synthesize
+# #     _voice_synthesize = load_speech_synthesizer(_voice_model_name)
+# #     return _voice_synthesize
+
+# def get_styletts2_model_files(local_voice_path: str="resources/models/styletts2", remote_folder: str = "https://huggingface.co/mychen76") -> str:
+#     """download styletts model file from remote location"""
+#     try:
+#         LibriTTS=local_voice_path+"/LibriTTS"
+#         if not os.path.exists(LibriTTS):
+#             os.mkdir(LibriTTS)
+#             LibriTTS_model_config_url=f"{remote_folder}/styletts2/resolve/main/Models/LibriTTS/config.yml"
+#             download_file(url=LibriTTS_model_config_url,local_path=LibriTTS)
+#             LibriTTS_model_bin=f"{remote_folder}/styletts2/resolve/main/Models/LibriTTS/epochs_2nd_00020.pth"
+#             download_file(url=LibriTTS_model_bin,local_path=LibriTTS)
+#             print(f"styletts2_model downloaded {LibriTTS}")
+#         else:
+#             print(f"styletts2_model already exist: {LibriTTS}")
+
+#         LJSpeech=local_voice_path+"/LJSpeech"
+#         if not os.path.exists(LJSpeech):
+#             os.mkdir(LJSpeech)
+#             LJSpeech_model_config_url=f"{remote_folder}/styletts2/resolve/main/Models/LJSpeech/config.yml"
+#             download_file(url=LJSpeech_model_config_url,local_path=LJSpeech)
+#             LJSpeech_model_bin=f"{remote_folder}/styletts2/resolve/main/Models/LJSpeech/epoch_2nd_00100.pth"
+#             download_file(url=LJSpeech_model_bin,local_path=LJSpeech)
+#             print(f"styletts2_model downloaded {LJSpeech}")
+#         else:
+#             print(f"styletts2_model already exist: {LJSpeech}")
+#     except Exception as e:
+#         print("Exception occured ",e.args)
+#         print(traceback.format_exc())
+#         raise Exception("Failed to download styletts2 model files!")

@@ -3,7 +3,8 @@ resources/models/emotion_text_classifier*
 resources/models/grammar*
 resources/models/llm*
 resources/models/spacy*
-resources/models/styletts2/Models/*.pth
+resources/models/styletts2/Models/LibriTTS*
+resources/models/styletts2/Models/LJSpeech*
 resources/models/whisper*
 #resources/StyleTTS2*
 #resources/models*
@@ -17,6 +18,7 @@ gradio_cached_examples*
 
 # exclude gardio files
 workspace/temp*
+workspace/models/*
 
 *.keep
 

@@ -13,411 +13,582 @@
 
 # convert input audio to wav
 # ffmpeg -i inputfile.flac output.wav
-
-## Load models
-import torch
-import random
-import numpy as np
-import nltk
-#nltk.download('punkt')
-
-torch.manual_seed(200)
-torch.backends.cudnn.benchmark = False
-torch.backends.cudnn.deterministic = True
-random.seed(200)
-np.random.seed(200)
+try: 
+    import nltk
+except:
+    nltk.download('punkt')
+    import nltk
 
 # load packages
 import time
-import random
 import yaml
-from munch import Munch
-import numpy as np
 import torch
-from torch import nn
-import torch.nn.functional as F
+import random
+# from munch import Munch
+# from torch import nn
+# import torch.nn.functional as F
 import torchaudio
 import librosa
 from nltk.tokenize import word_tokenize
 import sounddevice as sd
+import soundfile as sf
 import phonemizer
-
 import sys, os
+import numpy as np
+from scipy.io.wavfile import write
+#,load_checkpoint
+#from models import *
+from pavai.shared.styletts2.utils import length_to_mask,recursive_munch
+from pavai.shared.styletts2.models import load_F0_models,load_ASR_models,build_model
+## maximum_path,get_data_path_list,log_norm,get_image,log_print
+from pavai.shared.styletts2.text_utils import TextCleaner
+from pavai.shared.styletts2.Modules.diffusion.sampler import DiffusionSampler, ADPM2Sampler, KarrasSchedule
+from pavai.shared.styletts2.Utils.PLBERT.util import load_plbert
+from pavai.shared.styletts2.download_models import get_styletts2_model_files
+from typing import Any, Dict
+from collections import OrderedDict
+import traceback
+import gc
 # sys.path.append("./styletts2") 
 # sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
-from .models import load_F0_models,load_ASR_models,build_model,load_checkpoint
-#from models import *
-from .utils import maximum_path,get_data_path_list,length_to_mask,log_norm,get_image,recursive_munch,log_print
-from .text_utils import TextCleaner
-from .Modules.diffusion.sampler import DiffusionSampler, ADPM2Sampler, KarrasSchedule
-from .Utils.PLBERT.util import load_plbert
+class MetaSingleton(type):
+    """
+    Metaclass for implementing the Singleton pattern.
+    """
+    _instances: Dict[type, Any] = {}
 
-from pavai.shared.styletts2.download_models import get_styletts2_model_files
+    def __call__(cls, *args: Any, **kwargs: Any) -> Any:
+        if cls not in cls._instances:
+            cls._instances[cls] = super(
+                MetaSingleton, cls).__call__(*args, **kwargs)
+        return cls._instances[cls]
 
-## System Configuration
-StyleTTS2_LANGUAGE="en-us"
-# StyleTTS2_CONFIG_FILE="StyleTTS2/Models/LibriTTS/config.yml"
-# StyleTTS2_MODEL_FILE="StyleTTS2/Models/LibriTTS/epochs_2nd_00020.pth"
+class Singleton(object, metaclass=MetaSingleton):
+    """
+    Base class for implementing the Singleton pattern.
+    """
 
-StyleTTS2_CONFIG_FILE="resources/models/styletts2/Models/LibriTTS/config.yml"
-StyleTTS2_MODEL_FILE="resources/models/styletts2/Models/LibriTTS/epochs_2nd_00020.pth"
+    def __init__(self):
+        super(Singleton, self).__init__()
 
+class LibriSpeech(Singleton):
 
-textclenaer = TextCleaner()
-device = 'cuda' if torch.cuda.is_available() else 'cpu'
+    def __init__(self, device:str=None, style_config:str=None, model_config:str=None):
+        torch.manual_seed(200)
+        torch.backends.cudnn.benchmark = True
+        torch.backends.cudnn.deterministic = True
+        random.seed(200)
+        np.random.seed(200)
 
-to_mel = torchaudio.transforms.MelSpectrogram(n_mels=80, n_fft=2048, win_length=1200, hop_length=300)
-mean, std = -4, 4
-
-# load phonemizer
-global_phonemizer = phonemizer.backend.EspeakBackend(language=StyleTTS2_LANGUAGE, preserve_punctuation=True,  with_stress=True)
-
-try:
-    config = yaml.safe_load(open(StyleTTS2_CONFIG_FILE))
-except:
-    print("StyleTTS2_CONFIG_FILE Not Found!")
-    get_styletts2_model_files()
-    ## read file downloaded
-    config = yaml.safe_load(open(StyleTTS2_CONFIG_FILE))
-
-# load pretrained ASR model
-ASR_config = config.get('ASR_config', False)
-ASR_path = config.get('ASR_path', False)
-text_aligner = load_ASR_models(ASR_path, ASR_config)
-
-# load pretrained F0 model
-F0_path = config.get('F0_path', False)
-pitch_extractor = load_F0_models(F0_path)
-
-# load BERT model
-BERT_path = config.get('PLBERT_dir', False)
-plbert = load_plbert(BERT_path)
-
-model_params = recursive_munch(config['model_params'])
-model = build_model(model_params, text_aligner, pitch_extractor, plbert)
-_ = [model[key].eval() for key in model]
-_ = [model[key].to(device) for key in model]
-
-#  Load models
-params_whole = torch.load(StyleTTS2_MODEL_FILE, map_location='cpu')
-params = params_whole['net']
-
-for key in model:
-    if key in params:
-        ##print('%s loaded' % key)
+        ## System Configuration
+        self.StyleTTS2_LANGUAGE="en-us"
+        #StyleTTS2_LANGUAGE="en" #"cmn" #"yue"-- cantonese
+        self.StyleTTS2_CONFIG_FILE="resources/models/styletts2/Models/LibriTTS/config.yml"
+        self.StyleTTS2_MODEL_FILE="resources/models/styletts2/Models/LibriTTS/epochs_2nd_00020.pth"
+        self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
+        #self.device="cpu"
+        self.to_mel = torchaudio.transforms.MelSpectrogram(n_mels=80, n_fft=2048, win_length=1200, hop_length=300)
+        self.mean =-4 
+        self.std = 4
+        #languages=https://github.com/espeak-ng/espeak-ng/blob/master/docs/languages.md
+        # load phonemizer
+        self.global_phonemizer = phonemizer.backend.EspeakBackend(language=self.StyleTTS2_LANGUAGE, preserve_punctuation=True,  with_stress=True)
+        self.textclenaer = TextCleaner()
         try:
-            model[key].load_state_dict(params[key])
+            self.config = yaml.safe_load(open(self.StyleTTS2_CONFIG_FILE))
         except:
-            from collections import OrderedDict
-            state_dict = params[key]
-            new_state_dict = OrderedDict()
-            for k, v in state_dict.items():
-                name = k[7:] # remove `module.`
-                new_state_dict[name] = v
-            # load params
-            model[key].load_state_dict(new_state_dict, strict=False)
-#             except:
-#                 _load(params[key], model[key])
-_ = [model[key].eval() for key in model]
+            print("StyleTTS2_CONFIG_FILE Not Found!")
+            get_styletts2_model_files()
+            ## re-read file downloaded
+            self.config = yaml.safe_load(open(self.StyleTTS2_CONFIG_FILE))
 
-sampler = DiffusionSampler(
-    model.diffusion.diffusion,
-    sampler=ADPM2Sampler(),
-    sigma_schedule=KarrasSchedule(sigma_min=0.0001, sigma_max=3.0, rho=9.0), # empirical parameters
-    clamp=False
-)
+        # load pretrained ASR model
+        self.ASR_config = self.config.get('ASR_config', False)
+        self.ASR_path = self.config.get('ASR_path', False)
+        self.text_aligner = load_ASR_models(self.ASR_path, self.ASR_config)
 
-def length_to_mask(lengths):
-    mask = torch.arange(lengths.max()).unsqueeze(0).expand(lengths.shape[0], -1).type_as(lengths)
-    mask = torch.gt(mask+1, lengths.unsqueeze(1))
-    return mask
+        # load pretrained F0 model
+        self.F0_path = self.config.get('F0_path', False)
+        self.pitch_extractor = load_F0_models(self.F0_path)
 
-def preprocess(wave):
-    wave_tensor = torch.from_numpy(wave).float()
-    mel_tensor = to_mel(wave_tensor)
-    mel_tensor = (torch.log(1e-5 + mel_tensor.unsqueeze(0)) - mean) / std
-    return mel_tensor
+        # load BERT model
+        self.BERT_path = self.config.get('PLBERT_dir', False)
+        self.plbert = load_plbert(self.BERT_path)
 
-def compute_style(path):
-    wave, sr = librosa.load(path, sr=24000)
-    audio, index = librosa.effects.trim(wave, top_db=30)
-    if sr != 24000:
-        audio = librosa.resample(audio, sr, 24000)
-    mel_tensor = preprocess(audio).to(device)
+        self.model_params = recursive_munch(self.config['model_params'])
+        self.model = build_model(self.model_params, self.text_aligner, self.pitch_extractor, self.plbert)
+        _ = [self.model[key].eval() for key in self.model]
+        _ = [self.model[key].to(self.device) for key in self.model]
 
-    with torch.no_grad():
-        ref_s = model.style_encoder(mel_tensor.unsqueeze(1))
-        ref_p = model.predictor_encoder(mel_tensor.unsqueeze(1))
+        #  Load models
+        self.params_whole = torch.load(self.StyleTTS2_MODEL_FILE, map_location='cpu')
+        self.params = self.params_whole['net']
 
-    return torch.cat([ref_s, ref_p], dim=1)
+        for key in self.model:
+            if key in self.params:
+                try:
+                    self.model[key].load_state_dict(self.params[key])
+                except:
+                    state_dict = self.params[key]
+                    new_state_dict = OrderedDict()
+                    for k, v in state_dict.items():
+                        name = k[7:] # remove `module.`
+                        new_state_dict[name] = v
+                    # load params
+                    self.model[key].load_state_dict(new_state_dict, strict=False)
+        _ = [self.model[key].eval() for key in self.model]
 
-def inference(text, ref_s, alpha = 0.3, beta = 0.7, diffusion_steps=5, embedding_scale=1):
-    text = text.strip()
-    ps = global_phonemizer.phonemize([text])
-    ps = word_tokenize(ps[0])
-    ps = ' '.join(ps)
-    tokens = textclenaer(ps)
-    tokens.insert(0, 0)
-    tokens = torch.LongTensor(tokens).to(device).unsqueeze(0)
+        self.sampler = DiffusionSampler(
+            self.model.diffusion.diffusion,
+            sampler=ADPM2Sampler(),
+            sigma_schedule=KarrasSchedule(sigma_min=0.0001, sigma_max=3.0, rho=9.0), # empirical parameters
+            clamp=False
+        )
+        ## Optimize inference
+        ## self.model = torch.compile(self.model)
 
-    with torch.no_grad():
-        input_lengths = torch.LongTensor([tokens.shape[-1]]).to(device)
-        text_mask = length_to_mask(input_lengths).to(device)
+        self.ref_texts = {}
+        self.ref_texts['happy'] = "We are happy to invite you to join us on a journey to the past, where we will visit the most amazing monuments ever built by human hands."
+        self.ref_texts['sad'] = "I am sorry to say that we have suffered a severe setback in our efforts to restore prosperity and confidence."
+        self.ref_texts['angry'] = "The field of astronomy is a joke! Its theories are based on flawed observations and biased interpretations!"
+        self.ref_texts['surprised'] = "I can't believe it! You mean to tell me that you have discovered a new species of bacteria in this pond?"
 
-        t_en = model.text_encoder(tokens, input_lengths, text_mask)
-        bert_dur = model.bert(tokens, attention_mask=(~text_mask).int())
-        d_en = model.bert_encoder(bert_dur).transpose(-1, -2)
+    def preprocess(self,wave):
+        wave_tensor = torch.from_numpy(wave).float()
+        mel_tensor = self.to_mel(wave_tensor)
+        mel_tensor = (torch.log(1e-5 + mel_tensor.unsqueeze(0)) - self.mean) / self.std
+        return mel_tensor
 
-        s_pred = sampler(noise = torch.randn((1, 256)).unsqueeze(1).to(device),
-                                          embedding=bert_dur,
-                                          embedding_scale=embedding_scale,
+    def compute_style(self,path:str, samplerate:int=24000, top_db:int=30):
+        wave, sr = librosa.load(path, sr=samplerate)
+        audio, index = librosa.effects.trim(wave, top_db=top_db)
+        if sr != samplerate:
+            audio = librosa.resample(audio, sr, samplerate)
+        mel_tensor = self.preprocess(audio).to(self.device)
+
+        with torch.no_grad():
+            ref_s = self.model.style_encoder(mel_tensor.unsqueeze(1))
+            ref_p = self.model.predictor_encoder(mel_tensor.unsqueeze(1))
+
+        return torch.cat([ref_s, ref_p], dim=1)
+
+    def inference(self,text, ref_s, alpha = 0.3, beta = 0.7, diffusion_steps=5, embedding_scale=1):
+        text = text.strip()
+        ps = self.global_phonemizer.phonemize([text])
+        ps = word_tokenize(ps[0])
+        ps = ' '.join(ps)
+        tokens = self.textclenaer(ps)
+        tokens.insert(0, 0)
+        tokens = torch.LongTensor(tokens).to(self.device).unsqueeze(0)
+
+        with torch.no_grad():
+            input_lengths = torch.LongTensor([tokens.shape[-1]]).to(self.device)
+            text_mask = length_to_mask(input_lengths).to(self.device)
+
+            t_en = self.model.text_encoder(tokens, input_lengths, text_mask)
+            bert_dur = self.model.bert(tokens, attention_mask=(~text_mask).int())
+            d_en = self.model.bert_encoder(bert_dur).transpose(-1, -2)
+
+            s_pred = self.sampler(noise = torch.randn((1, 256)).unsqueeze(1).to(self.device),
+                                            embedding=bert_dur,
+                                            embedding_scale=embedding_scale,
+                                                features=ref_s, # reference from the same speaker as the embedding
+                                                num_steps=diffusion_steps).squeeze(1)
+            s = s_pred[:, 128:]
+            ref = s_pred[:, :128]
+
+            ref = alpha * ref + (1 - alpha)  * ref_s[:, :128]
+            s = beta * s + (1 - beta)  * ref_s[:, 128:]
+
+            d = self.model.predictor.text_encoder(d_en,
+                                            s, input_lengths, text_mask)
+
+            x, _ = self.model.predictor.lstm(d)
+            duration = self.model.predictor.duration_proj(x)
+
+            duration = torch.sigmoid(duration).sum(axis=-1)
+            pred_dur = torch.round(duration.squeeze()).clamp(min=1)
+
+
+            pred_aln_trg = torch.zeros(input_lengths, int(pred_dur.sum().data))
+            c_frame = 0
+            for i in range(pred_aln_trg.size(0)):
+                pred_aln_trg[i, c_frame:c_frame + int(pred_dur[i].data)] = 1
+                c_frame += int(pred_dur[i].data)
+
+            # encode prosody
+            en = (d.transpose(-1, -2) @ pred_aln_trg.unsqueeze(0).to(self.device))
+            if self.model_params.decoder.type == "hifigan":
+                asr_new = torch.zeros_like(en)
+                asr_new[:, :, 0] = en[:, :, 0]
+                asr_new[:, :, 1:] = en[:, :, 0:-1]
+                en = asr_new
+
+            F0_pred, N_pred = self.model.predictor.F0Ntrain(en, s)
+
+            asr = (t_en @ pred_aln_trg.unsqueeze(0).to(self.device))
+            if self.model_params.decoder.type == "hifigan":
+                asr_new = torch.zeros_like(asr)
+                asr_new[:, :, 0] = asr[:, :, 0]
+                asr_new[:, :, 1:] = asr[:, :, 0:-1]
+                asr = asr_new
+
+            out = self.model.decoder(asr,F0_pred, N_pred, ref.squeeze().unsqueeze(0))
+
+        return out.squeeze().cpu().numpy()[..., :-50] # weird pulse at the end of the model, need to be fixed later
+
+    def LFinference(self,text, s_prev, ref_s, alpha = 0.3, beta = 0.7, t = 0.7, diffusion_steps=5, embedding_scale=1):
+        text = text.strip()
+        ps = self.global_phonemizer.phonemize([text])
+        ps = word_tokenize(ps[0])
+        ps = ' '.join(ps)
+        ps = ps.replace('``', '"')
+        ps = ps.replace("''", '"')
+
+        tokens = self.textclenaer(ps)
+        tokens.insert(0, 0)
+        tokens = torch.LongTensor(tokens).to(self.device).unsqueeze(0)
+
+        with torch.no_grad():
+            input_lengths = torch.LongTensor([tokens.shape[-1]]).to(self.device)
+            text_mask = length_to_mask(input_lengths).to(self.device)
+
+            t_en = self.model.text_encoder(tokens, input_lengths, text_mask)
+            bert_dur = self.model.bert(tokens, attention_mask=(~text_mask).int())
+            d_en = self.model.bert_encoder(bert_dur).transpose(-1, -2)
+
+            s_pred = self.sampler(noise = torch.randn((1, 256)).unsqueeze(1).to(self.device),
+                                                embedding=bert_dur,
+                                                embedding_scale=embedding_scale,
+                                                features=ref_s, # reference from the same speaker as the embedding
+                                                    num_steps=diffusion_steps).squeeze(1)
+
+            if s_prev is not None:
+                # convex combination of previous and current style
+                s_pred = t * s_prev + (1 - t) * s_pred
+
+            s = s_pred[:, 128:]
+            ref = s_pred[:, :128]
+
+            ref = alpha * ref + (1 - alpha)  * ref_s[:, :128]
+            s = beta * s + (1 - beta)  * ref_s[:, 128:]
+
+            s_pred = torch.cat([ref, s], dim=-1)
+
+            d = self.model.predictor.text_encoder(d_en,
+                                                s, input_lengths, text_mask)
+
+            x, _ = self.model.predictor.lstm(d)
+            duration = self.model.predictor.duration_proj(x)
+
+            duration = torch.sigmoid(duration).sum(axis=-1)
+            pred_dur = torch.round(duration.squeeze()).clamp(min=1)
+
+
+            pred_aln_trg = torch.zeros(input_lengths, int(pred_dur.sum().data))
+            c_frame = 0
+            for i in range(pred_aln_trg.size(0)):
+                pred_aln_trg[i, c_frame:c_frame + int(pred_dur[i].data)] = 1
+                c_frame += int(pred_dur[i].data)
+
+            # encode prosody
+            en = (d.transpose(-1, -2) @ pred_aln_trg.unsqueeze(0).to(self.device))
+            if self.model_params.decoder.type == "hifigan":
+                asr_new = torch.zeros_like(en)
+                asr_new[:, :, 0] = en[:, :, 0]
+                asr_new[:, :, 1:] = en[:, :, 0:-1]
+                en = asr_new
+
+            F0_pred, N_pred = self.model.predictor.F0Ntrain(en, s)
+
+            asr = (t_en @ pred_aln_trg.unsqueeze(0).to(self.device))
+            if self.model_params.decoder.type == "hifigan":
+                asr_new = torch.zeros_like(asr)
+                asr_new[:, :, 0] = asr[:, :, 0]
+                asr_new[:, :, 1:] = asr[:, :, 0:-1]
+                asr = asr_new
+
+            out = self.model.decoder(asr,F0_pred, N_pred, ref.squeeze().unsqueeze(0))
+        return out.squeeze().cpu().numpy()[..., :-100], s_pred # weird pulse at the end of the model, need to be fixed later
+
+    def STinference(self,text, ref_s, ref_text, alpha = 0.3, beta = 0.7, diffusion_steps=5, embedding_scale=1):
+        text = text.strip()
+        ps = self.global_phonemizer.phonemize([text])
+        ps = word_tokenize(ps[0])
+        ps = ' '.join(ps)
+
+        tokens = self.textclenaer(ps)
+        tokens.insert(0, 0)
+        tokens = torch.LongTensor(tokens).to(self.device).unsqueeze(0)
+
+        ref_text = ref_text.strip()
+        ps = self.global_phonemizer.phonemize([ref_text])
+        ps = word_tokenize(ps[0])
+        ps = ' '.join(ps)
+
+        ref_tokens = self.textclenaer(ps)
+        ref_tokens.insert(0, 0)
+        ref_tokens = torch.LongTensor(ref_tokens).to(self.device).unsqueeze(0)
+
+        with torch.no_grad():
+            input_lengths = torch.LongTensor([tokens.shape[-1]]).to(self.device)
+            text_mask = length_to_mask(input_lengths).to(self.device)
+
+            t_en = self.model.text_encoder(tokens, input_lengths, text_mask)
+            bert_dur = self.model.bert(tokens, attention_mask=(~text_mask).int())
+            d_en = self.model.bert_encoder(bert_dur).transpose(-1, -2)
+
+            ref_input_lengths = torch.LongTensor([ref_tokens.shape[-1]]).to(self.device)
+            ref_text_mask = length_to_mask(ref_input_lengths).to(self.device)
+            ref_bert_dur = self.model.bert(ref_tokens, attention_mask=(~ref_text_mask).int())
+            s_pred = self.sampler(noise = torch.randn((1, 256)).unsqueeze(1).to(self.device),
+                                            embedding=bert_dur,embedding_scale=embedding_scale,
                                             features=ref_s, # reference from the same speaker as the embedding
-                                             num_steps=diffusion_steps).squeeze(1)
-
-
-        s = s_pred[:, 128:]
-        ref = s_pred[:, :128]
-
-        ref = alpha * ref + (1 - alpha)  * ref_s[:, :128]
-        s = beta * s + (1 - beta)  * ref_s[:, 128:]
-
-        d = model.predictor.text_encoder(d_en,
-                                         s, input_lengths, text_mask)
-
-        x, _ = model.predictor.lstm(d)
-        duration = model.predictor.duration_proj(x)
-
-        duration = torch.sigmoid(duration).sum(axis=-1)
-        pred_dur = torch.round(duration.squeeze()).clamp(min=1)
-
-
-        pred_aln_trg = torch.zeros(input_lengths, int(pred_dur.sum().data))
-        c_frame = 0
-        for i in range(pred_aln_trg.size(0)):
-            pred_aln_trg[i, c_frame:c_frame + int(pred_dur[i].data)] = 1
-            c_frame += int(pred_dur[i].data)
-
-        # encode prosody
-        en = (d.transpose(-1, -2) @ pred_aln_trg.unsqueeze(0).to(device))
-        if model_params.decoder.type == "hifigan":
-            asr_new = torch.zeros_like(en)
-            asr_new[:, :, 0] = en[:, :, 0]
-            asr_new[:, :, 1:] = en[:, :, 0:-1]
-            en = asr_new
-
-        F0_pred, N_pred = model.predictor.F0Ntrain(en, s)
-
-        asr = (t_en @ pred_aln_trg.unsqueeze(0).to(device))
-        if model_params.decoder.type == "hifigan":
-            asr_new = torch.zeros_like(asr)
-            asr_new[:, :, 0] = asr[:, :, 0]
-            asr_new[:, :, 1:] = asr[:, :, 0:-1]
-            asr = asr_new
-
-        out = model.decoder(asr,
-                                F0_pred, N_pred, ref.squeeze().unsqueeze(0))
-
-
-    return out.squeeze().cpu().numpy()[..., :-50] # weird pulse at the end of the model, need to be fixed later
-
-def LFinference(text, s_prev, ref_s, alpha = 0.3, beta = 0.7, t = 0.7, diffusion_steps=5, embedding_scale=1):
-  text = text.strip()
-  ps = global_phonemizer.phonemize([text])
-  ps = word_tokenize(ps[0])
-  ps = ' '.join(ps)
-  ps = ps.replace('``', '"')
-  ps = ps.replace("''", '"')
-
-  tokens = textclenaer(ps)
-  tokens.insert(0, 0)
-  tokens = torch.LongTensor(tokens).to(device).unsqueeze(0)
-
-  with torch.no_grad():
-      input_lengths = torch.LongTensor([tokens.shape[-1]]).to(device)
-      text_mask = length_to_mask(input_lengths).to(device)
-
-      t_en = model.text_encoder(tokens, input_lengths, text_mask)
-      bert_dur = model.bert(tokens, attention_mask=(~text_mask).int())
-      d_en = model.bert_encoder(bert_dur).transpose(-1, -2)
-
-      s_pred = sampler(noise = torch.randn((1, 256)).unsqueeze(1).to(device),
-                                        embedding=bert_dur,
-                                        embedding_scale=embedding_scale,
-                                          features=ref_s, # reference from the same speaker as the embedding
                                             num_steps=diffusion_steps).squeeze(1)
 
-      if s_prev is not None:
-          # convex combination of previous and current style
-          s_pred = t * s_prev + (1 - t) * s_pred
+            s = s_pred[:, 128:]
+            ref = s_pred[:, :128]
 
-      s = s_pred[:, 128:]
-      ref = s_pred[:, :128]
+            ref = alpha * ref + (1 - alpha)  * ref_s[:, :128]
+            s = beta * s + (1 - beta)  * ref_s[:, 128:]
 
-      ref = alpha * ref + (1 - alpha)  * ref_s[:, :128]
-      s = beta * s + (1 - beta)  * ref_s[:, 128:]
+            d = self.model.predictor.text_encoder(d_en,s, input_lengths, text_mask)
 
-      s_pred = torch.cat([ref, s], dim=-1)
+            x, _ = self.model.predictor.lstm(d)
+            duration = self.model.predictor.duration_proj(x)
+            duration = torch.sigmoid(duration).sum(axis=-1)
+            pred_dur = torch.round(duration.squeeze()).clamp(min=1)
 
-      d = model.predictor.text_encoder(d_en,
-                                        s, input_lengths, text_mask)
+            pred_aln_trg = torch.zeros(input_lengths, int(pred_dur.sum().data))
+            c_frame = 0
+            for i in range(pred_aln_trg.size(0)):
+                pred_aln_trg[i, c_frame:c_frame + int(pred_dur[i].data)] = 1
+                c_frame += int(pred_dur[i].data)
 
-      x, _ = model.predictor.lstm(d)
-      duration = model.predictor.duration_proj(x)
+            # encode prosody
+            en = (d.transpose(-1, -2) @ pred_aln_trg.unsqueeze(0).to(self.device))
+            if self.model_params.decoder.type == "hifigan":
+                asr_new = torch.zeros_like(en)
+                asr_new[:, :, 0] = en[:, :, 0]
+                asr_new[:, :, 1:] = en[:, :, 0:-1]
+                en = asr_new
 
-      duration = torch.sigmoid(duration).sum(axis=-1)
-      pred_dur = torch.round(duration.squeeze()).clamp(min=1)
+            F0_pred, N_pred = self.model.predictor.F0Ntrain(en, s)
 
+            asr = (t_en @ pred_aln_trg.unsqueeze(0).to(self.device))
+            if self.model_params.decoder.type == "hifigan":
+                asr_new = torch.zeros_like(asr)
+                asr_new[:, :, 0] = asr[:, :, 0]
+                asr_new[:, :, 1:] = asr[:, :, 0:-1]
+                asr = asr_new
 
-      pred_aln_trg = torch.zeros(input_lengths, int(pred_dur.sum().data))
-      c_frame = 0
-      for i in range(pred_aln_trg.size(0)):
-          pred_aln_trg[i, c_frame:c_frame + int(pred_dur[i].data)] = 1
-          c_frame += int(pred_dur[i].data)
+            out = self.model.decoder(asr,F0_pred, N_pred, ref.squeeze().unsqueeze(0))
 
-      # encode prosody
-      en = (d.transpose(-1, -2) @ pred_aln_trg.unsqueeze(0).to(device))
-      if model_params.decoder.type == "hifigan":
-          asr_new = torch.zeros_like(en)
-          asr_new[:, :, 0] = en[:, :, 0]
-          asr_new[:, :, 1:] = en[:, :, 0:-1]
-          en = asr_new
+        return out.squeeze().cpu().numpy()[..., :-50] # weird pulse at the end of the model, need to be fixed later
 
-      F0_pred, N_pred = model.predictor.F0Ntrain(en, s)
+    ## ------------------
+    ## Synthesize speech
+    ## ------------------
+    def wipe_memory(self,objects:list=[]): # DOES WORK
+        try:
+            for obj in objects:
+                del obj
+            collected = gc.collect()
+            print("Garbage collector: collected","%d objects." % collected)
+            torch.cuda.empty_cache()
+        except:
+            pass
 
-      asr = (t_en @ pred_aln_trg.unsqueeze(0).to(device))
-      if model_params.decoder.type == "hifigan":
-          asr_new = torch.zeros_like(asr)
-          asr_new[:, :, 0] = asr[:, :, 0]
-          asr_new[:, :, 1:] = asr[:, :, 0:-1]
-          asr = asr_new
+    def librispeech(self,text:str, 
+                    compute_style:any,
+                    alpha=0.3, 
+                    beta=0.7,
+                    diffusion_steps:int=random.randint(3, 10), 
+                    embedding_scale:int=random.randint(1, 2), 
+                    blocking_flag:bool=True,
+                    samplerate:int=24000,
+                    autoplay:bool=True):
+        t0=time.perf_counter()    
+        if isinstance(compute_style, str):
+            ref_s = self.compute_style(compute_style) # input wav file
+        else:
+            ref_s=compute_style # input torch.Tensor
+        start = time.time()
+        wav = self.inference(text, ref_s, 
+                        alpha=alpha, beta=beta, 
+                        diffusion_steps=diffusion_steps, 
+                        embedding_scale=embedding_scale)
+        rtf = (time.time() - start) / (len(wav) / 24000)
+        t1=time.perf_counter()
+        print(f"librispeech rtf took {rtf:5f} in {t1-t0:.2f} seconds")
+        if autoplay:
+            sd.play(wav,samplerate=samplerate,blocking=blocking_flag)
+        return wav
 
-      out = model.decoder(asr,
-                              F0_pred, N_pred, ref.squeeze().unsqueeze(0))
+    def librispeech_v2(self,text:str, 
+                    compute_style:any,
+                    emotion:str=None,
+                    alpha:int=0.5, 
+                    beta:int=0.9,
+                    diffusion_steps:int=random.randint(3, 10), 
+                    embedding_scale:int=random.randint(1, 2), 
+                    blocking_flag:bool=True,
+                    samplerate:int=24000,
+                    output_audiofile="workspace/temp/librispeech_v2.wav",
+                    return_file:bool=True,
+                    autoplay:bool=True):
+        t0=time.perf_counter()    
+        if emotion is None:
+            emotion="happy"
+        try:              
+            v = self.ref_texts[emotion.lower()]
+            if isinstance(compute_style, str):
+                ref_s = self.compute_style(compute_style) # input wav file
+            else:
+                ref_s=compute_style # input torch.Tensor
 
+            sentences = text.split('.') # simple split by comma
+            wavs = []        
+            for text in sentences:        
+                start = time.time()
+                if text.strip() == "": continue
+                text += '.' # add it back
+                wav = self.STinference(text, ref_s, v, 
+                                diffusion_steps=diffusion_steps, 
+                                alpha=alpha, beta=beta,embedding_scale=embedding_scale)
+                rtf = (time.time() - start) / (len(wav) / samplerate)
+                t1=time.perf_counter()
+                wavs.append(wav)
+                print(f"librispeech_v2 rtf took {rtf:5f} in {t1-t0:.2f} seconds")
+            ## putting them rogether    
+            combined= np.concatenate(wavs) 
+            scaled = np.int16(combined / np.max(np.abs(combined)) * 32767)
+            write(output_audiofile, samplerate, scaled)
+            if autoplay:
+                sd.play(scaled,samplerate=samplerate,blocking=blocking_flag)       
+            self.wipe_memory(objects=[combined,text,wavs,sentences,ref_s])                               
+            if not return_file:
+                return scaled
+            self.wipe_memory(objects=[scaled])                               
+        except Exception as e:
+            print("Exeption occurred ", e.args)
+            print(traceback.format_exc())
+        finally:
+            self.wipe_memory()          
+        return output_audiofile
 
-  return out.squeeze().cpu().numpy()[..., :-100], s_pred # weird pulse at the end of the model, need to be fixed later
+    def librispeech_v3(self,text:str, 
+                    compute_style:any,
+                    alpha=0.3, 
+                    beta=0.7,
+                    diffusion_steps:int=random.randint(3, 10), 
+                    embedding_scale:int=random.randint(1, 2), 
+                    blocking_flag:bool=True,
+                    samplerate:int=24000,
+                    output_audiofile="workspace/temp/librispeech_v3.wav",
+                    return_file:bool=True,                    
+                    autoplay:bool=True)->list:
+        t0=time.perf_counter()    
+        try:        
+            if isinstance(compute_style, str):
+                ref_s = self.compute_style(compute_style) # input wav file
+            else:
+                ref_s = compute_style # input torch.Tensor
+            sentences = text.split('.') # simple split by comma
+            wavs = []
+            s_prev=None
+            for text in sentences:
+                start = time.time()                
+                if text.strip() == "": continue
+                text += '.' # add it back
+                wav,s_prev = self.LFinference(text, s_prev, ref_s, alpha=alpha, beta=beta, diffusion_steps=diffusion_steps, embedding_scale=embedding_scale)
+                ##wav = self.inference(text, ref_s, alpha=alpha, beta=beta, diffusion_steps=diffusion_steps, embedding_scale=embedding_scale)                
+                wavs.append(wav)
+                rtf = (time.time() - start) / (len(wav) / samplerate)
+                t1=time.perf_counter()
+                print(f"librispeech_v3 rtf took {rtf:5f} in {t1-t0:.2f} seconds")
+            ## putting them rogether    
+            combined= np.concatenate(wavs) 
+            scaled = np.int16(combined / np.max(np.abs(combined)) * 32767)
+            write(output_audiofile, samplerate, scaled)
+            if autoplay:
+                sd.play(scaled,samplerate=samplerate,blocking=blocking_flag)       
+            self.wipe_memory(objects=[combined,text,wavs,sentences,ref_s,s_prev])                    
+            if not return_file:
+                return scaled                
+            ## clean up
+            self.wipe_memory(objects=[scaled])                    
+        except Exception as e:
+            print("Exeption occurred ", e.args)
+            print(traceback.format_exc())
+        finally:
+            self.wipe_memory()          
+        return output_audiofile
 
-def STinference(text, ref_s, ref_text, alpha = 0.3, beta = 0.7, diffusion_steps=5, embedding_scale=1):
-    text = text.strip()
-    ps = global_phonemizer.phonemize([text])
-    ps = word_tokenize(ps[0])
-    ps = ' '.join(ps)
+    def test_libris_speech(self):
+        #text = "StyleTTS 2 is a text-to-speech model that leverages style diffusion and adversarial training with large speech language models to achieve human-level text-to-speech synthesis."
+        sample_text="""
+        Thank you for this! I have one more question if anyone can bite: I am trying to take the average of the first elements in these datapoints(i.e. datapoints[0][0]). Just to list them, I tried doing datapoints[0:5][0] but all I get is the first datapoint with both elements as opposed to wanting to get the first 5 datapoints containing only the first element. Is there a way to do this?
+        """
+        #ref_s1 = compute_style("resources/models/styletts2/reference_audio/Gavin.wav")
+        ref_s2 = self.compute_style("resources/models/styletts2/reference_audio/Jane.wav")
+        ref_s3 = self.compute_style("resources/models/styletts2/reference_audio/Me1.wav")
+        self.librispeech(text=sample_text,compute_style=ref_s2, alpha=0.3, beta=0.7, diffusion_steps=10    )
+        self.librispeech(text=sample_text,compute_style=ref_s3, alpha=0.3, beta=0.7, diffusion_steps=10)
 
-    tokens = textclenaer(ps)
-    tokens.insert(0, 0)
-    tokens = torch.LongTensor(tokens).to(device).unsqueeze(0)
+    def test_libris_speech_emotions(self):
+        ref_s2 = self.compute_style("resources/models/styletts2/reference_audio/Jane.wav")
+        ref_texts = {}
+        ref_texts['Happy'] = "We are happy to invite you to join us on a journey to the past, where we will visit the most amazing monuments ever built by human hands."
+        ref_texts['Sad'] = "I am sorry to say that we have suffered a severe setback in our efforts to restore prosperity and confidence."
+        ref_texts['Angry'] = "The field of astronomy is a joke! Its theories are based on flawed observations and biased interpretations!"
+        ref_texts['Surprised'] = "I can't believe it! You mean to tell me that you have discovered a new species of bacteria in this pond?"    
+        text = "Yea, his honourable worship is within, but he hath a godly minister or two with him, and likewise a leech."
+        for k,v in ref_texts.items():
+            #wav = STinference(text, ref_s2, v, diffusion_steps=10, alpha=0.5, beta=0.9, embedding_scale=1.5)
+            print(k + ": Style Transfer")
+            self.librispeech_v2(text=text,compute_style=ref_s2,emotion=k)        
+            #display(ipd.Audio(wav, rate=24000, normalize=False))
+            #sd.play(wav,samplerate=24000,blocking=True)    
 
-    ref_text = ref_text.strip()
-    ps = global_phonemizer.phonemize([ref_text])
-    ps = word_tokenize(ps[0])
-    ps = ' '.join(ps)
+    def test_libris_speech_longspeech(self,voice_id:int=1):
+        ## Long-form generation
+        ## --------------------
+        passage = """
+        If the supply of fruit is greater than the family needs, it may be made a source of income by sending the fresh fruit to the market if there is one near enough, or by preserving, canning, and making jelly for sale. To make such an enterprise a success the fruit and work must be first class. 
+        There is magic in the word "Homemade," when the product appeals to the eye and the palate; but many careless and incompetent people have found to their sorrow that this word has not magic enough to float inferior goods on the market. 
+        As a rule large canning and preserving establishments are clean and have the best appliances, and they employ chemists and skilled labor. The home product must be very good to compete with the attractive goods that are sent out from such establishments. 
+        Yet for first-class homemade products there is a market in all large cities. 
+        All first-class grocers have customers who purchase such goods.
+        """# @param {type:"string"}
+        if voice_id==1:
+            ref_s = self.compute_style("resources/models/styletts2/reference_audio/Ryan.wav")
+        elif voice_id==2:
+            ref_s = self.compute_style("resources/models/styletts2/reference_audio/Jane.wav")
+        else:
+            ref_s = self.compute_style("resources/models/styletts2/reference_audio/Me1.wav")
 
-    ref_tokens = textclenaer(ps)
-    ref_tokens.insert(0, 0)
-    ref_tokens = torch.LongTensor(ref_tokens).to(device).unsqueeze(0)
-
-
-    with torch.no_grad():
-        input_lengths = torch.LongTensor([tokens.shape[-1]]).to(device)
-        text_mask = length_to_mask(input_lengths).to(device)
-
-        t_en = model.text_encoder(tokens, input_lengths, text_mask)
-        bert_dur = model.bert(tokens, attention_mask=(~text_mask).int())
-        d_en = model.bert_encoder(bert_dur).transpose(-1, -2)
-
-        ref_input_lengths = torch.LongTensor([ref_tokens.shape[-1]]).to(device)
-        ref_text_mask = length_to_mask(ref_input_lengths).to(device)
-        ref_bert_dur = model.bert(ref_tokens, attention_mask=(~ref_text_mask).int())
-        s_pred = sampler(noise = torch.randn((1, 256)).unsqueeze(1).to(device),
-                                          embedding=bert_dur,
-                                          embedding_scale=embedding_scale,
-                                            features=ref_s, # reference from the same speaker as the embedding
-                                             num_steps=diffusion_steps).squeeze(1)
-
-
-        s = s_pred[:, 128:]
-        ref = s_pred[:, :128]
-
-        ref = alpha * ref + (1 - alpha)  * ref_s[:, :128]
-        s = beta * s + (1 - beta)  * ref_s[:, 128:]
-
-        d = model.predictor.text_encoder(d_en,
-                                         s, input_lengths, text_mask)
-
-        x, _ = model.predictor.lstm(d)
-        duration = model.predictor.duration_proj(x)
-
-        duration = torch.sigmoid(duration).sum(axis=-1)
-        pred_dur = torch.round(duration.squeeze()).clamp(min=1)
-
-
-        pred_aln_trg = torch.zeros(input_lengths, int(pred_dur.sum().data))
-        c_frame = 0
-        for i in range(pred_aln_trg.size(0)):
-            pred_aln_trg[i, c_frame:c_frame + int(pred_dur[i].data)] = 1
-            c_frame += int(pred_dur[i].data)
-
-        # encode prosody
-        en = (d.transpose(-1, -2) @ pred_aln_trg.unsqueeze(0).to(device))
-        if model_params.decoder.type == "hifigan":
-            asr_new = torch.zeros_like(en)
-            asr_new[:, :, 0] = en[:, :, 0]
-            asr_new[:, :, 1:] = en[:, :, 0:-1]
-            en = asr_new
-
-        F0_pred, N_pred = model.predictor.F0Ntrain(en, s)
-
-        asr = (t_en @ pred_aln_trg.unsqueeze(0).to(device))
-        if model_params.decoder.type == "hifigan":
-            asr_new = torch.zeros_like(asr)
-            asr_new[:, :, 0] = asr[:, :, 0]
-            asr_new[:, :, 1:] = asr[:, :, 0:-1]
-            asr = asr_new
-
-        out = model.decoder(asr,
-                                F0_pred, N_pred, ref.squeeze().unsqueeze(0))
-
-
-    return out.squeeze().cpu().numpy()[..., :-50] # weird pulse at the end of the model, need to be fixed later
-
-## ------------------
-## Synthesize speech
-## ------------------
-
-def librispeech(text:str, compute_style:any,voice:str='',
-                alpha=0.0, beta=0.5,diffusion_steps:int=5, 
-                embedding_scale:int=1, blocking_flag:bool=True,
-                samplerate:int=24000,autoplay:bool=True):
-    if isinstance(compute_style, str):
-        # input wav file
-        ref_s = compute_style(compute_style)
-    else:
-        # input torch.Tensor
-        ref_s=compute_style
-    start = time.time()
-    wav = inference(text, ref_s, alpha=alpha, beta=beta, diffusion_steps=diffusion_steps, embedding_scale=embedding_scale)
-    rtf = (time.time() - start) / (len(wav) / 24000)
-    ##print(f"librispeech {voice} rtf took {rtf:5f}")
-    if autoplay:
-        sd.play(wav,samplerate=samplerate,blocking=blocking_flag)
-    return wav
-
-def test_libris_speech():
-    text = "StyleTTS 2 is a text-to-speech model that leverages style diffusion and adversarial training with large speech language models to achieve human-level text-to-speech synthesis."
-    #ref_s1 = compute_style("resources/models/styletts2/reference_audio/Gavin.wav")
-    ref_s2 = compute_style("resources/models/styletts2/reference_audio/Jane.wav")
-    ref_s3 = compute_style("resources/models/styletts2/reference_audio/Me1.wav")
-    librispeech(text=text,compute_style=ref_s2, voice='Jane',alpha=0.3, beta=0.7, diffusion_steps=10    )
-    librispeech(text=text,compute_style=ref_s3, voice='Me1',alpha=0.3, beta=0.7, diffusion_steps=10)
+        self.librispeech_v3(text=passage, compute_style=ref_s)
 
 """MAIN"""
 if __name__ == "__main__":
+
+    LibriSpeech().test_libris_speech()
+    LibriSpeech().test_libris_speech_emotions()
+    LibriSpeech().test_libris_speech_longspeech()
     ## Basic synthesis (5 diffusion steps)
-    text = "StyleTTS 2 is a text-to-speech model that leverages style diffusion and adversarial training with large speech language models to achieve human-level text-to-speech synthesis."
-    #ref_s1 = compute_style("resources/models/styletts2/reference_audio/Gavin.wav")
-    ref_s2 = compute_style("resources/models/styletts2/reference_audio/Jane.wav")
-    ref_s3 = compute_style("resources/models/styletts2/reference_audio/Me1.wav")
+    #text = "StyleTTS 2 is a text-to-speech model that leverages style diffusion and adversarial training with large speech language models to achieve human-level text-to-speech synthesis."
+    passage = """
+    If the supply of fruit is greater than the family needs, it may be made a source of income by sending the fresh fruit to the market if there is one near enough, or by preserving, canning, and making jelly for sale. To make such an enterprise a success the fruit and work must be first class. 
+    There is magic in the word "Homemade," when the product appeals to the eye and the palate; but many careless and incompetent people have found to their sorrow that this word has not magic enough to float inferior goods on the market. 
+    As a rule large canning and preserving establishments are clean and have the best appliances, and they employ chemists and skilled labor. The home product must be very good to compete with the attractive goods that are sent out from such establishments. 
+    Yet for first-class homemade products there is a market in all large cities. 
+    All first-class grocers have customers who purchase such goods.
+    """
+    #ref_s1 = LibriSpeech().compute_style("resources/models/styletts2/reference_audio/Ryan.wav")
+    #ref_s2 = LibriSpeech().compute_style("resources/models/styletts2/reference_audio/Jane.wav")
+    # ref_s3 = LibriSpeech().compute_style("resources/models/styletts2/reference_audio/Me1.wav")
     # ref_s4 = compute_style("resources/models/styletts2/reference_audio/Me2.wav")
     # ref_s5 = compute_style("resources/models/styletts2/reference_audio/Me3.wav")
     # ref_s6 = compute_style("resources/models/styletts2/reference_audio/Vinay.wav")
@@ -428,9 +599,17 @@ if __name__ == "__main__":
     # ref_s11 = compute_style("resources/models/styletts2/reference_audio/June.wav")
     # ## Default setting (alpha = 0.3, beta=0.7)
 
-    # librispeech(text=text,compute_style=ref_s1, voice='Gavin',alpha=0.3, beta=0.7, diffusion_steps=10)
-    librispeech(text=text,compute_style=ref_s2, voice='Jane',alpha=0.3, beta=0.7, diffusion_steps=10)
-    librispeech(text=text,compute_style=ref_s3, voice='Me1',alpha=0.3, beta=0.7, diffusion_steps=10)
+    # output_audio_file = LibriSpeech().librispeech_v3(text=passage,compute_style=ref_s2,autoplay=False)
+    # data, fs = sf.read(output_audio_file)
+    # sd.play(data,samplerate=24000,blocking=True)
+
+    ## output_audio_file = LibriSpeech().librispeech_v2(text=passage,compute_style=ref_s2,emotion="sad",autoplay=False)
+    ## data, fs = sf.read(output_audio_file)
+    ## sd.play(data,samplerate=24000,blocking=True)
+
+    #librispeech(text=text,compute_style=ref_s2, voice='Jane',alpha=0.3, beta=0.7, diffusion_steps=10)
+    #librispeech(text=text,compute_style=ref_s3, voice='Me1',alpha=0.3, beta=0.7, diffusion_steps=10)
+    
     #librispeech(text=text,compute_style=ref_s4, voice='Me2',alpha=0.3, beta=0.7, diffusion_steps=10)
     # librispeech(text=text,compute_style=ref_s5, voice='Me3',alpha=0.3, beta=0.7, diffusion_steps=10)
     # librispeech(text=text,compute_style=ref_s6, voice='Vinay',alpha=0.3, beta=0.7, diffusion_steps=10)
@@ -468,7 +647,6 @@ if __name__ == "__main__":
     # librispeech(text=text,compute_style=ref_s9, voice='Keith',alpha=1, beta=1, diffusion_steps=10)
     # librispeech(text=text,compute_style=ref_s10, voice='May',alpha=1, beta=1, diffusion_steps=10)
     # librispeech(text=text,compute_style=ref_s11, voice='June',alpha=1, beta=1, diffusion_steps=10)
-
 
     # reference_dicts = {}
     # reference_dicts['696_92939'] = "/home/pop/development/mclab/realtime/StyleTTS2-LibriTTS/reference_audio/696_92939_000016_000006.wav"
@@ -663,7 +841,7 @@ if __name__ == "__main__":
     
     # text = "Yea, his honourable worship is within, but he hath a godly minister or two with him, and likewise a leech."
     # for k,v in ref_texts.items():
-    #     wav = STinference(text, s_ref, v, diffusion_steps=10, alpha=0.5, beta=0.9, embedding_scale=1.5)
+    #     wav = STinference(text, ref_s2, v, diffusion_steps=10, alpha=0.5, beta=0.9, embedding_scale=1.5)
     #     print(k + ": Style Transfer")
     #     #display(ipd.Audio(wav, rate=24000, normalize=False))
     #     sd.play(wav,samplerate=24000,blocking=True)

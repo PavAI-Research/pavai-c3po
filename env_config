@@ -17,8 +17,8 @@ GLOBAL_SYSTEM_MODE="AIO"
 ## PIPER     -- AI voice systhesizer (default)
 ## LIBRETTS  -- human-liked voices
 
-GLOBAL_TTS="PIPER"
-GLOBAL_TTS_LIBRETTS_VOICE="Ryan"
+GLOBAL_TTS="LIBRETTS"
+GLOBAL_TTS_LIBRETTS_VOICE="jane"
 GLOBAL_TTS_PIPER_VOICE="en_ryan"
 GLOBAL_TTS_PIPER_VOICE_MODEL="en_US-ryan-medium.onnx"
 
