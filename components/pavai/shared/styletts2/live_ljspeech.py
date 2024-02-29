@@ -1,3 +1,14 @@
+from dotenv import dotenv_values
+system_config = dotenv_values("env_config")
+import logging
+from rich.logging import RichHandler
+from rich import pretty
+logging.basicConfig(level=logging.INFO, format="%(message)s", datefmt="[%X]", handlers=[RichHandler(rich_tracebacks=True)])
+logger = logging.getLogger(__name__)
+pretty.install()
+import warnings 
+warnings.filterwarnings("ignore")
+
 try: 
     import nltk
 except:
@@ -272,7 +283,7 @@ class LJSpeech(Singleton):
                     embedding_scale:int=random.randint(1, 2), 
                     samplerate=24000,
                     output_audiofile="workspace/temp/ljspeech_v2.wav",
-                    blocking_flag:bool=True, autoplay:bool=True):
+                    blocking_flag:bool=True, autoplay:bool=True)->str:
         """
         ## With higher diffusion steps (more diverse) with the cost of slower synthesis speed.
         ## choose a random generated number to emulate human like expressiveness    

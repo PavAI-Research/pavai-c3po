@@ -38,7 +38,8 @@ from pavai.shared.aio.llmchat import (get_llm_instance, llm_chat_completion, llm
                            LLMllamaLocal, AbstractLLMClass)
 from pavai.shared.audio.stt_vad import init_vad_model
 from pavai.shared.audio.voices_piper import espeak,get_voice_model_file
-from pavai.shared.audio.tts_client import text_speaker_ai
+#from pavai.shared.audio.tts_client import text_speaker_ai
+from pavai.shared.audio.tts_client import (system_tts_local)
 import pavai.shared.solar.llmchat as llmchat
 from pathlib import Path
 from pavai.shared.styletts2.download_models import get_styletts2_model_files
@@ -386,7 +387,7 @@ def system_resources_check(output_voice:str="en"):
             print(e)
             logger.error("system_resources_check error.")
             current_system_mode="oops, system_resources_check error. please check the log "
-            text_speaker_ai(sd,text=current_system_mode,output_voice=output_voice)
+            system_tts_local(sd,text=current_system_mode,output_voice=output_voice)
 
 def system_sanity_tests(output_voice:str="en"):
     global system_is_ready    
@@ -402,16 +403,16 @@ def system_sanity_tests(output_voice:str="en"):
            # 1.text-to-speech model
             logger.info("[test#1] text-to-speech model")                    
             current_time_message=wakeup_time()   
-            text_speaker_ai(sd,text=current_time_message,output_voice=output_voice)
+            system_tts_local(sd,text=current_time_message,output_voice=output_voice)
 
             current_system_mode="running in system mode: "+_GLOBAL_SYSTEM_MODE
-            text_speaker_ai(sd,text=current_system_mode,output_voice=output_voice)
+            system_tts_local(sd,text=current_system_mode,output_voice=output_voice)
 
             if "DEFAULT_SYSTEM_STARTUP_MSG_SYSTEM_CHECK_RUNNING" not in system_config.keys():
                 startup_message = DEFAULT_SYSTEM_STARTUP_MSG_SYSTEM_CHECK_RUNNING
             else:
                 startup_message = system_config["DEFAULT_SYSTEM_STARTUP_MSG_SYSTEM_CHECK_RUNNING"]
-            text_speaker_ai(sd,text=startup_message,output_voice=output_voice)
+            system_tts_local(sd,text=startup_message,output_voice=output_voice)
             logger.info(f"[test#1] text-to-speech model: Passed")                               
             table.add_row("functional_check", f"sanity test:text-to-speech model", "[green]Passed[/]")        
             progress.advance(task)        
@@ -435,7 +436,7 @@ def system_sanity_tests(output_voice:str="en"):
             logger.info("[test#3] LLM model")   
             if _GLOBAL_SYSTEM_MODE=="SOLAR":
                 current_message="running Solar LLM  sanity test"                
-                text_speaker_ai(sd,text=current_message,output_voice=output_voice)
+                system_tts_local(sd,text=current_message,output_voice=output_voice)
                 default_url=str(system_config["SOLAR_LLM_DEFAULT_SERVER_URL"]).strip() 
                 default_api_key=str(system_config["SOLAR_LLM_DEFAULT_API_KEY"]).strip()             
                 domain_url=str(system_config["SOLAR_LLM_DOMAIN_SERVER_URL"]).strip()
@@ -462,7 +463,7 @@ def system_sanity_tests(output_voice:str="en"):
                 logger.info(moderate_object["output_text"])
             else:
                 current_message="running Local LLM sanity test"                
-                text_speaker_ai(sd,text=current_message,output_voice=output_voice)                
+                system_tts_local(sd,text=current_message,output_voice=output_voice)                
                 get_llm_instance()
                 messages, xhistory, reply = llm_chat_completion("hello", history=[])
                 logger.info(f"[test#3] LLM Model: {reply} status: OK")
@@ -510,43 +511,43 @@ def activate_system_agent(system_agent:str=None, startup_message:str=None, syste
         else:
             agen_name = system_config["DEFAULT_PAVAI_VOCIE_AGENT"]
         agen_greeting = f"hi, i am {agen_name} prototype.1 from PA-VAI;"
-        text_speaker_ai(sd,text=agen_greeting,output_voice=output_voice)
-        time.sleep(0.5)              
+        system_tts_local(sd,text=agen_greeting,output_voice=output_voice)
+        #time.sleep(0.5)              
         rand_idx = random.randrange(len(DEFAULT_PAVAI_STARTUP_MSG_INTROS))
         intro_message = DEFAULT_PAVAI_STARTUP_MSG_INTROS[rand_idx]                    
-        time.sleep(0.5)              
-        text_speaker_ai(sd,text=startup_message,output_voice=output_voice)
-        time.sleep(0.25)       
-        text_speaker_ai(sd,text=intro_message,output_voice=output_voice)
+        #time.sleep(0.5)              
+        system_tts_local(sd,text=startup_message,output_voice=output_voice)
+        #time.sleep(0.25)       
+        system_tts_local(sd,text=intro_message,output_voice=output_voice)
         if "DEFAULT_SYSTEM_STARTUP_MSG_OPEN_BROWSER" not in system_config.keys():
             launch_message = DEFAULT_PAVAI_VOCIE_STARTUP_MSG_NEXT_STEP
         else:
             launch_message = system_config["DEFAULT_SYSTEM_STARTUP_MSG_OPEN_BROWSER"]
-        time.sleep(0.25)       
-        text_speaker_ai(sd,text=launch_message,output_voice=output_voice)    
+        #time.sleep(0.25)       
+        system_tts_local(sd,text=launch_message,output_voice=output_voice)    
     elif system_agent==PAVAI_APP_TALKIE:
         if "DEFAULT_PAVAI_VOCIE_AGENT" not in system_config.keys():
             agen_name = DEFAULT_PAVAI_TALKIE_AGENT
         else:
             agen_name = system_config["DEFAULT_PAVAI_TALKIE_AGENT"]
         agen_greeting = f"hi, i am {agen_name} prototype.2 from PA-VAI;"
-        text_speaker_ai(sd,text=agen_greeting,output_voice=output_voice)
-        time.sleep(0.25)                      
+        system_tts_local(sd,text=agen_greeting,output_voice=output_voice)
+        #time.sleep(0.25)                      
         if "DEFAULT_PAVAI_STARTUP_MSG_INTRO" not in system_config.keys():
             intro_message = DEFAULT_PAVAI_STARTUP_MSG_INTRO
         else:
             intro_message = system_config["DEFAULT_PAVAI_STARTUP_MSG_INTRO"]        
-        text_speaker_ai(sd,text=startup_message,output_voice=output_voice)
-        time.sleep(0.25)       
+        system_tts_local(sd,text=startup_message,output_voice=output_voice)
+        #time.sleep(0.25)       
         rand_idx = random.randrange(len(DEFAULT_PAVAI_STARTUP_MSG_INTROS))
         intro_message = DEFAULT_PAVAI_STARTUP_MSG_INTROS[rand_idx]                    
         ##intro_message=".your personal multilingual AI assistant for everyday tasks." 
-        text_speaker_ai(sd,text=intro_message,output_voice=output_voice)        
+        system_tts_local(sd,text=intro_message,output_voice=output_voice)        
         if "DEFAULT_SYSTEM_STARTUP_MSG_OPEN_BROWSER" not in system_config.keys():
             launch_message = DEFAULT_PAVAI_TALKIE_STARTUP_MSG_NEXT_STEP
         else:
             launch_message = system_config["DEFAULT_SYSTEM_STARTUP_MSG_OPEN_BROWSER"]
-        text_speaker_ai(sd,text=launch_message,output_voice=output_voice)            
+        system_tts_local(sd,text=launch_message,output_voice=output_voice)            
 
     logger.info(f"system funtional check - completed")         
 

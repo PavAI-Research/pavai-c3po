@@ -19,7 +19,7 @@ import numpy as np
 #import pavai.shared.datasecurity as datasecurity
 from typing import BinaryIO, Union
 from transformers.utils import is_flash_attn_2_available
-from pavai.shared.audio.voices_piper import (text_to_speech, speak_acknowledge,speak_wait, speak_done, speak_instruction)
+#from pavai.shared.audio.voices_piper import (text_to_speech, speak_acknowledge,speak_wait, speak_done, speak_instruction)
 from pavai.shared.system_checks import (pavai_vocie_system_health_check, DEFAULT_SYSTEM_MODE, SYSTEM_THEME_SOFT,SYSTEM_THEME_GLASS,VOICE_PROMPT_INSTRUCTIONS_TEXT)
 from pavai.shared.audio.transcribe import (speech_to_text, FasterTranscriber,DEFAULT_WHISPER_MODEL_SIZE)
 #from pavai.shared.llmproxy import chatbot_ui_client,chat_count_tokens,multimodal_ui_client
@@ -28,8 +28,8 @@ from pavai.shared.image.text2image import (StableDiffusionXL, image_generation_c
 from pavai.shared.fileutil import get_text_file_content
 from pavai.shared.commands import filter_commmand_keywords
 from pavai.shared.grammar import (fix_grammar_error)
-from pavai.shared.audio.tts_client import get_speaker_audio_file
-
+from pavai.shared.audio.tts_client import (system_tts_local,speaker_file_v2,get_speaker_audio_file,speak_acknowledge,speak_wait, speak_done, speak_instruction)
+## get_speaker_audio_file, 
 ## remove Iterable, List, NamedTuple, Optional, Tuple,
 ## removed from os.path import dirname, join, abspath
 from pavai.shared.aio.llmchat import (system_prompt_assistant, DEFAULT_LLM_CONTEXT_SIZE)
@@ -92,10 +92,10 @@ _TURN_OFF_IMAGE_CHAT_MODE=True
 """UI-CHATBOT SPEAKER"""
 class ChatbotSpeaker(SystemSetting):
 
-    def cb_text_to_speech(self,text: str, output_voice: str = "en", mute=False, autoplay=False):
+    def cb_text_to_speech(self,text: str, output_voice: str = "jane", mute=False, autoplay=False):
         out_file=None
         if not _TURN_OFF_CHATBOT_RESPONSE_VOICE:
-            out_file = text_to_speech(text=text, output_voice=output_voice, mute=mute, autoplay=autoplay)
+            out_file = speaker_file_v2(text=text, output_voice=output_voice, mute=mute, autoplay=autoplay)
         return out_file
 
     def cb_hide_outputs(self,enable_text_to_image: bool = False):
@@ -521,7 +521,7 @@ class ChatbotSpeaker(SystemSetting):
                                     outputs=[chatbot_ui, self.history_state,
                                                 textbox_chatbot_response], queue=False
                                 ).then(self.cb_update_chat_session,
-                                        inputs=[self.history_state],
+                                        inpusystem_speaker_v2ts=[self.history_state],
                                         outputs=[chatbot_ui, self.history_state,self.session_tokens], queue=False                                        
                                 ).then(self.cb_convert_text_to_speech,
                                         inputs=[textbox_chatbot_response, cb_text_to_speech_target_lang, checkbox_turn_off_voice_response],

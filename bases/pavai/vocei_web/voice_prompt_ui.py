@@ -26,7 +26,7 @@ from pavai.shared.fileutil import get_text_file_content
 from pavai.shared.commands import filter_commmand_keywords
 from pavai.shared.grammar import (fix_grammar_error)
 from pavai.shared.audio.transcribe import (speech_to_text, FasterTranscriber,DEFAULT_WHISPER_MODEL_SIZE)
-from pavai.shared.audio.tts_client import (text_speaker_v2,text_speaker_ai,get_speaker_audio_file,speak_acknowledge,speak_wait, speak_done, speak_instruction)
+from pavai.shared.audio.tts_client import (system_tts_local,speaker_file_v2,get_speaker_audio_file,speak_acknowledge,speak_wait, speak_done, speak_instruction)
 #from pavai.shared.audio.voices_piper import (text_to_speech, speak_acknowledge,speak_wait, speak_done, speak_instruction)
 #from pavai.shared.audio.voices_styletts2 import (text_to_speech, speak_acknowledge,speak_wait, speak_done, speak_instruction)
 
@@ -138,7 +138,7 @@ class VoicePrompt(SystemSetting):
     def vc_text_to_speech(self,text: str, output_voice: str = "en", mute=False, autoplay=False):
         #out_file = text_to_speech(text=text, output_voice=output_voice, mute=mute, autoplay=autoplay)
         tts_voice=system_config["GLOBAL_TTS_LIBRETTS_VOICE"]
-        out_file = text_speaker_v2(sd,text=text,output_voice="jane",autoplay=autoplay)
+        out_file = speaker_file_v2(sd,text=text,output_voice="jane",autoplay=autoplay)
         return out_file
 
     def vc_voice_chat(self,user_message, chatbot_history):

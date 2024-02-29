@@ -1,6 +1,7 @@
 from dotenv import dotenv_values
 system_config = dotenv_values("env_config")
 import logging
+import random
 from rich.logging import RichHandler
 from rich import print,pretty,console
 from rich.pretty import (Pretty,pprint)
@@ -17,10 +18,11 @@ warnings.filterwarnings("ignore")
 from pathlib import Path
 from pavai.shared.audio.stt_vad import init_vad_model
 from pavai.shared.audio.voices_piper import espeak,get_voice_model_file
-from pavai.shared.audio.voices_styletts2 import librispeak
+#from pavai.shared.audio.voices_styletts2 import librispeak
+from pavai.shared.styletts2 import LibriSpeech, LJSpeech
 from pavai.shared.audio.vosk_client import api_speaker
 from pavai.shared.audio.tts_gtts import text_to_speech_gtts
-from pavai.shared.styletts2 import (ljspeech,ljspeech_v2,test_lj_speech,test_lj_speech_v2)
+#from pavai.shared.styletts2 import (ljspeech,ljspeech_v2,test_lj_speech,test_lj_speech_v2)
 import time
 import numpy
 import sounddevice as sd
@@ -43,7 +45,7 @@ def get_speaker_audio_file(workspace_temp:str="workspace/temp")->str:
     #     os.mkdir(workspace_temp)
     return workspace_temp+"/espeak_text_to_speech.mp3"
 
-def text_speaker_ai(sd,text:str,output_voice:str=None,vosk_params=None):
+def system_tts_local(sd,text:str,output_voice:str=None,vosk_params=None,autoplay:bool=True):
     if _GLOBAL_TTS_API_ENABLE=="true":
         ## use vosk api - piper ai-voice 
         vosk_params = {
@@ -59,7 +61,7 @@ def text_speaker_ai(sd,text:str,output_voice:str=None,vosk_params=None):
             compute_style=system_config["GLOBAL_TTS_LIBRETTS_VOICE"]  
             print("compute_style: ",compute_style)
             ##librispeak(text=text,compute_style="jane")
-            system_speak(text=text,autoplay=True)  
+            speaker_file_v2(text=text,autoplay=True)  
         elif _GLOBAL_TTS=="GTTS":            
             # google voice
             text_to_speech_gtts(text=text,autoplay=True)
@@ -73,7 +75,6 @@ def text_speaker_ai(sd,text:str,output_voice:str=None,vosk_params=None):
             espeak(sd,text,output_voice=output_voice)
 
 def speak_acknowledge():
-    import random
     acknowledges = ["Nice,",
                     "Sure thing,",
                     "Yes! It's great",
@@ -94,11 +95,10 @@ def speak_acknowledge():
     ack_text = str(random.choice(acknowledges))+waiting
     print("speak_acknowledge: ", ack_text)
     #text_to_speech(text=ack_text, output_voice="en", autoplay=True)
-    system_speak(text=ack_text,autoplay=True)  
+    system_tts_local(sd,text=ack_text,autoplay=True)  
     #text_speaker_ai(sd,text=ack_text)      
 
 def speak_wait():
-    import random
     acknowledges = ["okay! please wait",
                     "got it!, one moment",
                     "certainly!, one moment",
@@ -107,12 +107,11 @@ def speak_wait():
     ack_text = str(random.choice(acknowledges))
     print("speak_wait: ", ack_text)
     #text_to_speech(text=ack_text, output_voice="en", autoplay=True)
-    system_speak(text=ack_text,autoplay=True)    
+    system_tts_local(sd,text=ack_text,autoplay=True)    
     #librispeak(text=ack_text,compute_style="jane")
     #text_speaker_ai(sd,text=ack_text)          
 
 def speak_done():
-    import random
     acknowledges = ["all done!, please check.",
                     "process complete, please check",
                     "finish processing!, please check",
@@ -121,18 +120,19 @@ def speak_done():
     ack_text = str(random.choice(acknowledges))
     # print("speak_done: ", ack_text)
     #text_to_speech(text=ack_text, output_voice="en", autoplay=True)
-    system_speak(text=ack_text,autoplay=True)    
+    system_tts_local(sd,text=ack_text,autoplay=True)    
     #text_speaker_ai(sd,text=ack_text)              
 
 def speak_instruction(instruction: str, output_voice: str = "en"):
     logger.info(f"speak_instruction: {instruction}")
     ##text_to_speech(text=instruction, output_voice=output_voice, autoplay=True)
-    system_speak(text=instruction,autoplay=True)    
+    system_tts_local(sd,text=instruction,autoplay=True)    
     #text_speaker_ai(sd,text=instruction)                  
 
-def system_speak(text:str,autoplay:bool=True)->list:
-    return ljspeech_v2(text=text,autoplay=autoplay)
+def speaker_file(text:str,autoplay:bool=True)->str:
+    wav_file = LJSpeech().ljspeech_v2(text=text,autoplay=autoplay)
+    return wav_file
 
-def text_speaker_v2(sd,text:str,output_voice:str="jane",vosk_params=None,chunk_size:int=500,autoplay=False):
-    fullwav = system_speak(text=text,autoplay=autoplay)
-    return fullwav
+def speaker_file_v2(text:str,output_voice:str="jane",vosk_params=None,chunk_size:int=500,autoplay=False)->str:
+    wav_file = LibriSpeech().librispeech_v3(text=text,compute_style=output_voice,autoplay=autoplay)
+    return wav_file

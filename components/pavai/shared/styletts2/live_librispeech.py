@@ -13,6 +13,17 @@
 
 # convert input audio to wav
 # ffmpeg -i inputfile.flac output.wav
+from dotenv import dotenv_values
+system_config = dotenv_values("env_config")
+import logging
+from rich.logging import RichHandler
+from rich import pretty
+logging.basicConfig(level=logging.INFO, format="%(message)s", datefmt="[%X]", handlers=[RichHandler(rich_tracebacks=True)])
+logger = logging.getLogger(__name__)
+pretty.install()
+import warnings 
+warnings.filterwarnings("ignore")
+
 try: 
     import nltk
 except:
@@ -49,6 +60,7 @@ from typing import Any, Dict
 from collections import OrderedDict
 import traceback
 import gc
+import json
 # sys.path.append("./styletts2") 
 # sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
@@ -153,6 +165,51 @@ class LibriSpeech(Singleton):
         self.ref_texts['sad'] = "I am sorry to say that we have suffered a severe setback in our efforts to restore prosperity and confidence."
         self.ref_texts['angry'] = "The field of astronomy is a joke! Its theories are based on flawed observations and biased interpretations!"
         self.ref_texts['surprised'] = "I can't believe it! You mean to tell me that you have discovered a new species of bacteria in this pond?"
+
+        self.cached_voice={}
+        # styleTTs2 reference voices
+        try:
+            with open('resources/config/reference_voices.json') as handle:
+                self.reference_voices = json.loads(handle.read())
+                print(self.reference_voices)
+        except Exception as e:
+            print(e)
+            raise ValueError("Missing reference voices config file. please check!")
+
+    def lookup_voice(self,name: str = "jane"):
+        if name in self.cached_voice.keys():
+            print(f"get compute style from cached: {name}")
+            return self.cached_voice[name]
+        ## lookup
+        if self.reference_voices is None:
+            reference_voices = {
+                "ryan": "resources/models/styletts2/reference_audio/Ryan.wav",
+                "jane": "resources/models/styletts2/reference_audio/Jane.wav",
+                "me1": "resources/models/styletts2/reference_audio/Me1.wav",
+                "me2": "resources/models/styletts2/reference_audio/Me2.wav",
+                "me3": "resources/models/styletts2/reference_audio/Me3.wav",
+                "vinay": "resources/models/styletts2/reference_audio/Vinay.wav",
+                "nima": "resources/models/styletts2/reference_audio/Nima.wav",
+                "yinghao": "resources/models/styletts2/reference_audio/Yinghao.wav",
+                "keith": "resources/models/styletts2/reference_audio/Keith.wav",
+                "may": "resources/models/styletts2/reference_audio/May.wav",
+                "anthony": "resources/models/styletts2/reference_audio/anthony.wav",
+                "c3p013": "resources/models/styletts2/reference_audio/c3p013.wav",
+                "c3p0voice8": "resources/models/styletts2/reference_audio/c3p0_voice8.wav",
+                "c3p0voice13": "resources/models/styletts2/reference_audio/c3p0_voice13.wav",
+                "c3p0voice1": "resources/models/styletts2/reference_audio/c3p0_voice1.wav"
+            }
+        if name in self.reference_voices.keys():
+            voice_path = self.reference_voices[name.lower()]
+            voice = self.compute_style(voice_path)
+        else:
+            print(f" Error Missing voice file {name}, fallback to default")
+            name = "Jane"
+            voice_path = self.reference_voices[name.lower()]
+            voice = self.compute_style(voice_path)
+        ## cached it
+        self.cached_voice[name] = voice
+        return voice
 
     def preprocess(self,wave):
         wave_tensor = torch.from_numpy(wave).float()
@@ -411,7 +468,7 @@ class LibriSpeech(Singleton):
                     autoplay:bool=True):
         t0=time.perf_counter()    
         if isinstance(compute_style, str):
-            ref_s = self.compute_style(compute_style) # input wav file
+            ref_s = self.lookup_voice(name=compute_style)                
         else:
             ref_s=compute_style # input torch.Tensor
         start = time.time()
@@ -437,14 +494,14 @@ class LibriSpeech(Singleton):
                     samplerate:int=24000,
                     output_audiofile="workspace/temp/librispeech_v2.wav",
                     return_file:bool=True,
-                    autoplay:bool=True):
+                    autoplay:bool=True)->str:
         t0=time.perf_counter()    
         if emotion is None:
             emotion="happy"
         try:              
             v = self.ref_texts[emotion.lower()]
             if isinstance(compute_style, str):
-                ref_s = self.compute_style(compute_style) # input wav file
+                ref_s = self.lookup_voice(name=compute_style)                
             else:
                 ref_s=compute_style # input torch.Tensor
 
@@ -488,11 +545,11 @@ class LibriSpeech(Singleton):
                     samplerate:int=24000,
                     output_audiofile="workspace/temp/librispeech_v3.wav",
                     return_file:bool=True,                    
-                    autoplay:bool=True)->list:
+                    autoplay:bool=True)->str:
         t0=time.perf_counter()    
         try:        
             if isinstance(compute_style, str):
-                ref_s = self.compute_style(compute_style) # input wav file
+                ref_s = self.lookup_voice(name=compute_style)
             else:
                 ref_s = compute_style # input torch.Tensor
             sentences = text.split('.') # simple split by comma
@@ -531,14 +588,11 @@ class LibriSpeech(Singleton):
         sample_text="""
         Thank you for this! I have one more question if anyone can bite: I am trying to take the average of the first elements in these datapoints(i.e. datapoints[0][0]). Just to list them, I tried doing datapoints[0:5][0] but all I get is the first datapoint with both elements as opposed to wanting to get the first 5 datapoints containing only the first element. Is there a way to do this?
         """
-        #ref_s1 = compute_style("resources/models/styletts2/reference_audio/Gavin.wav")
-        ref_s2 = self.compute_style("resources/models/styletts2/reference_audio/Jane.wav")
-        ref_s3 = self.compute_style("resources/models/styletts2/reference_audio/Me1.wav")
-        self.librispeech(text=sample_text,compute_style=ref_s2, alpha=0.3, beta=0.7, diffusion_steps=10    )
-        self.librispeech(text=sample_text,compute_style=ref_s3, alpha=0.3, beta=0.7, diffusion_steps=10)
+        self.librispeech(text=sample_text,compute_style="jane", alpha=0.3, beta=0.7, diffusion_steps=10    )
+        self.librispeech(text=sample_text,compute_style="me1", alpha=0.3, beta=0.7, diffusion_steps=10)
 
     def test_libris_speech_emotions(self):
-        ref_s2 = self.compute_style("resources/models/styletts2/reference_audio/Jane.wav")
+        #ref_s2 = self.compute_style("resources/models/styletts2/reference_audio/Jane.wav")
         ref_texts = {}
         ref_texts['Happy'] = "We are happy to invite you to join us on a journey to the past, where we will visit the most amazing monuments ever built by human hands."
         ref_texts['Sad'] = "I am sorry to say that we have suffered a severe setback in our efforts to restore prosperity and confidence."
@@ -546,37 +600,26 @@ class LibriSpeech(Singleton):
         ref_texts['Surprised'] = "I can't believe it! You mean to tell me that you have discovered a new species of bacteria in this pond?"    
         text = "Yea, his honourable worship is within, but he hath a godly minister or two with him, and likewise a leech."
         for k,v in ref_texts.items():
-            #wav = STinference(text, ref_s2, v, diffusion_steps=10, alpha=0.5, beta=0.9, embedding_scale=1.5)
             print(k + ": Style Transfer")
-            self.librispeech_v2(text=text,compute_style=ref_s2,emotion=k)        
-            #display(ipd.Audio(wav, rate=24000, normalize=False))
-            #sd.play(wav,samplerate=24000,blocking=True)    
+            self.librispeech_v2(text=text,compute_style="jane",emotion=k)        
 
     def test_libris_speech_longspeech(self,voice_id:int=1):
         ## Long-form generation
-        ## --------------------
         passage = """
         If the supply of fruit is greater than the family needs, it may be made a source of income by sending the fresh fruit to the market if there is one near enough, or by preserving, canning, and making jelly for sale. To make such an enterprise a success the fruit and work must be first class. 
         There is magic in the word "Homemade," when the product appeals to the eye and the palate; but many careless and incompetent people have found to their sorrow that this word has not magic enough to float inferior goods on the market. 
         As a rule large canning and preserving establishments are clean and have the best appliances, and they employ chemists and skilled labor. The home product must be very good to compete with the attractive goods that are sent out from such establishments. 
         Yet for first-class homemade products there is a market in all large cities. 
         All first-class grocers have customers who purchase such goods.
-        """# @param {type:"string"}
-        if voice_id==1:
-            ref_s = self.compute_style("resources/models/styletts2/reference_audio/Ryan.wav")
-        elif voice_id==2:
-            ref_s = self.compute_style("resources/models/styletts2/reference_audio/Jane.wav")
-        else:
-            ref_s = self.compute_style("resources/models/styletts2/reference_audio/Me1.wav")
-
-        self.librispeech_v3(text=passage, compute_style=ref_s)
+        """
+        self.librispeech_v3(text=passage, compute_style="ryan")
 
 """MAIN"""
 if __name__ == "__main__":
 
     LibriSpeech().test_libris_speech()
     LibriSpeech().test_libris_speech_emotions()
-    LibriSpeech().test_libris_speech_longspeech()
+    #LibriSpeech().test_libris_speech_longspeech()
     ## Basic synthesis (5 diffusion steps)
     #text = "StyleTTS 2 is a text-to-speech model that leverages style diffusion and adversarial training with large speech language models to achieve human-level text-to-speech synthesis."
     passage = """

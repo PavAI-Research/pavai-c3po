@@ -21,10 +21,11 @@ import os, sys
 # from os.path import dirname, join, abspath
 # sys.path.insert(0, abspath(join(dirname(__file__), './shared')))
 ## google
-from gtts import gTTS  
+#from gtts import gTTS  
 ## stylett2
-from pavai.shared.styletts2 import librispeech, compute_style
-from pavai.shared.audio.tts_piper import load_speech_synthesizer, load_speech_synthesizer_model
+#from pavai.shared.styletts2 import LibriSpeech, LJSpeech
+from pavai.shared.audio.tts_piper import load_speech_synthesizer_model
+# load_speech_synthesizer
 #from pavai.shared.system_checks import get_speaker_audio_file
 # from styletts2 import  ljspeech
 # ljspeech(text=text,device="cuda")
@@ -48,20 +49,20 @@ DEFAULT_ESPEAK_VOICE_AGENT = system_config["ACTIVE_TTS_VOICE_MODEL_AGENT"]
 DEFAULT_ESPEAK_VOICE_MODEL = system_config["ACTIVE_TTS_VOICE_MODEL_ONNX_FILE"]
 DEFAULT_ESPEAK_VOICE_LANGUAGE = system_config["ACTIVE_TTS_VOICE_MODEL_LANGUAGE"]
 
-# styleTTs2 reference voices
-human_reference_voices = {
-    "Ryan": compute_style("resources/models/styletts2/reference_audio/Ryan.wav"),
-    "Jane": compute_style("resources/models/styletts2/reference_audio/Jane.wav"),
-    "Me1": compute_style("resources/models/styletts2/reference_audio/Me1.wav"),
-    "Me2": compute_style("resources/models/styletts2/reference_audio/Me2.wav"),
-    "Me3": compute_style("resources/models/styletts2/reference_audio/Me3.wav"),
-    "Vinay": compute_style("resources/models/styletts2/reference_audio/Vinay.wav"),
-    "Nima": compute_style("resources/models/styletts2/reference_audio/Nima.wav"),
-    "Yinghao": compute_style("resources/models/styletts2/reference_audio/Yinghao.wav"),
-    "Keith": compute_style("resources/models/styletts2/reference_audio/Keith.wav"),
-    "May": compute_style("resources/models/styletts2/reference_audio/May.wav"),
-    "June": compute_style("resources/models/styletts2/reference_audio/June.wav")
-}
+# # styleTTs2 reference voices
+# human_reference_voices = {
+#     "Ryan": compute_style("resources/models/styletts2/reference_audio/Ryan.wav"),
+#     "Jane": compute_style("resources/models/styletts2/reference_audio/Jane.wav"),
+#     "Me1": compute_style("resources/models/styletts2/reference_audio/Me1.wav"),
+#     "Me2": compute_style("resources/models/styletts2/reference_audio/Me2.wav"),
+#     "Me3": compute_style("resources/models/styletts2/reference_audio/Me3.wav"),
+#     "Vinay": compute_style("resources/models/styletts2/reference_audio/Vinay.wav"),
+#     "Nima": compute_style("resources/models/styletts2/reference_audio/Nima.wav"),
+#     "Yinghao": compute_style("resources/models/styletts2/reference_audio/Yinghao.wav"),
+#     "Keith": compute_style("resources/models/styletts2/reference_audio/Keith.wav"),
+#     "May": compute_style("resources/models/styletts2/reference_audio/May.wav"),
+#     "June": compute_style("resources/models/styletts2/reference_audio/June.wav")
+# }
 
 # demo-1
 # librispeech(text=text,compute_style=ref_s2, voice='Jane',alpha=0.3, beta=0.5, diffusion_steps=10)

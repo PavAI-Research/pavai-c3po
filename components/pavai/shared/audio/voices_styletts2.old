@@ -168,118 +168,118 @@ def librispeak_v3(text: str, compute_style: str = "jane", alpha=0.3, beta=0.7, c
     free_memory
     return result
 
-def librispeak(text: str, compute_style: str = "jane", emotion: str = None, chunk_size: int = 450, autoplay: bool = True, output_voice_lang: str = "en"):
-    text = cleantext.clean(text, extra_spaces=True, punct=True)
-    text = text+"."
-    wavs = []
-    try:
-        if len(text) > chunk_size:
-            text_chunks = slice_text_into_chunks(
-                input_text=text, chunk_size=chunk_size)
-            for chunks in text_chunks:
-                wav = librispeak_v1(
-                    text=chunks, compute_style=compute_style, autoplay=autoplay)
-                wavs.append(wav)
-        else:
-            if emotion is not None:
-                wav = librispeak_v2(
-                    text=text, compute_style=compute_style, emotion=emotion, autoplay=autoplay)
-                wavs.append(wav)
-            else:
-                wav = librispeak_v1(
-                    text=text, compute_style=compute_style, autoplay=autoplay)
-                wavs.append(wav)
-    except Exception as e:
-        print(e)
-        print(traceback.format_exc())
-        free_memory()
-        # fallback to system default speaker
-        wavs = system_speak(text, autoplay=autoplay)
-    finally:
-        free_memory()
-    return wavs
+# def librispeak(text: str, compute_style: str = "jane", emotion: str = None, chunk_size: int = 450, autoplay: bool = True, output_voice_lang: str = "en"):
+#     text = cleantext.clean(text, extra_spaces=True, punct=True)
+#     text = text+"."
+#     wavs = []
+#     try:
+#         if len(text) > chunk_size:
+#             text_chunks = slice_text_into_chunks(
+#                 input_text=text, chunk_size=chunk_size)
+#             for chunks in text_chunks:
+#                 wav = librispeak_v1(
+#                     text=chunks, compute_style=compute_style, autoplay=autoplay)
+#                 wavs.append(wav)
+#         else:
+#             if emotion is not None:
+#                 wav = librispeak_v2(
+#                     text=text, compute_style=compute_style, emotion=emotion, autoplay=autoplay)
+#                 wavs.append(wav)
+#             else:
+#                 wav = librispeak_v1(
+#                     text=text, compute_style=compute_style, autoplay=autoplay)
+#                 wavs.append(wav)
+#     except Exception as e:
+#         print(e)
+#         print(traceback.format_exc())
+#         #free_memory()
+#         # fallback to system default speaker
+#         wavs = system_speak(text, autoplay=autoplay)
+#     finally:
+#         free_memory()
+#     return wavs
 
 
-def get_voice_model_file(local_voice_path: str, spoken_language: str = "en") -> str:
-    spoken_language = "en" if spoken_language is None or len(
-        spoken_language.strip()) == 0 else spoken_language
-    voice_map = {
-        "ar": ["ar_JO-kareem-medium.onnx",
-               "ar_JO-kareem-medium.onnx.json",
-               "https://huggingface.co/mychen76/piper-voices/resolve/main/ar/ar_JO/kareem/medium/"],
-        "cs": ["cs_CZ-jirka-medium.onnx",
-               "cs_CZ-jirka-medium.onnx.json",
-               "https://huggingface.co/mychen76/piper-voices/resolve/main/cs/cs_CZ/jirka/medium/"],
-        "da": ["da_DK-talesyntese-medium.onnx",
-               "da_DK-talesyntese-medium.onnx.json",
-               "https://huggingface.co/mychen76/piper-voices/resolve/main/da/da_DK/talesyntese/medium/"],
-        "de": ["de_DE-thorsten-medium.onnx",
-               "de_DE-thorsten-medium.onnx.json",
-               "https://huggingface.co/mychen76/piper-voices/resolve/main/de/de_DE/thorsten/medium/"],
-        "en": ["en_US-amy-medium.onnx",
-               "en_US-amy-medium.onnx.json",
-               "https://huggingface.co/mychen76/piper-voices/resolve/main/en/en_US/amy/medium/"],
-        "en_ryan": ["en_US-ryan-medium.onnx",
-                    "en_US-ryan-medium.onnx.json",
-                    "https://huggingface.co/mychen76/piper-voices/resolve/main/en/en_US/ryan/medium/"],
-        "en_amy": ["en_US-amy-medium.onnx",
-                   "en_US-amy-medium.onnx.json",
-                   "https://huggingface.co/mychen76/piper-voices/resolve/main/en/en_US/amy/medium/"],
-        "en_amy_low": ["en_US-amy-low.onnx",
-                       "en_US-amy-low.onnx.json",
-                       "https://huggingface.co/mychen76/piper-voices/resolve/main/en/en_US/amy/low/"],
-        "en_ryan_medium": ["en_US-ryan-medium.onnx",
-                           "en_US-ryan-medium.onnx.json",
-                           "https://huggingface.co/mychen76/piper-voices/resolve/main/en/en_US/ryan/medium/"],
-        "en_ryan_low": ["en_US-ryan-low.onnx",
-                        "en_US-ryan-low.onnx.json",
-                        "https://huggingface.co/mychen76/piper-voices/resolve/main/en/en_US/ryan/low/"],
-        "en_kusal": ["en_US-kusal-medium.onnx",
-                     "en_US-kusal-medium.onnx.json",
-                     "https://huggingface.co/mychen76/piper-voices/resolve/main/en/en_US/kusal/medium/"],
-        "en_lessac": ["en_US-lessac-medium.onnx",
-                      "en_US-lessac-medium.onnx.json",
-                      "https://huggingface.co/mychen76/piper-voices/resolve/main/en/en_US/lessac/medium/"],
-        "en_lessac_low": ["en_US-lessac-low.onnx",
-                          "en_US-lessac-low.onnx.json",
-                          "https://huggingface.co/mychen76/piper-voices/resolve/main/en/en_US/lessac/low/"],
-        "ru": ["ru_RU-irina-medium.onnx",
-               "ru_RU-irina-medium.onnx.json",
-               "https://huggingface.co/mychen76/piper-voices/resolve/main/ru/ru_RU/irina/medium/"],
-        "zh": ["zh_CN-huayan-medium.onnx",
-               "zh_CN-huayan-medium.onnx.json",
-               "https://huggingface.co/mychen76/piper-voices/resolve/main/zh/zh_CN/huayan/medium/"],
-        "fr": ["fr_FR-siwis-medium.onnx",
-               "fr_FR-siwis-medium.onnx.json",
-               "https://huggingface.co/mychen76/piper-voices/resolve/main/fr/fr_FR/siwis/medium/"],
-        "uk": ["uk_UA-ukrainian_tts-medium.onnx",
-               "uk_UA-ukrainian_tts-medium.onnx.json",
-               "https://huggingface.co/mychen76/piper-voices/resolve/main/uk/uk_UA/ukrainian_tts/medium/"],
-        "es": ["es_MX-ald-medium.onnx",
-               "es_MX-ald-medium.onnx.json",
-               "https://huggingface.co/mychen76/piper-voices/resolve/main/es/es_MX/ald/medium/"]
-    }
-    try:
-        voice_config = voice_map[spoken_language]
-    except Exception as e:
-        # fallback to english
-        voice_config = None
+# def get_voice_model_file(local_voice_path: str, spoken_language: str = "en") -> str:
+#     spoken_language = "en" if spoken_language is None or len(
+#         spoken_language.strip()) == 0 else spoken_language
+#     voice_map = {
+#         "ar": ["ar_JO-kareem-medium.onnx",
+#                "ar_JO-kareem-medium.onnx.json",
+#                "https://huggingface.co/mychen76/piper-voices/resolve/main/ar/ar_JO/kareem/medium/"],
+#         "cs": ["cs_CZ-jirka-medium.onnx",
+#                "cs_CZ-jirka-medium.onnx.json",
+#                "https://huggingface.co/mychen76/piper-voices/resolve/main/cs/cs_CZ/jirka/medium/"],
+#         "da": ["da_DK-talesyntese-medium.onnx",
+#                "da_DK-talesyntese-medium.onnx.json",
+#                "https://huggingface.co/mychen76/piper-voices/resolve/main/da/da_DK/talesyntese/medium/"],
+#         "de": ["de_DE-thorsten-medium.onnx",
+#                "de_DE-thorsten-medium.onnx.json",
+#                "https://huggingface.co/mychen76/piper-voices/resolve/main/de/de_DE/thorsten/medium/"],
+#         "en": ["en_US-amy-medium.onnx",
+#                "en_US-amy-medium.onnx.json",
+#                "https://huggingface.co/mychen76/piper-voices/resolve/main/en/en_US/amy/medium/"],
+#         "en_ryan": ["en_US-ryan-medium.onnx",
+#                     "en_US-ryan-medium.onnx.json",
+#                     "https://huggingface.co/mychen76/piper-voices/resolve/main/en/en_US/ryan/medium/"],
+#         "en_amy": ["en_US-amy-medium.onnx",
+#                    "en_US-amy-medium.onnx.json",
+#                    "https://huggingface.co/mychen76/piper-voices/resolve/main/en/en_US/amy/medium/"],
+#         "en_amy_low": ["en_US-amy-low.onnx",
+#                        "en_US-amy-low.onnx.json",
+#                        "https://huggingface.co/mychen76/piper-voices/resolve/main/en/en_US/amy/low/"],
+#         "en_ryan_medium": ["en_US-ryan-medium.onnx",
+#                            "en_US-ryan-medium.onnx.json",
+#                            "https://huggingface.co/mychen76/piper-voices/resolve/main/en/en_US/ryan/medium/"],
+#         "en_ryan_low": ["en_US-ryan-low.onnx",
+#                         "en_US-ryan-low.onnx.json",
+#                         "https://huggingface.co/mychen76/piper-voices/resolve/main/en/en_US/ryan/low/"],
+#         "en_kusal": ["en_US-kusal-medium.onnx",
+#                      "en_US-kusal-medium.onnx.json",
+#                      "https://huggingface.co/mychen76/piper-voices/resolve/main/en/en_US/kusal/medium/"],
+#         "en_lessac": ["en_US-lessac-medium.onnx",
+#                       "en_US-lessac-medium.onnx.json",
+#                       "https://huggingface.co/mychen76/piper-voices/resolve/main/en/en_US/lessac/medium/"],
+#         "en_lessac_low": ["en_US-lessac-low.onnx",
+#                           "en_US-lessac-low.onnx.json",
+#                           "https://huggingface.co/mychen76/piper-voices/resolve/main/en/en_US/lessac/low/"],
+#         "ru": ["ru_RU-irina-medium.onnx",
+#                "ru_RU-irina-medium.onnx.json",
+#                "https://huggingface.co/mychen76/piper-voices/resolve/main/ru/ru_RU/irina/medium/"],
+#         "zh": ["zh_CN-huayan-medium.onnx",
+#                "zh_CN-huayan-medium.onnx.json",
+#                "https://huggingface.co/mychen76/piper-voices/resolve/main/zh/zh_CN/huayan/medium/"],
+#         "fr": ["fr_FR-siwis-medium.onnx",
+#                "fr_FR-siwis-medium.onnx.json",
+#                "https://huggingface.co/mychen76/piper-voices/resolve/main/fr/fr_FR/siwis/medium/"],
+#         "uk": ["uk_UA-ukrainian_tts-medium.onnx",
+#                "uk_UA-ukrainian_tts-medium.onnx.json",
+#                "https://huggingface.co/mychen76/piper-voices/resolve/main/uk/uk_UA/ukrainian_tts/medium/"],
+#         "es": ["es_MX-ald-medium.onnx",
+#                "es_MX-ald-medium.onnx.json",
+#                "https://huggingface.co/mychen76/piper-voices/resolve/main/es/es_MX/ald/medium/"]
+#     }
+#     try:
+#         voice_config = voice_map[spoken_language]
+#     except Exception as e:
+#         # fallback to english
+#         voice_config = None
 
-    if voice_config is None:
-        voice_config = voice_map["en"]
-        voice_onnx_file = local_voice_path+voice_config[0]
-    else:
-        voice_config = voice_map[spoken_language]
-        voice_onnx_file = local_voice_path+voice_config[0]
-        voice_json_file = local_voice_path+voice_config[1]
-    # attempt download file if not exist locally
-    if not os.path.isfile(voice_onnx_file):
-        print("download voice files: ", voice_onnx_file, " | ", voice_json_file)
-        voice_onnx_url = voice_config[2]+voice_config[0]
-        voice_json_url = voice_config[2]+voice_config[1]
-        voice_onnx_file = download_file(voice_onnx_url, local_voice_path)
-        voice_json_file = download_file(voice_json_url, local_voice_path)
-    return voice_onnx_file, voice_json_file
+#     if voice_config is None:
+#         voice_config = voice_map["en"]
+#         voice_onnx_file = local_voice_path+voice_config[0]
+#     else:
+#         voice_config = voice_map[spoken_language]
+#         voice_onnx_file = local_voice_path+voice_config[0]
+#         voice_json_file = local_voice_path+voice_config[1]
+#     # attempt download file if not exist locally
+#     if not os.path.isfile(voice_onnx_file):
+#         print("download voice files: ", voice_onnx_file, " | ", voice_json_file)
+#         voice_onnx_url = voice_config[2]+voice_config[0]
+#         voice_json_url = voice_config[2]+voice_config[1]
+#         voice_onnx_file = download_file(voice_onnx_url, local_voice_path)
+#         voice_json_file = download_file(voice_json_url, local_voice_path)
+#     return voice_onnx_file, voice_json_file
 
 
 def convert_text_to_speech(text: str, output_voice: str = "en_us"):
