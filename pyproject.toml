@@ -67,6 +67,7 @@ markdown = "^3.5.2"
 pymupdf = "^1.23.17"
 docx2txt = "^0.8"
 cleantext = "^1.1.4"
+sentencepiece = "^0.2.0"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.4.4"

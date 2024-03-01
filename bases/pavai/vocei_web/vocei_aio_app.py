@@ -98,7 +98,7 @@ _TURN_OFF_IMAGE_CHAT_MODE=True
 """
 MAIN User Interface
 """
-title = '🤖 PavAI.Vocie - an advance private multilingual LLM-based AI Voice Assistant'
+title = '🤖 PAvAI.Vocie - an advance private multilingual LLM-based AI Voice Assistant'
 description = """an advance private multilingual AI Voice Assistant."""
 
 theme = gr.themes.Default()
@@ -133,11 +133,15 @@ class VoceiApp(VoicePrompt,ChatbotSpeaker,CommunicationTranslator,ScratchPad):
         translator_ui=self.build_translator_ui()
         scratchpad_ui=self.build_scratchpad_ui()        
         """APP UI"""
+        # css_code='body{background-image:url("https://picsum.photos/seed/picsum/200/300");}'
+        # css_image='div {margin-left: auto; margin-right: auto; width: 100%;\
+        #     background-image: url("file=pavai_logo_large.png"); repeat 0 0;}'
+
         self.app_ui = gr.TabbedInterface(
             theme=theme,
             interface_list=[voice_prompt_ui,chatbot_speaker_ui,translator_ui,scratchpad_ui,system_settings_ui],
             tab_names=["Voice Prompt", "Chatbot Speaker","Seamless Multilingual Communication","Scratch Pad", "System Settings"],
-            title="🎙️VOCIE: C-3PO voice assistant 💬",
+            title="🎙️Real:C3PO Voice Assistant 💬",
             css=".gradio-container {background: url('file=pavai_logo_large.png')}",
             analytics_enabled=False            
         )
@@ -147,7 +151,7 @@ class VoceiApp(VoicePrompt,ChatbotSpeaker,CommunicationTranslator,ScratchPad):
                 btn_load = gr.Button("Dump session info to JSON")
                 btn_load.click(lambda x: x, self.history_state, json)
             with gr.Group():
-                gr.HTML(show_label=False, value="PavAI-Vocie prototype(1).  alpha 0.0.3. copyright@2024")
+                gr.HTML(show_label=False, value="PAvAI-VOCIE prototype(1).  alpha 0.0.3. copyright@2024")
 
         return self.app_ui
 
@@ -186,5 +190,5 @@ if __name__ == "__main__":
     server_port = 7860 if "VOCIE_APP_PORT" not in system_config.keys() else int(system_config["VOCIE_APP_PORT"])        
     share=False if "VOCIE_APP_SHARE" not in system_config.keys() else bool(system_config["VOCIE_APP_SHARE"])
 
-    voiceapp=VoceiApp("McLab Vocie")
+    voiceapp=VoceiApp("Real-C3PO-Vocie")
     voiceapp.launch(server_name=server_name,server_port=server_port,share=share)

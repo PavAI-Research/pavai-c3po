@@ -461,7 +461,7 @@ def system_sanity_tests(output_voice:str="en"):
                 logger.info(moderate_object["output_text"])
             else:
                 current_message="running Local LLM sanity test"                
-                system_tts_local(sd,text=current_message,output_voice=output_voice)                
+                #system_tts_local(sd,text=current_message,output_voice=output_voice)                
                 get_llm_instance()
                 messages, xhistory, reply = llm_chat_completion("hello", history=[])
                 logger.info(f"[test#3] LLM Model: {reply} status: OK")
