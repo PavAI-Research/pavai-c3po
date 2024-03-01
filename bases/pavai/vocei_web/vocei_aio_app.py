@@ -141,7 +141,7 @@ class VoceiApp(VoicePrompt,ChatbotSpeaker,CommunicationTranslator,ScratchPad):
             theme=theme,
             interface_list=[voice_prompt_ui,translator_ui,scratchpad_ui],
             tab_names=["Voice Prompt", "Seamless Multilingual Communication","Scratch Pad"],
-            title="-🤖-C3PO:Real Voice Assistant 💬",
+            title="[Vocei] Real Voice Assistant 💬",
             css=".gradio-container {background: url('file=pavai_logo_large.png')}",
             analytics_enabled=False            
         )

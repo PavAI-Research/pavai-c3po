@@ -37,6 +37,7 @@ from pavai.shared.llmcatalog import LLM_MODEL_KX_CATALOG_TEXT
 from pavai.shared.solar.llmprompt import knowledge_experts_system_prompts
 from pavai.shared.aio.llmchat import get_llm_library
 from pavai.vocei_web.system_settings_ui import SystemSetting
+import pavai.vocei_web.chatprompt as chatprompt
 
 __author__ = "mychen76@gmail.com"
 __copyright__ = "Copyright 2024"
@@ -426,6 +427,11 @@ class ChatbotSpeaker(SystemSetting):
                         cb_expert_options.change(fn=self.select_expert_option,inputs=cb_expert_options)        
                         cb_model_options = gr.Dropdown(domain_models, label="Domain Models",info="[optional] use specialized model")
                         cb_model_options.change(fn=self.select_model_option,inputs=cb_model_options)
+                        speech_style = gr.Dropdown(
+                                        label="Speech and Writing Style:",
+                                        choices=chatprompt.speech_styles.keys(),
+                                        interactive=True,
+                        )                        
 
                 chatbot_ui = gr.Chatbot(
                     value=[], elem_id="chatbot",

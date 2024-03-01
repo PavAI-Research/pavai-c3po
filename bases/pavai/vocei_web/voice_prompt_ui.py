@@ -38,6 +38,7 @@ from pavai.shared.llmcatalog import LLM_MODEL_KX_CATALOG_TEXT
 from pavai.shared.solar.llmprompt import knowledge_experts_system_prompts
 #from pavai.vocei_web.translator_ui import CommunicationTranslator,ScratchPad
 from pavai.vocei_web.system_settings_ui import SystemSetting
+import pavai.vocei_web.chatprompt as chatprompt 
 import traceback
 import sounddevice as sd
 import cleantext
@@ -239,10 +240,23 @@ class VoicePrompt(SystemSetting):
                             self.vc_text_to_speech_target_lang = gr.Dropdown(label="Set spoken language",choices=available_ai_speaker_langs, value="en", info="default attempt to auto detect spoken language.")
                         with gr.Column(2):
                             textbox_detected_spoken_language = gr.Textbox(label="Auto detect spoken language", value="en")
-
-                available_human_voices=["anthony","ryan","jane","vinay","nima","yinghao","keith","may","c3p013","c3p0voice1","c3p0voice13"]
-                vc_voices_dropdown = gr.Dropdown(label="Output Voice",choices=available_human_voices, value="anthony")
-                vc_selected_voice = gr.Text(visible=False, value="anthony")
+                with gr.Row():
+                    available_human_voices=["ryan","jane","vinay","nima","yinghao","keith","may","anthony_real","leia_01","leia_02","luke_force","yoda_force","mark_real","sleepy","c3po_01","c3po_02","c3po_03","c3po_04"]                    
+                    with gr.Column(1):         
+                        vc_voices_dropdown = gr.Dropdown(label="Output Voice",choices=available_human_voices, value="anthony_real")
+                        vc_selected_voice = gr.Text(visible=False, value="anthony_real")
+                        """knowledge and domain model experts"""       
+                    with gr.Column(1):         
+                        vc_expert_options = gr.Dropdown(knowledge_experts, label="Knowledge Experts (AI)")
+                        vc_expert_options.change(fn=self.select_expert_option,inputs=vc_expert_options)        
+                    # with gr.Column(1):                            
+                    #     #model_options = gr.Dropdown(domain_models,label="Domain Models",info="[optional] use specialized model")                        
+                    #     #model_options.change(fn=self.select_model_option,inputs=model_options)      
+                    #     speech_style = gr.Dropdown(
+                    #                 label="Speech and Writing Style:",
+                    #                 choices=chatprompt.speech_styles.keys(),
+                    #                 interactive=True,
+                    #     )   
 
                 def change_voice(new_voice:str):
                     gr.Info(f"new voice selected: {new_voice}")    
@@ -250,7 +264,7 @@ class VoicePrompt(SystemSetting):
                     
                 vc_voices_dropdown.change(fn=change_voice,inputs=[vc_voices_dropdown], outputs=[vc_selected_voice])               
 
-                with gr.Accordion("Options", open=False):
+                with gr.Accordion("Additional Options", open=False):
                     with gr.Row():
                         with gr.Column(1):
                             radio_task_mode = gr.Radio(choices=["transcribe", "translate"], value="transcribe",visible=False,interactive=True,
@@ -288,15 +302,6 @@ class VoicePrompt(SystemSetting):
                             info="apply anonymization of PII data on input and output")    
                         checkbox_enable_PII_anonymization.change(fn=self.pii_data_amomymization_options,
                                                             inputs=checkbox_enable_PII_anonymization)                                       
-                    with gr.Row():                
-                        """knowledge and domain model experts"""       
-                        with gr.Column(2):         
-                            expert_options = gr.Dropdown(knowledge_experts, label="Knowledge Experts (AI)", info="[optional] route question to subject with domain knowledge.")
-                            expert_options.change(fn=self.select_expert_option,inputs=expert_options)        
-                        with gr.Column(1):                            
-                            model_options = gr.Dropdown(domain_models,label="Domain Models",info="[optional] use specialized model")                        
-                            model_options.change(fn=self.select_model_option,inputs=model_options)        
-
                 """LANGUAGE SETIING"""
                 def overrider_auto_detect_language(input_lang:str):
                     textbox_detected_spoken_language=input_lang
@@ -355,11 +360,11 @@ class VoicePrompt(SystemSetting):
                         outputs=[speaker_transcribed_input,speaker_original_input], queue=False
                     )
                 with gr.Row():
-                    bot_audio_output = gr.Audio(scale=1, label="Assistant response audio",
+                    bot_audio_output = gr.Audio(scale=1, label="assistant response audio",
                                                 format="mp3", elem_id="ai_speaker", autoplay=True, visible=False,
                                                 waveform_options={"waveform_progress_color": "orange", "waveform_progress_color": "orange"})
                     bot_output_txt = gr.Textbox(
-                        label="Assistant response text", scale=2, lines=3,
+                        label="assistant response text", scale=2, lines=3,
                         info="AI generated response text",
                         placeholder="", container=True, visible=False, show_copy_button=True
                     )
