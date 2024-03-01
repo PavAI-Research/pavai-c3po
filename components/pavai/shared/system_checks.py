@@ -69,7 +69,7 @@ PRODUCT_NAME = "PAVAI"
 #DEFAULT_SYSTEM_AI_NAME = "Amy"
 
 PAVAI_APP_VOCIE="PAVAI Vocie"
-DEFAULT_PAVAI_VOCIE_AGENT="Jane"
+DEFAULT_PAVAI_VOCIE_AGENT="Anthony"
 
 DEFAULT_PAVAI_STARTUP_MSG_INTRO = " your personal multilingual AI assistant for everyday tasks, how may I help you today?"
 DEFAULT_PAVAI_STARTUP_MSG_INTRO2 = " an AI assistant. I can help you find answers on everyday tasks, do you have a question for me?"
@@ -90,7 +90,7 @@ DEFAULT_PAVAI_TALKIE_STARTUP_MSG_INTRO = "Hi,I am Ryan your personal multilingua
 DEFAULT_PAVAI_TALKIE_STARTUP_MSG_NEXT_STEP = "ready? I am listening."
 ### IMPORTANT: localhost is required for use of microphone in the web browser.
 
-DEFAULT_SYSTEM_STARTUP_MSG_SYSTEM_CHECK_RUNNING ="Running system startup checks!"
+DEFAULT_SYSTEM_STARTUP_MSG_SYSTEM_CHECK_RUNNING ="working on system startup checks!"
 DEFAULT_SYSTEM_STARTUP_MSG_SYSTEM_CHECK_SUCCESS ="System startup check success!"
 DEFAULT_SYSTEM_STARTUP_MSG_SYSTEM_CHECK_FAILED = "Oops, system startup check failed!"
 DEFAULT_SYSTEM_STARTUP_MSG_SYSTEM_CHECK_FAILED_RECOVER = "please check the console log for cause of failure, fix the issue then try start again."
@@ -508,7 +508,7 @@ def activate_system_agent(system_agent:str=None, startup_message:str=None, syste
             agen_name = DEFAULT_PAVAI_VOCIE_AGENT
         else:
             agen_name = system_config["DEFAULT_PAVAI_VOCIE_AGENT"]
-        agen_greeting = f"hi, i am {agen_name} prototype 1 from PAVAI"
+        agen_greeting = f"hi, i am {agen_name} from PAVAI"
         system_tts_local(sd,text=agen_greeting,output_voice=output_voice)
         #time.sleep(0.5)              
         #rand_idx = random.randrange(len(DEFAULT_PAVAI_STARTUP_MSG_INTROS))

@@ -98,7 +98,7 @@ _TURN_OFF_IMAGE_CHAT_MODE=True
 """
 MAIN User Interface
 """
-title = '🤖 PAvAI.Vocie - an advance private multilingual LLM-based AI Voice Assistant'
+title = '🤖 PAvAI C3PO - an advance private multilingual LLM-based AI Voice Assistant'
 description = """an advance private multilingual AI Voice Assistant."""
 
 theme = gr.themes.Default()
@@ -127,9 +127,9 @@ class VoceiApp(VoicePrompt,ChatbotSpeaker,CommunicationTranslator,ScratchPad):
         gc.set_threshold(50_000,g1*5,g2*10)
 
     def main(self):
-        system_settings_ui=self.build_system_setting_ui()
+        #system_settings_ui=self.build_system_setting_ui()
         voice_prompt_ui=self.build_voice_prompt_ui()
-        chatbot_speaker_ui=self.build_chatbot_speaker_ui()
+        #chatbot_speaker_ui=self.build_chatbot_speaker_ui()
         translator_ui=self.build_translator_ui()
         scratchpad_ui=self.build_scratchpad_ui()        
         """APP UI"""
@@ -139,17 +139,13 @@ class VoceiApp(VoicePrompt,ChatbotSpeaker,CommunicationTranslator,ScratchPad):
 
         self.app_ui = gr.TabbedInterface(
             theme=theme,
-            interface_list=[voice_prompt_ui,chatbot_speaker_ui,translator_ui,scratchpad_ui,system_settings_ui],
-            tab_names=["Voice Prompt", "Chatbot Speaker","Seamless Multilingual Communication","Scratch Pad", "System Settings"],
-            title="🎙️Real:C3PO Voice Assistant 💬",
+            interface_list=[voice_prompt_ui,translator_ui,scratchpad_ui],
+            tab_names=["Voice Prompt", "Seamless Multilingual Communication","Scratch Pad"],
+            title="-🤖-C3PO:Real Voice Assistant 💬",
             css=".gradio-container {background: url('file=pavai_logo_large.png')}",
             analytics_enabled=False            
         )
         with self.app_ui:
-            with gr.Accordion("Debug", open=False):
-                json = gr.JSON()
-                btn_load = gr.Button("Dump session info to JSON")
-                btn_load.click(lambda x: x, self.history_state, json)
             with gr.Group():
                 gr.HTML(show_label=False, value="PAvAI-VOCIE prototype(1).  alpha 0.0.3. copyright@2024")
 

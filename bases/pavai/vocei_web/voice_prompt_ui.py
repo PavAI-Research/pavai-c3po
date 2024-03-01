@@ -135,10 +135,9 @@ class VoicePrompt(SystemSetting):
         else:
             return gr.Textbox(visible=False), gr.Audio(visible=False), gr.Image(visible=False)
 
-    def vc_text_to_speech(self,text: str, output_voice: str = "en", mute=False, autoplay=False):
-        #out_file = text_to_speech(text=text, output_voice=output_voice, mute=mute, autoplay=autoplay)
-        tts_voice=system_config["GLOBAL_TTS_LIBRETTS_VOICE"]
-        out_file = speaker_file_v2(text=text,output_voice="jane",autoplay=autoplay)
+    def vc_text_to_speech(self,text: str, output_voice: str = "jane", mute=False, autoplay=False):
+        #tts_voice=system_config["GLOBAL_TTS_LIBRETTS_VOICE"]
+        out_file = speaker_file_v2(text=text,output_voice=output_voice,autoplay=autoplay)
         return out_file
 
     def vc_voice_chat(self,user_message, chatbot_history):
@@ -215,25 +214,13 @@ class VoicePrompt(SystemSetting):
             fixed_size_sentences.append(sentences)
         return fixed_size_sentences
 
-    def vc_convert_text_to_speech(self,input_text:str, output_voice:str, mute=False, autoplay=False, delay:int=33):
-        import time
+    def vc_convert_text_to_speech(self,selected_voice:str,input_text:str, output_voice:str, mute=False, autoplay=False, delay:int=33):
         gr.Info("processing text to speech, please wait!")
-        wav=self.vc_text_to_speech(text=input_text,output_voice="jane",mute=False, autoplay=False)
+        if selected_voice is None:
+            wav=self.vc_text_to_speech(text=input_text,output_voice="jane",mute=False, autoplay=False)
+        else:
+            wav=self.vc_text_to_speech(text=input_text,output_voice=selected_voice,mute=False, autoplay=False)
         return wav
-    
-        # cb_text_chunks = self.vc_chunk_sentences_to_max_tokens(sentences=input_text,max_length=90)
-        # send_full_audio=False
-        # print("convert_text_to_speech audio chunks: ",len(cb_text_chunks))
-        # if len(cb_text_chunks)==1:
-        #     send_full_audio=True
-        # for chunk in cb_text_chunks:
-        #     audio_file=self.vc_text_to_speech(text=chunk,output_voice=output_voice,mute=False, autoplay=False,)
-        #     if send_full_audio:
-        #         yield  audio_file
-
-        #     else:           
-        #         time.sleep(delay)
-        #         yield audio_file
 
     def build_voice_prompt_ui(self):
         self.blocks_voice_prompt = gr.Blocks(title="VOICE-PROMPT-UI",analytics_enabled=False)
@@ -245,7 +232,7 @@ class VoicePrompt(SystemSetting):
                 activities_state = gr.State([])
                 task_mode_state = gr.State("transcribe")
                 """Configuration"""
-                with gr.Accordion("Spoken Language", open=False):                
+                with gr.Accordion("Spoken Language", open=False, visible=False):                
                     with gr.Row():
                         with gr.Column(1):
                             available_ai_speaker_langs=["ar","cs","da","de","en","en_ryan","en_ryan_medium","en_ryan_low","en_amy","en_amy_low","en_kusal","en_lessac","en_lessac_low","ru","zh","fr","uk","es"]
@@ -253,23 +240,31 @@ class VoicePrompt(SystemSetting):
                         with gr.Column(2):
                             textbox_detected_spoken_language = gr.Textbox(label="Auto detect spoken language", value="en")
 
-                with gr.Accordion("Additional Options", open=False):
+                available_human_voices=["anthony","ryan","jane","vinay","nima","yinghao","keith","may","c3p013","c3p0voice1","c3p0voice13"]
+                vc_voices_dropdown = gr.Dropdown(label="Output Voice",choices=available_human_voices, value="anthony")
+                vc_selected_voice = gr.Text(visible=False, value="anthony")
+
+                def change_voice(new_voice:str):
+                    gr.Info(f"new voice selected: {new_voice}")    
+                    return new_voice
+                    
+                vc_voices_dropdown.change(fn=change_voice,inputs=[vc_voices_dropdown], outputs=[vc_selected_voice])               
+
+                with gr.Accordion("Options", open=False):
                     with gr.Row():
                         with gr.Column(1):
-                            radio_task_mode = gr.Radio(choices=["transcribe", "translate"], value="transcribe", interactive=True,
+                            radio_task_mode = gr.Radio(choices=["transcribe", "translate"], value="transcribe",visible=False,interactive=True,
                                                     label="transcription options",
                                                     info="[transcribe] preserved spoken language while [translate] converts all spoken languages to english only.]")
                             radio_task_mode.change(fn=self.vc_set_task_mode, inputs=[
                                                 radio_task_mode, task_mode_state], outputs=task_mode_state)
-                        with gr.Column(1):
                             checkbox_enable_text_to_image = gr.Checkbox(
                                 value=False, label="enable image generation",
-                                info="speak a shorter prompts to generate creative AI image.")                            
+                                info="speak a shorter prompts to generate creative AI image.")                                                        
+                        with gr.Column(1):
                             checkbox_enable_grammar_fix = gr.Checkbox(value=False,
                                                                     label="enable single-shot grammar synthesis correction model",
-                                                                    info="grammar synthesis model it does not semantically change text/information that is grammatically correct.")
-                            # slider_max_query_log_entries = gr.Slider(
-                            #     5, 30, step=1, label="Max logs", interactive=True)                                                        
+                                                                    info="It does not semantically change text/information that is grammatically correct.")
                         with gr.Column(1):
                             checkbox_show_transcribed_text = gr.Checkbox(value=True,
                                                                         label="show transcribed voice text")
@@ -278,10 +273,10 @@ class VoicePrompt(SystemSetting):
                             slider_max_query_log_entries = gr.Slider(5, 30, step=1, label="Max logs", interactive=True)                            
                     with gr.Row():
                         """content safety options"""                                
-                        checkbox_content_safety = gr.Checkbox(
-                                value=False, label="enable content safety guard",
-                                info="enforce content safety check on input and output")    
-                        checkbox_content_safety.change(fn=self.select_content_safety_options,inputs=checkbox_content_safety)                                                                           
+                        # checkbox_content_safety = gr.Checkbox(
+                        #         value=False, label="enable content safety guard",
+                        #         info="enforce content safety check on input and output")    
+                        # checkbox_content_safety.change(fn=self.select_content_safety_options,inputs=checkbox_content_safety)                                                                           
                         """data security options"""                
                         checkbox_enable_PII_analysis = gr.Checkbox(
                             value=False, label="enable PII data analysis",
@@ -387,16 +382,112 @@ class VoicePrompt(SystemSetting):
 
                     btn_clear = gr.ClearButton([speaker_audio_input, bot_audio_output, bot_output_image,
                                                 speaker_transcribed_input, bot_output_txt, activities_state],
-                                                size="sm",value="🎙️ New Query")
+                                                size="sm",value="🎙️ New")
                     btn_clear.click(
                         self.vc_hide_outputs, inputs=[checkbox_enable_text_to_image],
                         outputs=[bot_output_txt, bot_audio_output, bot_output_image], queue=False)
 
-                with gr.Accordion("User Instructions", open=False):
+                with gr.Accordion("Model Parameters", open=False):
+                    with gr.Row():
+                        with gr.Column():
+                            api_host = gr.Textbox(
+                                label="API base",
+                                value="local",
+                            )
+                        with gr.Column():
+                            active_model = gr.Textbox(
+                                label="Active model",
+                                value="zephyr:latest",
+                                info="current model",
+                            )
+                        with gr.Column():
+                            api_key = gr.Textbox(
+                                label="API Key",
+                                value="ollama",
+                                type="password",
+                                placeholder="sk..",
+                                info="You have to provide your own GPT4 keys for this app to function properly",
+                            )
+                        with gr.Column():
+                            model_dropdown = gr.Dropdown(
+                                label="Available models",
+                                value="zephyr:latest",
+                                choices=["zephyr"],
+                                info="select a model",
+                                interactive=True,
+                            )
+
+                    ## in-line update event handler
+                    # model_dropdown.change(
+                    #     fn=self.update_active_model,
+                    #     inputs=[model_dropdown],
+                    #     outputs=[active_model],
+                    # )
+
+                    system_msg_info = """System message helps set the behavior of the AI Assistant. For example, the assistant could be instructed with 'You are a helpful assistant.'"""
+                    system_prompt = gr.Textbox(
+                        label="Instruct the AI Assistant to set its beaviour",
+                        info=system_msg_info,
+                        value="You are helpful AI assistant on helping answer user question and research.",
+                        placeholder="Type here..",
+                        lines=2,
+                    )
+                    accordion_msg = gr.HTML(
+                        value="🚧 To set System message you will have to refresh the app",
+                        visible=False,
+                    )
+                    # top_p, temperature
+                    with gr.Row():
+                        with gr.Column():
+                            top_p = gr.Slider(
+                                minimum=-0,
+                                maximum=40.0,
+                                value=1.0,
+                                step=0.05,
+                                interactive=True,
+                                label="Top-p (nucleus sampling)",
+                            )
+                        with gr.Column():
+                            temperature = gr.Slider(
+                                minimum=0,
+                                maximum=5.0,
+                                value=1.0,
+                                step=0.1,
+                                interactive=True,
+                                label="Temperature",
+                            )
+                    with gr.Row():
+                        with gr.Column():
+                            max_tokens = gr.Slider(
+                                minimum=1,
+                                maximum=16384,
+                                value=1024,
+                                step=1,
+                                interactive=True,
+                                label="Max Tokens",
+                            )
+                        with gr.Column():
+                            presence_penalty = gr.Number(
+                                label="presence_penalty", value=0, precision=0
+                            )
+                        with gr.Column():
+                            stop_words = gr.Textbox(
+                                label="stop words", value="<"
+                            )
+                        with gr.Column():
+                            frequency_penalty = gr.Number(
+                                label="frequency_penalty", value=0, precision=0
+                            )
+                        with gr.Column():
+                            chat_counter = gr.Number(
+                                value=0, visible=False, precision=0
+                            )
+
+                with gr.Accordion("Instructions", open=False):
                     gr.Markdown(VOICE_PROMPT_INSTRUCTIONS_TEXT)
 
                 """QUERY LOGS"""
-                with gr.Accordion("Query Logs", open=False):
+                with gr.Accordion("Logs", open=False):
                     # Creating dataframe to log queries
                     df_query_log = pd.DataFrame(
                         {"index": [], "query_text": [], "query_length": [],"response_text": [], "response_length": [], "took": []}
@@ -405,9 +496,7 @@ class VoicePrompt(SystemSetting):
                     gr_query_log = gr.Dataframe(value=styler, interactive=True, wrap=True)
 
                     max_values = 10
-                    slider_max_query_log_entries.change(self.vc_update_log_entries,
-                                                        inputs=[slider_max_query_log_entries],
-                                                        outputs=[gr_query_log], queue=False)
+                    slider_max_query_log_entries.change(self.vc_update_log_entries,inputs=[slider_max_query_log_entries],outputs=[gr_query_log], queue=False)
 
                 # handle speaker input mic
                 speaker_input_mic.then(
@@ -433,7 +522,7 @@ class VoicePrompt(SystemSetting):
                     lambda: gr.update(visible=True), None, textbox_detected_spoken_language, queue=True
                 ).then(
                     self.vc_convert_text_to_speech,
-                    inputs=[bot_output_txt, textbox_detected_spoken_language],
+                    inputs=[vc_selected_voice,bot_output_txt, textbox_detected_spoken_language],
                     outputs=[bot_audio_output], queue=False
                 )
 
@@ -459,7 +548,7 @@ class VoicePrompt(SystemSetting):
                     outputs=[gr_query_log], queue=True
                 ).then(
                     self.vc_convert_text_to_speech,
-                    inputs=[bot_output_txt, textbox_detected_spoken_language],
+                    inputs=[vc_selected_voice,bot_output_txt, textbox_detected_spoken_language],
                     outputs=[bot_audio_output], queue=False
                 )
 
@@ -484,7 +573,7 @@ class VoicePrompt(SystemSetting):
                     outputs=[gr_query_log], queue=True
                 ).then(
                     self.vc_convert_text_to_speech,
-                    inputs=[bot_output_txt, textbox_detected_spoken_language],
+                    inputs=[vc_selected_voice,bot_output_txt, textbox_detected_spoken_language],
                     outputs=[bot_audio_output], queue=False
                 )
 
@@ -497,12 +586,13 @@ class VoicePrompt(SystemSetting):
                 )
                 # "realtime/gradio_tutor/audio/hp0.wav"
                 # "realtime/examples/jfk.wav"
-                gr.Examples(
-                examples=["workspace/samples/jfk.wav"],
-                inputs=[speaker_audio_input],
-                outputs=[speaker_transcribed_input, textbox_detected_spoken_language],
-                fn=speech_to_text,
-                cache_examples=False,
-                label="example audio file: president JFK speech"
-            )
+                # ------------
+                # gr.Examples(
+                # examples=["workspace/samples/jfk.wav"],
+                # inputs=[speaker_audio_input],
+                # outputs=[speaker_transcribed_input, textbox_detected_spoken_language],
+                # fn=speech_to_text,
+                # cache_examples=False,
+                # label="example audio file: president JFK speech"
+                # )
         return self.blocks_voice_prompt

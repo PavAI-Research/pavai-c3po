@@ -137,8 +137,9 @@ def speaker_file(text:str,autoplay:bool=True)->str:
     wav_file = LJSpeech().ljspeech_v2(text=text,autoplay=autoplay)
     return wav_file
 
-def speaker_file_v2(text:str,output_voice:str="jane",vosk_params=None,chunk_size:int=500,autoplay=False)->str:
+def speaker_file_v2(text:str,output_voice:str=None,vosk_params=None,chunk_size:int=500,autoplay=False)->str:
     global onelibrispeech
-    voice_name = system_config["GLOBAL_TTS_LIBRETTS_VOICE"]
-    wav_file = onelibrispeech.librispeech_v3(text=text,compute_style=voice_name,autoplay=autoplay)
+    if output_voice is None:
+        output_voice = system_config["GLOBAL_TTS_LIBRETTS_VOICE"]
+    wav_file = onelibrispeech.librispeech_v3(text=text,compute_style=output_voice,autoplay=autoplay)
     return wav_file
