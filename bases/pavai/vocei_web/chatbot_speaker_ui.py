@@ -521,7 +521,7 @@ class ChatbotSpeaker(SystemSetting):
                                     outputs=[chatbot_ui, self.history_state,
                                                 textbox_chatbot_response], queue=False
                                 ).then(self.cb_update_chat_session,
-                                        inpusystem_speaker_v2ts=[self.history_state],
+                                        inputs=[self.history_state],
                                         outputs=[chatbot_ui, self.history_state,self.session_tokens], queue=False                                        
                                 ).then(self.cb_convert_text_to_speech,
                                         inputs=[textbox_chatbot_response, cb_text_to_speech_target_lang, checkbox_turn_off_voice_response],

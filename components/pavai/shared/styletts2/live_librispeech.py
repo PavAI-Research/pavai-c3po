@@ -535,6 +535,15 @@ class LibriSpeech(Singleton):
             self.wipe_memory()          
         return output_audiofile
 
+    def chunk_text_to_fixed_length(self,text: str, length: int):
+        text = text.strip()
+        result = [text[0+i:length+i] for i in range(0, len(text), length)]
+        return result
+
+    def sentence_word_splitter(self,text: str,num_of_words: int) -> list:
+        pieces = text.split()
+        return [" ".join(pieces[i:i+num_of_words]) for i in range(0, len(pieces), num_of_words)]
+
     def librispeech_v3(self,text:str, 
                     compute_style:any,
                     alpha=0.3, 
@@ -552,15 +561,18 @@ class LibriSpeech(Singleton):
                 ref_s = self.lookup_voice(name=compute_style)
             else:
                 ref_s = compute_style # input torch.Tensor
-            sentences = text.split('.') # simple split by comma
+            #sentences = text.split('.') # simple split by comma
+            #sentences = self.chunk_text_to_fixed_length(text=text.strip(),length=48)
+            sentences = self.sentence_word_splitter(text=text.strip(),num_of_words=60)            
             wavs = []
             s_prev=None
             for text in sentences:
                 start = time.time()                
                 if text.strip() == "": continue
                 text += '.' # add it back
-                wav,s_prev = self.LFinference(text, s_prev, ref_s, alpha=alpha, beta=beta, diffusion_steps=diffusion_steps, embedding_scale=embedding_scale)
-                ##wav = self.inference(text, ref_s, alpha=alpha, beta=beta, diffusion_steps=diffusion_steps, embedding_scale=embedding_scale)                
+                print("text length=", len(text))
+                #wav,s_prev = self.LFinference(text, s_prev, ref_s, alpha=alpha, beta=beta, diffusion_steps=diffusion_steps, embedding_scale=embedding_scale)
+                wav = self.inference(text, ref_s, alpha=alpha, beta=beta, diffusion_steps=diffusion_steps, embedding_scale=embedding_scale)                
                 wavs.append(wav)
                 rtf = (time.time() - start) / (len(wav) / samplerate)
                 t1=time.perf_counter()
@@ -617,17 +629,21 @@ class LibriSpeech(Singleton):
 """MAIN"""
 if __name__ == "__main__":
 
-    LibriSpeech().test_libris_speech()
-    LibriSpeech().test_libris_speech_emotions()
+    #LibriSpeech().test_libris_speech()
+    #LibriSpeech().test_libris_speech_emotions()
     #LibriSpeech().test_libris_speech_longspeech()
     ## Basic synthesis (5 diffusion steps)
     #text = "StyleTTS 2 is a text-to-speech model that leverages style diffusion and adversarial training with large speech language models to achieve human-level text-to-speech synthesis."
     passage = """
-    If the supply of fruit is greater than the family needs, it may be made a source of income by sending the fresh fruit to the market if there is one near enough, or by preserving, canning, and making jelly for sale. To make such an enterprise a success the fruit and work must be first class. 
-    There is magic in the word "Homemade," when the product appeals to the eye and the palate; but many careless and incompetent people have found to their sorrow that this word has not magic enough to float inferior goods on the market. 
-    As a rule large canning and preserving establishments are clean and have the best appliances, and they employ chemists and skilled labor. The home product must be very good to compete with the attractive goods that are sent out from such establishments. 
-    Yet for first-class homemade products there is a market in all large cities. 
-    All first-class grocers have customers who purchase such goods.
+Canada is indeed a vast country. Here's some information on the size of Canada:
+
+1. Land Area: Canada covers an area of approximately 9.9 million square kilometers (3.8 million square miles). This makes it the second-largest country in the world by total land area after Russia.
+
+2. Water Area: Canada also has a large coastline that includes several lakes and islands. The total surface area of Canada's lakes (including Great Bear Lake, Great Slave Lake, Lake Winnipegosee, Lake Superior, and Lake Huron) is approximately 6.5 million square kilometers (2.5 million square miles).
+
+3. Total Area: When we combine the land area and water area, Canada's total area is approximately 10 million square kilometers (3.8 million square miles). This is roughly one-third of the total land area of our planet!
+
+I hope that helps answer your question. Let me know if there's anything else I can assist you with today!
     """
     #ref_s1 = LibriSpeech().compute_style("resources/models/styletts2/reference_audio/Ryan.wav")
     #ref_s2 = LibriSpeech().compute_style("resources/models/styletts2/reference_audio/Jane.wav")
@@ -642,9 +658,9 @@ if __name__ == "__main__":
     # ref_s11 = compute_style("resources/models/styletts2/reference_audio/June.wav")
     # ## Default setting (alpha = 0.3, beta=0.7)
 
-    # output_audio_file = LibriSpeech().librispeech_v3(text=passage,compute_style=ref_s2,autoplay=False)
-    # data, fs = sf.read(output_audio_file)
-    # sd.play(data,samplerate=24000,blocking=True)
+    output_audio_file = LibriSpeech().librispeech_v3(text=passage,compute_style="jane",autoplay=False)
+    data, fs = sf.read(output_audio_file)
+    sd.play(data,samplerate=24000,blocking=True)
 
     ## output_audio_file = LibriSpeech().librispeech_v2(text=passage,compute_style=ref_s2,emotion="sad",autoplay=False)
     ## data, fs = sf.read(output_audio_file)

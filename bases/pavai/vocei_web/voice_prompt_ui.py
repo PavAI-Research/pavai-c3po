@@ -96,7 +96,7 @@ _TURN_OFF_IMAGE_CHAT_MODE=True
 class VoicePrompt(SystemSetting):
 
     def vc_speech_to_text(self,input_audio: Union[str, BinaryIO, np.ndarray],
-                        task_mode="transcribe",
+                        task_mode="translate",#"transcribe",
                         model_size: str = "large",
                         beam_size: int = 5,
                         vad_filter: bool = True,
@@ -138,7 +138,7 @@ class VoicePrompt(SystemSetting):
     def vc_text_to_speech(self,text: str, output_voice: str = "en", mute=False, autoplay=False):
         #out_file = text_to_speech(text=text, output_voice=output_voice, mute=mute, autoplay=autoplay)
         tts_voice=system_config["GLOBAL_TTS_LIBRETTS_VOICE"]
-        out_file = speaker_file_v2(sd,text=text,output_voice="jane",autoplay=autoplay)
+        out_file = speaker_file_v2(text=text,output_voice="jane",autoplay=autoplay)
         return out_file
 
     def vc_voice_chat(self,user_message, chatbot_history):
@@ -339,8 +339,6 @@ class VoicePrompt(SystemSetting):
 
                     # handle audio recording as input
                     speaker_input_mic = speaker_audio_input.stop_recording(
-                         speak_wait, None, None, queue=False
-                    ).then(
                         self.vc_speech_to_text,
                         inputs=[speaker_audio_input, task_mode_state],
                         outputs=[speaker_transcribed_input,textbox_detected_spoken_language],queue=False
@@ -352,8 +350,6 @@ class VoicePrompt(SystemSetting):
 
                     # handle audio file upload as input
                     speaker_input_file = speaker_audio_input.upload(
-                        speak_wait, None, None, queue=False
-                    ).then(
                         self.vc_speech_to_text,
                         inputs=[speaker_audio_input, task_mode_state],
                         outputs=[speaker_transcribed_input,textbox_detected_spoken_language],
@@ -415,8 +411,6 @@ class VoicePrompt(SystemSetting):
 
                 # handle speaker input mic
                 speaker_input_mic.then(
-                    speak_acknowledge, None, None, queue=False
-                ).then(
                     self.vc_voice_chat,
                     inputs=[speaker_transcribed_input, activities_state],
                     outputs=[speaker_transcribed_input, activities_state], queue=False
@@ -445,8 +439,6 @@ class VoicePrompt(SystemSetting):
 
                 # handle speaker input file
                 speaker_input_file.then(
-                    speak_acknowledge, None, None, queue=False
-                ).then(
                     self.vc_voice_chat,
                     inputs=[speaker_transcribed_input, activities_state],
                     outputs=[speaker_transcribed_input, activities_state], queue=False
@@ -473,8 +465,6 @@ class VoicePrompt(SystemSetting):
 
                 # handle transcribed text submit event
                 speaker_transcribed_input.submit(
-                    speak_acknowledge, None, None, queue=False
-                ).then(
                     self.vc_voice_chat,
                     inputs=[speaker_transcribed_input, activities_state],
                     outputs=[speaker_transcribed_input, activities_state], queue=False

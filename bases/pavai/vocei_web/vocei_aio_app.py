@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 pretty.install()
 import warnings 
 warnings.filterwarnings("ignore")
-
+import gc
 import traceback
 import os, sys
 import gradio as gr
@@ -151,6 +151,16 @@ class VoceiApp(VoicePrompt,ChatbotSpeaker,CommunicationTranslator,ScratchPad):
 
         return self.app_ui
 
+    def wipe_memory(self,objects:list=[]): # DOES WORK
+        try:
+            for obj in objects:
+                del obj
+            collected = gc.collect()
+            print("Garbage collector: collected","%d objects." % collected)
+            torch.cuda.empty_cache()
+        except:
+            pass
+
     def launch(self,server_name:str="0.0.0.0",server_port:int=7868,share:bool=False,**kwargs):
         background_image="resources/images/pavai_logo_large.png"
         authorized_users=[("abc:123"),("admin:123"),("john:smith"),("hello:hello")]      
@@ -159,7 +169,8 @@ class VoceiApp(VoicePrompt,ChatbotSpeaker,CommunicationTranslator,ScratchPad):
             self.main()
             absolute_path = os.path.abspath(background_image)
             pavai_vocie_system_health_check()
-            self.update_gc_threshold()        
+            #self.update_gc_threshold()       
+            self.wipe_memory()  
             self.app_ui.queue()
             self.app_ui.launch(share=False,auth=None,allowed_paths=[absolute_path],server_name=server_name,server_port=server_port)
         except Exception as ex:

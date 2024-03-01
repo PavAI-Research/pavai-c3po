@@ -65,22 +65,22 @@ SYSTEM_THEME_SOFT = "soft"
 SYSTEM_THEME_GLASS = "glass"
 SYSTEM_THEME_DEFAULT = "default"
 
-PRODUCT_NAME = "PavAI"
+PRODUCT_NAME = "PAVAI"
 #DEFAULT_SYSTEM_AI_NAME = "Amy"
 
-PAVAI_APP_VOCIE="PavAI.Vocie"
+PAVAI_APP_VOCIE="PAVAI Vocie"
 DEFAULT_PAVAI_VOCIE_AGENT="Jane"
 
-DEFAULT_PAVAI_STARTUP_MSG_INTRO = ". your personal multilingual AI assistant for everyday tasks, how may I help you today?"
-DEFAULT_PAVAI_STARTUP_MSG_INTRO2 = ". an AI assistant. I can help you find answers on everyday tasks, do you have a question for me?"
-DEFAULT_PAVAI_STARTUP_MSG_INTRO3 = ". I am not a human being but rather an advanced artificial intelligence system designed to understand and respond to your queries. do you have any questions for me?"
-DEFAULT_PAVAI_STARTUP_MSG_INTRO4 = ". I can perform a wide range of tasks to assist you, including Answering questions, Providing recommendations, Generating text, Translating text, Solving math problems, Providing definitions so these are just a few examples of what I can do."
-DEFAULT_PAVAI_STARTUP_MSG_INTRO5 = ". how may I help you today?"
+DEFAULT_PAVAI_STARTUP_MSG_INTRO = " your personal multilingual AI assistant for everyday tasks, how may I help you today?"
+DEFAULT_PAVAI_STARTUP_MSG_INTRO2 = " an AI assistant. I can help you find answers on everyday tasks, do you have a question for me?"
+DEFAULT_PAVAI_STARTUP_MSG_INTRO3 = " I am not a human being but rather an advanced artificial intelligence system designed to understand and respond to your queries. do you have any questions for me?"
+DEFAULT_PAVAI_STARTUP_MSG_INTRO4 = " I can perform a wide range of tasks to assist you, including Answering questions, Providing recommendations, Generating text, Translating text, Solving math problems, Providing definitions so these are just a few examples of what I can do"
+DEFAULT_PAVAI_STARTUP_MSG_INTRO5 = " how may I help you today?"
 #DEFAULT_PAVAI_STARTUP_MSG_INTRO6 = """an AI-powered assistant, and my primary role is to answer questions and provide information to users like you. what can I do for you today?"""
 
 DEFAULT_PAVAI_VOCIE_STARTUP_MSG_NEXT_STEP = "ready? let's open your browsers and type in web url http://localhost:7860; or enter a secured url to start using the system UI."
 
-PAVAI_APP_TALKIE="PavAI.Talkie"
+PAVAI_APP_TALKIE="PavAI Talkie"
 DEFAULT_PAVAI_TALKIE_AGENT="Ryan"
 DEFAULT_PAVAI_TALKIE_STARTUP_MSG_INTRO = "Hi,I am Ryan your personal multilingual PavAI.Talkie AI assistant for everyday tasks, how may I help you today?"
 # DEFAULT_PAVAI_TALKIE_STARTUP_MSG_INTRO_2 = "Hello, Ryan is here. how may I help you today?"
@@ -90,10 +90,8 @@ DEFAULT_PAVAI_TALKIE_STARTUP_MSG_INTRO = "Hi,I am Ryan your personal multilingua
 DEFAULT_PAVAI_TALKIE_STARTUP_MSG_NEXT_STEP = "ready? I am listening."
 ### IMPORTANT: localhost is required for use of microphone in the web browser.
 
-DEFAULT_SYSTEM_STARTUP_MSG_SYSTEM_CHECK_RUNNING = "Running " + \
-    PRODUCT_NAME+" system startup checks...one moment, please!"
-DEFAULT_SYSTEM_STARTUP_MSG_SYSTEM_CHECK_SUCCESS = PRODUCT_NAME + \
-    " System startup check success!"
+DEFAULT_SYSTEM_STARTUP_MSG_SYSTEM_CHECK_RUNNING ="Running system startup checks!"
+DEFAULT_SYSTEM_STARTUP_MSG_SYSTEM_CHECK_SUCCESS ="System startup check success!"
 DEFAULT_SYSTEM_STARTUP_MSG_SYSTEM_CHECK_FAILED = "Oops, system startup check failed!"
 DEFAULT_SYSTEM_STARTUP_MSG_SYSTEM_CHECK_FAILED_RECOVER = "please check the console log for cause of failure, fix the issue then try start again."
 
@@ -510,15 +508,15 @@ def activate_system_agent(system_agent:str=None, startup_message:str=None, syste
             agen_name = DEFAULT_PAVAI_VOCIE_AGENT
         else:
             agen_name = system_config["DEFAULT_PAVAI_VOCIE_AGENT"]
-        agen_greeting = f"hi, i am {agen_name} prototype.1 from PA-VAI;"
+        agen_greeting = f"hi, i am {agen_name} prototype 1 from PAVAI"
         system_tts_local(sd,text=agen_greeting,output_voice=output_voice)
         #time.sleep(0.5)              
-        rand_idx = random.randrange(len(DEFAULT_PAVAI_STARTUP_MSG_INTROS))
-        intro_message = DEFAULT_PAVAI_STARTUP_MSG_INTROS[rand_idx]                    
+        #rand_idx = random.randrange(len(DEFAULT_PAVAI_STARTUP_MSG_INTROS))
+        #intro_message = DEFAULT_PAVAI_STARTUP_MSG_INTROS[rand_idx]                    
         #time.sleep(0.5)              
-        system_tts_local(sd,text=startup_message,output_voice=output_voice)
+        #system_tts_local(sd,text=startup_message,output_voice=output_voice)
         #time.sleep(0.25)       
-        system_tts_local(sd,text=intro_message,output_voice=output_voice)
+        #system_tts_local(sd,text=intro_message,output_voice=output_voice)
         if "DEFAULT_SYSTEM_STARTUP_MSG_OPEN_BROWSER" not in system_config.keys():
             launch_message = DEFAULT_PAVAI_VOCIE_STARTUP_MSG_NEXT_STEP
         else:

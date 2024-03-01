@@ -39,6 +39,10 @@ _GLOBAL_TTS_API_URL=system_config["GLOBAL_TTS_API_URL"]
 _GLOBAL_TTS_API_LANGUAGE=system_config["GLOBAL_TTS_API_LANGUAGE"]
 _GLOBAL_TTS_API_SPEAKER_MODEL=system_config["GLOBAL_TTS_API_SPEAKER_MODEL"]
 
+## global instance
+onelibrispeech = LibriSpeech()
+#librispeech = LJSpeech()
+
 def get_speaker_audio_file(workspace_temp:str="workspace/temp")->str:
     Path.mkdir(workspace_temp, exist_ok=True)
     # if not os.path.exists(workspace_temp):
@@ -134,5 +138,6 @@ def speaker_file(text:str,autoplay:bool=True)->str:
     return wav_file
 
 def speaker_file_v2(text:str,output_voice:str="jane",vosk_params=None,chunk_size:int=500,autoplay=False)->str:
-    wav_file = LibriSpeech().librispeech_v3(text=text,compute_style=output_voice,autoplay=autoplay)
+    global onelibrispeech
+    wav_file = onelibrispeech.librispeech_v3(text=text,compute_style=output_voice,autoplay=autoplay)
     return wav_file

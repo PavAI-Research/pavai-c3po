@@ -250,6 +250,10 @@ class LJSpeech(Singleton):
             out = self.model.decoder((t_en @ pred_aln_trg.unsqueeze(0).to(self.device)),F0_pred, N_pred, ref.squeeze().unsqueeze(0))
         return out.squeeze().cpu().numpy(), s_pred
 
+    def sentence_word_splitter(self,text: str,num_of_words: int) -> list:
+        pieces = text.split()
+        return [" ".join(pieces[i:i+num_of_words]) for i in range(0, len(pieces), num_of_words)]
+
     ## synthesize a text
     ## Basic synthesis (5 diffusion steps)
     def ljspeech(self,text:str, 
@@ -290,8 +294,9 @@ class LJSpeech(Singleton):
         """
         try:
             t0=time.perf_counter()
-            #device = 'cuda' if torch.cuda.is_available() else 'cpu'
-            sentences = text.split('.') # simple split by comma
+            ##device = 'cuda' if torch.cuda.is_available() else 'cpu'
+            ##sentences = text.split('.') # simple split by comma
+            sentences = self.sentence_word_splitter(text=text,num_of_words=50)
             wavs = []
             s_prev = None
             for text in sentences:

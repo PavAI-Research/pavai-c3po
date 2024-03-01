@@ -114,6 +114,9 @@ def run_s2st(
     if CUDA_OUT_OF_MEMORY:
         device="cpu"
     gr.Warning(f"Attempt use optimal device: {device} for translation!")    
+    out_texts=None
+    sample_rate=24000
+    out_audios=None
     try:
         out_texts, out_audios, sample_rate = transcribe(
             input_audio_array=audio_array,
@@ -133,5 +136,5 @@ def run_s2st(
             device="cpu",        
         )
 
-    out_text = str(out_texts)
-    return (int(sample_rate), out_audios), out_text
+    out_texts = str(out_texts)
+    return (int(sample_rate), out_audios), out_texts
