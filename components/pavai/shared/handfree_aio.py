@@ -357,7 +357,7 @@ def system_initialization(webRTC_aggressiveness:int=3,
     # Stream from microphone to DeepSpeech using VAD
     text="[🎤] Listening... (ctrl-C to exit)..."
     #console.print("[green]"+text)   
-    console.print(f"[green]{system_checks.GLOBAL_TTS_LIBRETTS_VOICE} is ready :smiley:")    
+    console.print(f"[green]{system_checks.DEFAULT_PAVAI_TALKIE_AGENT} is ready :smiley:")    
 
 def activate_handfree_system(reload:bool=False,nospinner:bool=False):
     """activate_handfree_system"""
