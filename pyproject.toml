@@ -9,11 +9,8 @@ packages = [
     {include = "pavai/vocei_web",from = "bases"},
     {include = "pavai/talkie_cli",from = "bases"},
     {include = "pavai/finetune_api",from = "bases"},
-    {include = "pavai/solar",from = "components"},
     {include = "pavai/finetune",from = "components"},
-    {include = "pavai/chatcommand",from = "components"},
     {include = "pavai/shared",from = "components"},
-    {include = "pavai/helloworld",from = "components"},
     {include = "pavai/translator",from = "components"},    
 ]
 
