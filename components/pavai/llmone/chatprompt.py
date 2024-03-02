@@ -140,6 +140,9 @@ guard_system_prompt="Always assist with care, respect, and truth. Respond with u
 
 guard_system_prompt_assistant=system_prompt_assistant_v2+"\n"+guard_system_prompt+"\n"
 
+safe_system_prompt=system_prompt_default+".\n"+guard_system_prompt+"\n"
+
+short_response=".\nPlease generate short and precise answer with less than 30 words with max of 100 words."
 
 ## list of system prompts for various domain experts
 

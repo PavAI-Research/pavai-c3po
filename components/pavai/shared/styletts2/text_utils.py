@@ -1,5 +1,4 @@
 # IPA Phonemizer: https://github.com/bootphon/phonemizer
-
 _pad = "$"
 _punctuation = ';:,.!?¡¿—…"«»“” '
 _letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'
@@ -20,6 +19,7 @@ class TextCleaner:
         for char in text:
             try:
                 indexes.append(self.word_index_dictionary[char])
-            except KeyError:
-                print("KeyError:",text)
+            except KeyError as ke:
+                print("KeyError:",ke.args)                
+                #print("KeyError:",text)
         return indexes

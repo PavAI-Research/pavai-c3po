@@ -39,11 +39,11 @@ torch.set_num_threads(int(CPUs/2))
 DEFAULT_SAMPLE_RATE = 16000
 USE_ONNX = False
 PIPER_AI_VOICES = ["Amy","Ryan"]
-LIBRI_AI_VOICES = ["Ryan", "Jane", "Vinay", "Nima","Yinghao", "Keith", "May", "June", "Me1", "Me2", "Me3"]
+LIBRI_AI_VOICES = ["Ryan", "Jane", "Vinay", "Nima","Yinghao", "Keith", "May", "June"]
 
 if __name__ == '__main__':
     try:
-        system_startup(output_voice="en_ryan")
+        system_startup(output_voice="jane")
         system_initialization()
         activate_handfree_system()
     except (KeyboardInterrupt, SystemExit):

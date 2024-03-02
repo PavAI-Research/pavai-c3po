@@ -116,9 +116,9 @@ def system_startup(output_voice:str="jane"):
         logger.error(f"An exception occurred at system_startup!")
         raise SystemExit("program exited")
     if SYSTEM_READY:
-        text_speaker_ai(f"I am listening. how may I help you today?",output_voice="ryan")     
+        text_speaker_ai(f"I am listening. how may I help you today?",output_voice="jane")     
     else:
-        text_speaker_ai("Oops, system startup check failed!. please check console log.",output_voice="en_ryan")   
+        text_speaker_ai("Oops, system startup check failed!. please check console log.",output_voice="jane")   
 
 ## Text-to-Speech 
 # def speaker_announce(text:str,output_voice:str="jane"):
@@ -200,24 +200,30 @@ def text_speaker_human(sd,text:str,output_voice:str="jane",vosk_params=None):
 
 def process_conversation(new_query:str,history:list, context_size:int=4096*2, 
                        system_prompt: str = "You are an intelligent AI assistant who can help answer user query.",
-                       stop_criterias=["</s>"],output_voice="en_ryan"):
+                       stop_criterias=["</s>"],output_voice="jane"):
     history_buffer = llmtokens.HistoryTokenBuffer(history=history,max_tokens=context_size)
     history_buffer.update(new_query)
     console.print(f"[gray]context token counts available: {history_buffer.token_count} / max {history_buffer.max_tokens}[/gray]")
+
+    conversation_system_prompt = chatprompt.safe_system_prompt
+    new_query = new_query + chatprompt.short_response
+
     if len(history_buffer.overflow_summary)>0:
         # reduce and compress history content 
         logger.info(f"creating overflow summary: {history_buffer.overflow_summary}")
         summary="provide an summary of following text:\n "+history_buffer.overflow_summary
-        assistant_response, history = llmproxy.chat_api(user_prompt=new_query, history=history,
-                                                     system_prompt=system_prompt,stop_criterias=stop_criterias)
+        assistant_response, history = llmproxy.chat_api(user_prompt=new_query, 
+                                                        history=history,system_prompt=conversation_system_prompt,
+                                                        stop_criterias=stop_criterias)
         text_speaker_ai(text=assistant_response,output_voice=output_voice)       
-        history_buffer.update(summary)    
+        history_buffer.update(summary) 
         history=history_buffer.history
         history_buffer.overflow_summary=""
     # perform new query now
-    #history.append({'role': 'user', 'content': new_query})
+    #history.append({'role': 'user', 'content': new_query})  
     assistant_response,history = llmproxy.chat_api(user_prompt=new_query, history=history,
-                                                 system_prompt=system_prompt,stop_criterias=stop_criterias)
+                                                 system_prompt=conversation_system_prompt,
+                                                 stop_criterias=stop_criterias)
     #console.log(f"\nAI: {assistant_response}\n")
     return assistant_response, history 
 
@@ -351,7 +357,7 @@ def system_initialization(webRTC_aggressiveness:int=3,
     # Stream from microphone to DeepSpeech using VAD
     text="[🎤] Listening... (ctrl-C to exit)..."
     #console.print("[green]"+text)   
-    console.print(f"[green]{system_checks.DEFAULT_TTS_VOICE_MODEL_TALKIE_AGENT} is ready :smiley:")    
+    console.print(f"[green]{system_checks.GLOBAL_TTS_LIBRETTS_VOICE} is ready :smiley:")    
 
 def activate_handfree_system(reload:bool=False,nospinner:bool=False):
     """activate_handfree_system"""

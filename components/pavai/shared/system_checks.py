@@ -101,7 +101,7 @@ DEFAULT_PAVAI_VOCIE_STARTUP_MSG_NEXT_STEP = "ready? let's open your browsers and
 
 PAVAI_APP_TALKIE="PavAI Talkie"
 DEFAULT_PAVAI_TALKIE_AGENT="Jane"
-DEFAULT_PAVAI_TALKIE_STARTUP_MSG_INTRO = "Hi,I am Ryan your personal multilingual PavAI.Talkie AI assistant for everyday tasks, how may I help you today?"
+DEFAULT_PAVAI_TALKIE_STARTUP_MSG_INTRO = "Hi,I am Jane your personal multilingual PavAI.Talkie AI assistant for everyday tasks, how may I help you today?"
 # DEFAULT_PAVAI_TALKIE_STARTUP_MSG_INTRO_2 = "Hello, Ryan is here. how may I help you today?"
 # DEFAULT_PAVAI_TALKIE_STARTUP_MSG_INTRO_3 = f"Greetings, I am an AI language model designed to assist you with information, answers, and suggestions based on the text provided. I can't perform tasks outside of our text interactions, but I strive to provide helpful and accurate responses in a timely manner.?"
 # DEFAULT_PAVAI_TALKIE_STARTUP_MSG_INTRO_4 = f"Hey, I am Ryan your personal a multilingual PavAI.Talkie AI assistant for everyday tasks, how may I help you today?"
@@ -290,7 +290,7 @@ def download_spacy_model(model_size:str="en_core_web_sm",storage_dir:str="resour
         nlp = spacy.load(model_path)
         nlp.to_disk(os.path.join(cache_dir,model_path))  
    
-def system_resources_check(output_voice:str="en"):
+def system_resources_check(output_voice:str="jane"):
     logger.info("***running system resources checks***")    
     with Progress(transient=True) as progress: 
         try:       
@@ -412,7 +412,7 @@ def system_resources_check(output_voice:str="en"):
             current_system_mode="oops, system_resources_check error. please check the log "
             system_tts_local(text=current_system_mode,output_voice=output_voice)
 
-def system_sanity_tests(output_voice:str="en"):
+def system_sanity_tests(output_voice:str="jane"):
     global system_is_ready    
     logger.info("***running system functional checks***")    
     if "DEFAULT_SYSTEM_STARTUP_MSG_SYSTEM_CHECK_SUCCESS" not in config.system_config.keys():
@@ -470,8 +470,8 @@ def system_sanity_tests(output_voice:str="en"):
                     default_api_key=str(config.system_config["SOLAR_LLM_OLLAMA_MODEL_ID"]).strip()                                
 
                 # skip_content_safety_check=system_config["SOLAR_SKIP_CONTENT_SAFETY_CHECK"]    
-                skip_data_security_check=config.system_config["SOLAR_SKIP_DATA_SECURITY_CHECK"] 
-                skip_self_critique_check=config.system_config["SOLAR_SKIP_SELF_CRITIQUE_CHECK"] 
+                #skip_data_security_check=config.system_config["SOLAR_SKIP_DATA_SECURITY_CHECK"] 
+                #skip_self_critique_check=config.system_config["SOLAR_SKIP_SELF_CRITIQUE_CHECK"] 
                    
                 reply_text, reply_messages = llmproxy.chat_api_remote(user_prompt="hello")
                 #history, moderate_object = llmchat.moderate_and_query(guard_client, domain_client, 
@@ -583,7 +583,7 @@ def pavai_vocie_system_health_check(output_voice:str="en_amy"):
         logger.error("pavai_talkie_system_health_check error!",e)
     return System_ready                     
 
-def pavai_talkie_system_health_check(output_voice:str="ryan"):
+def pavai_talkie_system_health_check(output_voice:str="jane"):
     System_ready = False
     try:
         environment_info()
@@ -602,6 +602,6 @@ def pavai_talkie_system_health_check(output_voice:str="ryan"):
 """MAIN"""
 if __name__ == "__main__":
     #pavai_vocie_system_health_check(output_voice="en_amy")
-    pavai_talkie_system_health_check(output_voice="ryan")
+    pavai_talkie_system_health_check(output_voice="jane")
     #intro_message="hi, I am Ryan, your personal multilingual AI assistant for everyday tasks, how may I help you today?" 
     #speak_instruction(intro_message,output_voice="en_ryan")
