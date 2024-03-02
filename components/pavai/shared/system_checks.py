@@ -454,17 +454,7 @@ def system_sanity_tests(output_voice:str="en"):
                 # skip_content_safety_check=system_config["SOLAR_SKIP_CONTENT_SAFETY_CHECK"]    
                 skip_data_security_check=system_config["SOLAR_SKIP_DATA_SECURITY_CHECK"] 
                 skip_self_critique_check=system_config["SOLAR_SKIP_SELF_CRITIQUE_CHECK"] 
-                # guard_client = OpenAI(
-                #     api_key=f"{default_api_key}",
-                #     base_url=f"{default_url}"
-                # )
-                # domain_client = OpenAI(
-                #     api_key=f"{default_api_key}",
-                #     base_url=f"{default_url}"
-                # )
-                # user_query = {
-                #     "input_query": "hello"
-                # }                    
+                   
                 reply_text, reply_messages = llmproxy.chat_service(user_prompt="hello")
                 #history, moderate_object = llmchat.moderate_and_query(guard_client, domain_client, 
                 #                                                      query=user_query, history=[])

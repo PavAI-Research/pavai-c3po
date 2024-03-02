@@ -1,4 +1,3 @@
-# pip install python-dotenv
 from dotenv import dotenv_values
 system_config = dotenv_values("env_config")
 import logging
@@ -14,9 +13,6 @@ import traceback
 import os, sys
 import gradio as gr
 import torch
-# import pandas as pd
-# import numpy as np
-# from typing import BinaryIO, Union
 from transformers.utils import is_flash_attn_2_available
 from pavai.shared.system_checks import (pavai_vocie_system_health_check,DEFAULT_SYSTEM_MODE, SYSTEM_THEME_SOFT,SYSTEM_THEME_GLASS,VOICE_PROMPT_INSTRUCTIONS_TEXT)
 from pavai.shared.audio.transcribe import (speech_to_text, FasterTranscriber,DEFAULT_WHISPER_MODEL_SIZE)
@@ -28,6 +24,10 @@ from pavai.vocei_web.translator_ui import CommunicationTranslator,ScratchPad
 from pavai.vocei_web.voice_prompt_ui import VoicePrompt
 # from pavai.shared.aio.llmchat import (system_prompt_assistant, DEFAULT_LLM_CONTEXT_SIZE)
 # from pavai.shared.llmcatalog import LLM_MODEL_KX_CATALOG_TEXT
+# import pandas as pd
+# import numpy as np
+# from typing import BinaryIO, Union
+# pip install python-dotenv
 
 __author__ = "mychen76@gmail.com"
 __copyright__ = "Copyright 2024"
