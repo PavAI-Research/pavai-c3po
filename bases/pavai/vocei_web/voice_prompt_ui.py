@@ -1,13 +1,21 @@
-from dotenv import dotenv_values
-system_config = dotenv_values("env_config")
-import logging
-from rich.logging import RichHandler
-from rich import pretty
-logging.basicConfig(level=logging.INFO, format="%(message)s", datefmt="[%X]", handlers=[RichHandler(rich_tracebacks=True)])
-logger = logging.getLogger(__name__)
-pretty.install()
-import warnings 
-warnings.filterwarnings("ignore")
+# import os
+# from dotenv import dotenv_values
+# system_config = {
+#     **dotenv_values("env.shared"),  # load shared development variables
+#     **dotenv_values("env.secret"),  # load sensitive variables
+#     **os.environ,  # override loaded values with environment variables
+# }
+# import logging
+# from rich.logging import RichHandler
+# from rich import pretty
+# logging.basicConfig(level=logging.INFO, format="%(message)s", datefmt="[%X]", handlers=[RichHandler(rich_tracebacks=True)])
+# logger = logging.getLogger(__name__)
+# pretty.install()
+# import warnings 
+# warnings.filterwarnings("ignore")
+from pavai.setup import config 
+from pavai.setup import logutil
+logger = logutil.logging.getLogger(__name__)
 
 import os, sys
 import gradio as gr
@@ -23,11 +31,14 @@ from pavai.shared.commands import filter_commmand_keywords
 from pavai.shared.grammar import (fix_grammar_error)
 from pavai.shared.audio.transcribe import (speech_to_text, FasterTranscriber,DEFAULT_WHISPER_MODEL_SIZE)
 from pavai.shared.audio.tts_client import (system_tts_local,speaker_file_v2,get_speaker_audio_file,speak_acknowledge,speak_wait, speak_done, speak_instruction)
-from pavai.shared.aio.llmchat import get_llm_library
-from pavai.shared.aio.chatprompt import knowledge_experts_system_prompts
+
 from pavai.vocei_web.system_settings_ui import SystemSetting
-import pavai.shared.aio.chatprompt as chatprompt
-import pavai.shared.aio.chatmodels as chatmodels
+
+import pavai.llmone.remote.chatmodels as chatmodels
+import pavai.llmone.chatprompt as chatprompt
+#from pavai.llmone.local.llmchat import get_llm_library
+#from pavai.llmone.chatprompt import knowledge_experts_system_prompts
+
 import sounddevice as sd
 import cleantext
 import traceback
@@ -47,10 +58,10 @@ __author__ = "mychen76@gmail.com"
 __copyright__ = "Copyright 2024"
 __version__ = "0.0.3"
 
-print("--GLOBAL SYSTEM MODE----")
-print(system_config["GLOBAL_SYSTEM_MODE"])
-_GLOBAL_SYSTEM_MODE=system_config["GLOBAL_SYSTEM_MODE"]
-_GLOBAL_TTS=system_config["GLOBAL_TTS"]
+logger.warn("--GLOBAL SYSTEM MODE----")
+logger.warn(config.system_config["GLOBAL_SYSTEM_MODE"])
+_GLOBAL_SYSTEM_MODE=config.system_config["GLOBAL_SYSTEM_MODE"]
+_GLOBAL_TTS=config.system_config["GLOBAL_TTS"]
 
 # pip install python-dotenv
 # tested version gradio version: 4.7.1
@@ -72,8 +83,8 @@ faster_transcriber = FasterTranscriber(model_id_or_path=DEFAULT_WHISPER_MODEL_SI
 stablediffusion_model = StableDiffusionXL(model_id_or_path=DEFAULT_TEXT_TO_IMAGE_MODEL)
 
 # Knowledge experts and Domain Models
-knowledge_experts = list(knowledge_experts_system_prompts.keys())
-domain_models = list(get_llm_library().keys())
+knowledge_experts = list(chatprompt.knowledge_experts_system_prompts.keys())
+#domain_models = list(get_llm_library().keys())
 
 # global settings
 _QUERY_ASK_EXPERT_ID=None  # planner
@@ -153,7 +164,7 @@ class VoicePrompt(SystemSetting):
             return gr.Textbox(visible=True), gr.Audio(visible=True), gr.Image(visible=False), gr.Button(visible=False), gr.Button(visible=False)
 
     def vc_query_parameters(self,domain_expert, response_style, api_base, api_key,activate_model_id,system_prompt,top_p,temperature,max_tokens,present_penalty,stop_words,frequency_penalty,gpu_offload_layers):
-        self.user_settings["_SYSTEM_MODE"] = system_config["GLOBAL_SYSTEM_MODE"]    
+        self.user_settings["_SYSTEM_MODE"] = config.system_config["GLOBAL_SYSTEM_MODE"]    
         self.user_settings["_QUERY_API_BASE"] = str(api_base).strip()
         self.user_settings["_QUERY_API_KEY"] = str(api_key).strip()
         self.user_settings["_QUERY_MODEL_ID"] = str(activate_model_id).strip()
@@ -237,7 +248,7 @@ class VoicePrompt(SystemSetting):
 
     def vc_convert_text_to_speech(self,selected_voice:str=None,voice_emotion:str=None,input_text:str=None, output_voice:str=None, mute=False, autoplay=False, delay:int=33):
         gr.Info(f"processing text to speech with voice:{selected_voice}") 
-        print(f"convert_text_to_speech voice: {selected_voice} emotion: {voice_emotion}")
+        logger.debug(f"convert_text_to_speech voice: {selected_voice} emotion: {voice_emotion}")
         if selected_voice is None or len(selected_voice)==0:
             wav_file = speaker_file_v2(text=input_text,output_voice="jane",autoplay=autoplay)
         else:
@@ -249,7 +260,7 @@ class VoicePrompt(SystemSetting):
 
     def list_voices(self)->list:
         import pavai.shared.styletts2.live_voices as live_voices
-        voice_path = system_config["REFERENCE_VOICES"]
+        voice_path = config.system_config["REFERENCE_VOICES"]
         voices = live_voices.get_voice_names(path=voice_path)
         return voices
 
@@ -257,36 +268,36 @@ class VoicePrompt(SystemSetting):
         return chatprompt.speech_styles.keys()
 
     def get_api_base(self)->str:
-        if system_config["GLOBAL_SYSTEM_MODE"]=="solar-openai":
-            return system_config["SOLAR_LLM_DEFAULT_HOST"]            
-        elif system_config["GLOBAL_SYSTEM_MODE"]=="ollama-openai":
-            return system_config["SOLAR_LLM_OLLAMA_HOST"]  
+        if config.system_config["GLOBAL_SYSTEM_MODE"]=="solar-openai":
+            return config.system_config["SOLAR_LLM_DEFAULT_HOST"]            
+        elif config.system_config["GLOBAL_SYSTEM_MODE"]=="ollama-openai":
+            return config.system_config["SOLAR_LLM_OLLAMA_HOST"]  
         else:
              return "locally [all-in-one]"          
 
     def get_api_key(self)->str:
-        if system_config["GLOBAL_SYSTEM_MODE"]=="solar-openai":
-            return system_config["SOLAR_LLM_DEFAULT_API_KEY"]            
-        elif system_config["GLOBAL_SYSTEM_MODE"]=="ollama-openai":
-            return system_config["SOLAR_LLM_OLLAMA_API_KEY"]  
+        if config.system_config["GLOBAL_SYSTEM_MODE"]=="solar-openai":
+            return config.system_config["SOLAR_LLM_DEFAULT_API_KEY"]            
+        elif config.system_config["GLOBAL_SYSTEM_MODE"]=="ollama-openai":
+            return config.system_config["SOLAR_LLM_OLLAMA_API_KEY"]  
         else:
              return "Not Applicable"          
 
     def get_active_model(self)->str:
-        if system_config["GLOBAL_SYSTEM_MODE"]=="solar-openai":
-            return system_config["SOLAR_LLM_DEFAULT_MODEL_ID"]
-        elif system_config["GLOBAL_SYSTEM_MODE"]=="ollama-openai":
-            return system_config["SOLAR_LLM_OLLAMA_MODEL_ID"]
+        if config.system_config["GLOBAL_SYSTEM_MODE"]=="solar-openai":
+            return config.system_config["SOLAR_LLM_DEFAULT_MODEL_ID"]
+        elif config.system_config["GLOBAL_SYSTEM_MODE"]=="ollama-openai":
+            return config.system_config["SOLAR_LLM_OLLAMA_MODEL_ID"]
         else:
-            return system_config["DEFAULT_LLM_MODEL_FILE"]          
+            return config.system_config["DEFAULT_LLM_MODEL_FILE"]          
 
     def get_gpu_offload_layers(self)->int:
-        return int(system_config["DEFAULT_LLM_OFFLOAD_GPU_LAYERS"])
+        return int(config.system_config["DEFAULT_LLM_OFFLOAD_GPU_LAYERS"])
 
     def list_models(self)->list:
-        if system_config["GLOBAL_SYSTEM_MODE"]=="solar-openai":
+        if config.system_config["GLOBAL_SYSTEM_MODE"]=="solar-openai":
             return chatmodels.load_solar_models().keys()
-        elif system_config["GLOBAL_SYSTEM_MODE"]=="ollama-openai":
+        elif config.system_config["GLOBAL_SYSTEM_MODE"]=="ollama-openai":
             return chatmodels.load_ollama_models().keys()
         else:
             return chatmodels.load_local_models().keys()            
@@ -299,19 +310,19 @@ class VoicePrompt(SystemSetting):
 
     def vc_update_llm_mode(self,llm_mode):
         if llm_mode=="solar-openai":
-            api_host = system_config["SOLAR_LLM_DEFAULT_SERVER_URL"]  
-            api_key = system_config["SOLAR_LLM_DEFAULT_API_KEY"] 
-            active_model = system_config["SOLAR_LLM_DEFAULT_MODEL_ID"]                                              
+            api_host = config.system_config["SOLAR_LLM_DEFAULT_SERVER_URL"]  
+            api_key = config.system_config["SOLAR_LLM_DEFAULT_API_KEY"] 
+            active_model = config.system_config["SOLAR_LLM_DEFAULT_MODEL_ID"]                                              
             model_dropdown = chatmodels.load_solar_models().keys()                                                                     
         elif llm_mode=="ollama-openai":
-            api_host = system_config["SOLAR_LLM_OLLAMA_SERVER_URL"]  
-            api_key = system_config["SOLAR_LLM_OLLAMA_API_KEY"] 
-            active_model = system_config["SOLAR_LLM_OLLAMA_MODEL_ID"]                                              
+            api_host = config.system_config["SOLAR_LLM_OLLAMA_SERVER_URL"]  
+            api_key = config.system_config["SOLAR_LLM_OLLAMA_API_KEY"] 
+            active_model = config.system_config["SOLAR_LLM_OLLAMA_MODEL_ID"]                                              
             model_dropdown = chatmodels.load_ollama_models().keys()                                                                     
         else:
             api_host = "locally-aio"
             api_key = "not applicable"
-            active_model = system_config["DEFAULT_LLM_MODEL_FILE"]                                              
+            active_model = config.system_config["DEFAULT_LLM_MODEL_FILE"]                                              
             model_dropdown = chatmodels.load_local_models().keys()                                                                                             
         return [api_host,api_key,active_model,model_dropdown]
 
@@ -398,12 +409,12 @@ class VoicePrompt(SystemSetting):
                         # checkbox_content_safety.change(fn=self.select_content_safety_options,inputs=checkbox_content_safety)                                                                           
                         """data security options"""                
                         checkbox_enable_PII_analysis = gr.Checkbox(
-                            value=eval(system_config["_QUERY_ENABLE_PII_ANALYSIS"]), label="enable PII data analysis",
+                            value=eval(config.system_config["_QUERY_ENABLE_PII_ANALYSIS"]), label="enable PII data analysis",
                             info="analyze and report PII data on query input and outputs")
                         checkbox_enable_PII_analysis.change(fn=self.pii_data_analysis_options,
                                                             inputs=checkbox_enable_PII_analysis)
                         checkbox_enable_PII_anonymization = gr.Checkbox(
-                            value=eval(system_config["_QUERY_ENABLE_PII_ANONYMIZATION"]), label="enable PII data anonymization",
+                            value=eval(config.system_config["_QUERY_ENABLE_PII_ANONYMIZATION"]), label="enable PII data anonymization",
                             info="apply anonymization of PII data on input and output")    
                         checkbox_enable_PII_anonymization.change(fn=self.pii_data_amomymization_options,
                                                             inputs=checkbox_enable_PII_anonymization)                                       
@@ -502,7 +513,7 @@ class VoicePrompt(SystemSetting):
                 with gr.Accordion("Model Parameters", open=False):
                     with gr.Row():
                         radio_llm_mode = gr.Radio(choices=["locally-aio", "solar-openai", "ollama-openai"], 
-                                                  value=system_config["GLOBAL_SYSTEM_MODE"],
+                                                  value=config.system_config["GLOBAL_SYSTEM_MODE"],
                                                   visible=True,interactive=True,
                                                     label="LLM modes", info="currently running mode")
                     with gr.Row():

@@ -1,21 +1,30 @@
 ## SystemSetting.py
-from dotenv import dotenv_values
-system_config = dotenv_values("env_config")
-import logging
-from rich.logging import RichHandler
-from rich import pretty
-logging.basicConfig(level=logging.INFO, format="%(message)s", datefmt="[%X]", handlers=[RichHandler(rich_tracebacks=True)])
-logger = logging.getLogger(__name__)
-pretty.install()
-import warnings 
-warnings.filterwarnings("ignore")
+# import os
+# from dotenv import dotenv_values
+# system_config = {
+#     **dotenv_values("env.shared"),  # load shared development variables
+#     **dotenv_values("env.secret"),  # load sensitive variables
+#     **os.environ,  # override loaded values with environment variables
+# }
+# import logging
+# from rich.logging import RichHandler
+# from rich import pretty
+# logging.basicConfig(level=logging.INFO, format="%(message)s", datefmt="[%X]", handlers=[RichHandler(rich_tracebacks=True)])
+# pretty.install()
+# logger = logging.getLogger(__name__)
+# import warnings 
+# warnings.filterwarnings("ignore")
+from pavai.setup import config 
+from pavai.setup import logutil
+logger = logutil.logging.getLogger(__name__)
+
 import time
 import gradio as gr
 import torch
 from transformers.utils import is_flash_attn_2_available
-import pavai.shared.datasecurity as datasecurity
-from pavai.shared.llmproxy import chatbot_ui_client
-import pavai.shared.aio.chatprompt as chatprompt
+import pavai.llmone.datasecurity as datasecurity
+import pavai.llmone.llmproxy as llmproxy
+#import pavai.llmone.chatprompt as chatprompt
 
 DEFAULT_COMPUTE_TYPE = "float16" if torch.cuda.is_available() else "int8"
 DEFAULT_DEVICE_TYPE = "cuda" if torch.cuda.is_available() else "cpu"
@@ -66,9 +75,9 @@ class SystemSetting:
 
     def set_user_settings(self):
         self.user_settings={}
-        self.user_settings["_QUERY_ENABLE_PII_ANALYSIS"]=eval(system_config["_QUERY_ENABLE_PII_ANALYSIS"])
-        self.user_settings["_QUERY_ENABLE_PII_ANONYMIZATION"]=eval(system_config["_QUERY_ENABLE_PII_ANONYMIZATION"])
-        self.user_settings["_QUERY_CONTENT_SAFETY_GUARD"]=eval(system_config["_QUERY_CONTENT_SAFETY_GUARD"])
+        self.user_settings["_QUERY_ENABLE_PII_ANALYSIS"]=eval(config.system_config["_QUERY_ENABLE_PII_ANALYSIS"])
+        self.user_settings["_QUERY_ENABLE_PII_ANONYMIZATION"]=eval(config.system_config["_QUERY_ENABLE_PII_ANONYMIZATION"])
+        self.user_settings["_QUERY_CONTENT_SAFETY_GUARD"]=eval(config.system_config["_QUERY_CONTENT_SAFETY_GUARD"])
         self.user_settings["_QUERY_ASK_EXPERT_ID"]=None
         self.user_settings["_QUERY_ASK_EXPERT_PROMPT"]=None        
         self.user_settings["_QUERY_LLM_MODEL_ID"]=None
@@ -144,7 +153,7 @@ class SystemSetting:
                         warnings.append(f'> Warning: PII detected in INPUT {str(pii_results)}| ')      
     
         if _QUERY_ASK_EXPERT_PROMPT is None:
-            chatbot_ui_messages, chat_history, reply_text = chatbot_ui_client(input_text=input_text, 
+            chatbot_ui_messages, chat_history, reply_text = llmproxy.chat_api_ui(input_text=input_text, 
                                                                         chatbot=[],
                                                                         chat_history=chat_history,
                                                                         system_prompt=_QUERY_ASK_EXPERT_PROMPT,
@@ -157,7 +166,7 @@ class SystemSetting:
                                                                         user_settings=user_settings)
         else:
             gr.Info("routing request to domain experts")    
-            chatbot_ui_messages, chat_history, reply_text = chatbot_ui_client(input_text=input_text, 
+            chatbot_ui_messages, chat_history, reply_text = llmproxy.chat_api_ui(input_text=input_text, 
                                                                         chatbot=[],
                                                                         chat_history=chat_history,
                                                                         system_prompt=_QUERY_ASK_EXPERT_PROMPT,

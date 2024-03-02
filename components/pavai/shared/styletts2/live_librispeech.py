@@ -1,3 +1,15 @@
+from pavai.setup import config 
+from pavai.setup import logutil
+logger = logutil.logging.getLogger(__name__)
+
+# import os
+# from dotenv import dotenv_values
+# system_config = {
+#     **dotenv_values("env.shared"),  # load shared development variables
+#     **dotenv_values("env.secret"),  # load sensitive variables
+#     **os.environ,  # override loaded values with environment variables
+# }
+
 ## Install packages and download models
 ## -------------------------------------
 # %%shell
@@ -13,16 +25,17 @@
 
 # convert input audio to wav
 # ffmpeg -i inputfile.flac output.wav
-from dotenv import dotenv_values
-system_config = dotenv_values("env_config")
-import logging
-from rich.logging import RichHandler
-from rich import pretty
-logging.basicConfig(level=logging.INFO, format="%(message)s", datefmt="[%X]", handlers=[RichHandler(rich_tracebacks=True)])
-logger = logging.getLogger(__name__)
-pretty.install()
-import warnings 
-warnings.filterwarnings("ignore")
+
+# from dotenv import dotenv_values
+# system_config = dotenv_values("env_config")
+# import logging
+# from rich.logging import RichHandler
+# from rich import pretty
+# logging.basicConfig(level=logging.INFO, format="%(message)s", datefmt="[%X]", handlers=[RichHandler(rich_tracebacks=True)])
+# logger = logging.getLogger(__name__)
+# pretty.install()
+# import warnings 
+# warnings.filterwarnings("ignore")
 
 try: 
     import nltk
@@ -150,7 +163,7 @@ class LibriSpeech(speech_type.Singleton):
 
         self.cached_voice={}
         # reference voices
-        voice_config = system_config["REFERENCE_VOICES"]
+        voice_config = config.system_config["REFERENCE_VOICES"]
         self.reference_voices = live_voices.load_voices(voice_config)
 
     def lookup_voice(self,name: str = "jane"):
@@ -194,6 +207,11 @@ class LibriSpeech(speech_type.Singleton):
         mel_tensor = self.to_mel(wave_tensor)
         mel_tensor = (torch.log(1e-5 + mel_tensor.unsqueeze(0)) - self.mean) / self.std
         return mel_tensor
+
+    def lpad_text(self,text:str, max_length:int=43, endingchar:str="c")->str:
+        if len(text) < max_length:
+            text=text.ljust(max_length, '…')
+        return text+"."
 
     def compute_style(self,path:str, samplerate:int=24000, top_db:int=30):
         wave, sr = librosa.load(path, sr=samplerate)
@@ -450,6 +468,7 @@ class LibriSpeech(speech_type.Singleton):
         else:
             ref_s=compute_style # input torch.Tensor
         start = time.time()
+        text=self.lpad_text(text)
         wav = self.inference(text, ref_s, 
                         alpha=alpha, beta=beta, 
                         diffusion_steps=diffusion_steps, 
@@ -489,6 +508,7 @@ class LibriSpeech(speech_type.Singleton):
                 start = time.time()
                 if text.strip() == "": continue
                 text += '.' # add it back
+                text=self.lpad_text(text)                
                 wav = self.STinference(text, ref_s, v, 
                                 diffusion_steps=diffusion_steps, 
                                 alpha=alpha, beta=beta,embedding_scale=embedding_scale)
@@ -541,13 +561,14 @@ class LibriSpeech(speech_type.Singleton):
                 ref_s = compute_style # input torch.Tensor
             #sentences = text.split('.') # simple split by comma
             #sentences = self.chunk_text_to_fixed_length(text=text.strip(),length=48)
-            sentences = self.sentence_word_splitter(text=text.strip(),num_of_words=49)            
+            sentences = self.sentence_word_splitter(text=text.strip(),num_of_words=43)            
             wavs = []
             s_prev=None
             for text in sentences:
                 start = time.time()                
                 if text.strip() == "": continue
                 text += '.' # add it back
+                text=self.lpad_text(text)
                 logger.debug(f"text length={len(text)}")
                 #wav,s_prev = self.LFinference(text, s_prev, ref_s, alpha=alpha, beta=beta, diffusion_steps=diffusion_steps, embedding_scale=embedding_scale)
                 wav = self.inference(text, ref_s, alpha=alpha, beta=beta, diffusion_steps=diffusion_steps, embedding_scale=embedding_scale)                

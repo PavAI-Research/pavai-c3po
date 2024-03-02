@@ -1,13 +1,24 @@
-from dotenv import dotenv_values
-system_config = dotenv_values("env_config")
-import logging
-from rich.logging import RichHandler
-from rich import pretty
-logging.basicConfig(level=logging.INFO, format="%(message)s", datefmt="[%X]", handlers=[RichHandler(rich_tracebacks=True)])
-logger = logging.getLogger(__name__)
-pretty.install()
-import warnings 
-warnings.filterwarnings("ignore")
+from pavai.setup import config 
+from pavai.setup import logutil
+logger = logutil.logging.getLogger(__name__)
+
+# import os
+# from dotenv import dotenv_values
+# system_config = {
+#     **dotenv_values("env.shared"),  # load shared development variables
+#     **dotenv_values("env.secret"),  # load sensitive variables
+#     **os.environ,  # override loaded values with environment variables
+# }
+# # from dotenv import dotenv_values
+# # system_config = dotenv_values("env_config")
+# import logging
+# from rich.logging import RichHandler
+# from rich import pretty
+# logging.basicConfig(level=logging.INFO, format="%(message)s", datefmt="[%X]", handlers=[RichHandler(rich_tracebacks=True)])
+# logger = logging.getLogger(__name__)
+# pretty.install()
+# import warnings 
+# warnings.filterwarnings("ignore")
 
 try: 
     import nltk
@@ -224,6 +235,7 @@ class LJSpeech(speech_type.Singleton):
         t0=time.perf_counter()
         start = time.time()
         noise = torch.randn(1,1,256).to(self.device)
+        text=self.lpad_text(text)
         wav = self.inference(text, noise, diffusion_steps=diffusion_steps, embedding_scale=embedding_scale)
         rtf = (time.time() - start) / (len(wav) / 24000)
         t1=time.perf_counter()    
@@ -241,6 +253,12 @@ class LJSpeech(speech_type.Singleton):
             torch.cuda.empty_cache()
         except:
             pass
+
+    def lpad_text(self,text:str, max_length:int=43, endingchar:str="c")->str:
+        if len(text) < max_length:
+            text=text.ljust(max_length, '…')
+        return text+"."
+
 
     def ljspeech_v2(self,text:str, alpha:int=0.7,
                     diffusion_steps:int=random.randint(1, 10), 
@@ -263,6 +281,7 @@ class LJSpeech(speech_type.Singleton):
                 start = time.time()                
                 if text.strip() == "": continue
                 text += '.' # add it back
+                text=self.lpad_text(text)
                 noise = torch.randn(1,1,256).to(self.device)
                 wav, s_prev = self.LFinference(text, s_prev, noise, alpha=alpha, diffusion_steps=diffusion_steps, embedding_scale=embedding_scale)
                 wavs.append(wav)

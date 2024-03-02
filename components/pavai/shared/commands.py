@@ -1,14 +1,25 @@
-from __future__ import annotations
-from dotenv import dotenv_values
-system_config = dotenv_values("env_config")
-import logging
-import warnings 
-from rich.logging import RichHandler
-from rich import print,pretty
-logging.basicConfig(level=logging.INFO, format="%(message)s", datefmt="[%X]", handlers=[RichHandler(rich_tracebacks=True)])
-logger = logging.getLogger(__name__)
-pretty.install()
-warnings.filterwarnings("ignore")
+# from __future__ import annotations
+# import os
+# from dotenv import dotenv_values
+# system_config = {
+#     **dotenv_values("env.shared"),  # load shared development variables
+#     **dotenv_values("env.secret"),  # load sensitive variables
+#     **os.environ,  # override loaded values with environment variables
+# }
+# # from dotenv import dotenv_values
+# # system_config = dotenv_values("env_config")
+# import logging
+# import warnings 
+# from rich.logging import RichHandler
+# from rich import print,pretty
+# logging.basicConfig(level=logging.INFO, format="%(message)s", datefmt="[%X]", handlers=[RichHandler(rich_tracebacks=True)])
+# logger = logging.getLogger(__name__)
+# pretty.install()
+# warnings.filterwarnings("ignore")
+from pavai.setup import config 
+from pavai.setup import logutil
+logger = logutil.logging.getLogger(__name__)
+
 import sys
 import os
 import time
@@ -23,7 +34,7 @@ import asyncio
 from typing import BinaryIO, Iterable, List, NamedTuple, Optional, Tuple, Union
 import numpy as np
 from urllib.parse import (urlparse, parse_qs, quote)
-from shared.audio.transcribe import (transcriber_client, get_transcriber,
+from pavai.shared.audio.transcribe import (transcriber_client, get_transcriber,
                              DISTILLED_WHISPER_MODEL_SIZE, DEFAULT_WHISPER_MODEL_SIZE)
 from .fileutil import (get_system_working_path, get_system_download_path, get_system_youtube_path,
                            load_text_file, save_text_file, save_text_file)

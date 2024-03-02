@@ -1,3 +1,15 @@
+from pavai.setup import config 
+from pavai.setup import logutil
+logger = logutil.logging.getLogger(__name__)
+
+# import os
+# from dotenv import dotenv_values
+# system_config = {
+#     **dotenv_values("env.shared"),  # load shared development variables
+#     **dotenv_values("env.secret"),  # load sensitive variables
+#     **os.environ,  # override loaded values with environment variables
+# }
+
 from transformers import AutoModelForSpeechSeq2Seq, AutoProcessor, pipeline
 from transformers import pipeline
 import transformers
@@ -6,10 +18,10 @@ from transformers import AutoModelForCausalLM
 import time
 import torch
 import os
-import logging
-logging.basicConfig()
-logging.getLogger("faster_whisper").setLevel(logging.INFO)
-logger = logging.getLogger(__name__)
+# import logging
+# logging.basicConfig()
+# logging.getLogger("faster_whisper").setLevel(logging.INFO)
+# logger = logging.getLogger(__name__)
 # distilled whisper
 # pip install faster-whisper
 # pip install optinum
@@ -19,14 +31,14 @@ logger.info("---WHISPER---")
 logger.info(transformers.__version__)
 logger.info(torch.__version__)
 
-# When running on CPU, make sure to set the same number of threads.
-cpus=str(int(os.cpu_count()/2))
-os.environ["OMP_NUM_THREADS"] = cpus
-device = "cuda" if torch.cuda.is_available() else "cpu"
-compute_type = "float16" if torch.cuda.is_available() else "int8"
-logger.info("CPUs:",cpus)
-logger.info("device:",device)
-logger.info("compute_type:",compute_type)
+# # When running on CPU, make sure to set the same number of threads.
+# cpus=str(int(os.cpu_count()/2))
+# os.environ["OMP_NUM_THREADS"] = cpus
+# device = "cuda" if torch.cuda.is_available() else "cpu"
+# compute_type = "float16" if torch.cuda.is_available() else "int8"
+# logger.info("CPUs:",cpus)
+# logger.info("device:",device)
+# logger.info("compute_type:",compute_type)
 
 # model_size = "large-v3"
 # Run on GPU with FP16
@@ -139,7 +151,7 @@ def transcribe_distilled(audio_file: str,
                     torch_dtype=torch_dtype,
                     device=device
                     )
-    outputs = pipe(book_audio_file, chunk_length_s=chunk_length_s,
+    outputs = pipe(audio_file, chunk_length_s=chunk_length_s,
                    batch_size=batch_size, return_timestamps=True)
     t1 = time.perf_counter()-t0
     logger.info(f"transcribe_distilled_file: finished in {t1}")            
@@ -212,75 +224,75 @@ def transcribe_base(audio_file: str,
                     torch_dtype=torch_dtype,
                     device=device
                     )
-    outputs = pipe(book_audio_file, chunk_length_s=chunk_length_s,
+    outputs = pipe(audio_file, chunk_length_s=chunk_length_s,
                    batch_size=batch_size, return_timestamps=return_timestamps)
     t1 = time.perf_counter()-t0
     logger.info(f"transcribe_base_file: finished in {t1}")        
     return {task: outputs["text"], "performance": t1, "detected_language": "en"}
 
-def transcribe_speculative_decoding(audio_file: str,
-                                         teacher_model_id: str = "openai/whisper-large-v3",
-                                         student_model_id: str = "distil-whisper/distil-large-v2",
-                                         task: str = "transcribe",
-                                         device: str = None,
-                                         torch_dtype: str = None,
-                                         chunk_length_s: int = 30,
-                                         return_timestamps: bool = False,
-                                         low_cpu_mem_usage: bool = True,
-                                         use_safetensors: bool = True,
-                                         max_new_tokens: int = 128,
-                                         use_flash_attention_2: bool = False,
-                                         to_bettertransformer: bool = False,
-                                         cache_dir="./models/whisper"):
-    """
-    speculative decoding load both the teacher: openai/whisper-large-v2. 
-    As well as the assistant (a.k.a student) distil-whisper/distil-large-v2.
-    """
-    logger.info("transcribe_speculative_decoding_file: start")
-    t0 = time.perf_counter()
-    if device is None:
-        device = "cuda:0" if torch.cuda.is_available() else "cpu"
-    if torch_dtype is None:
-        torch_dtype = torch.float16 if torch.cuda.is_available() else torch.float32
+# def transcribe_speculative_decoding(audio_file: str,
+#                                          teacher_model_id: str = "openai/whisper-large-v3",
+#                                          student_model_id: str = "distil-whisper/distil-large-v2",
+#                                          task: str = "transcribe",
+#                                          device: str = None,
+#                                          torch_dtype: str = None,
+#                                          chunk_length_s: int = 30,
+#                                          return_timestamps: bool = False,
+#                                          low_cpu_mem_usage: bool = True,
+#                                          use_safetensors: bool = True,
+#                                          max_new_tokens: int = 128,
+#                                          use_flash_attention_2: bool = False,
+#                                          to_bettertransformer: bool = False,
+#                                          cache_dir="./models/whisper"):
+#     """
+#     speculative decoding load both the teacher: openai/whisper-large-v2. 
+#     As well as the assistant (a.k.a student) distil-whisper/distil-large-v2.
+#     """
+#     logger.info("transcribe_speculative_decoding_file: start")
+#     t0 = time.perf_counter()
+#     if device is None:
+#         device = "cuda:0" if torch.cuda.is_available() else "cpu"
+#     if torch_dtype is None:
+#         torch_dtype = torch.float16 if torch.cuda.is_available() else torch.float32
 
-    # techer model
-    teacher_model = None
-    if use_flash_attention_2:
-        teacher_model = AutoModelForSpeechSeq2Seq.from_pretrained(
-            teacher_model_id, torch_dtype=torch_dtype, low_cpu_mem_usage=low_cpu_mem_usage,
-            use_safetensors=use_safetensors, attn_implementation="flash_attention_2", cache_dir=cache_dir)
-    else:
-        teacher_model = AutoModelForSpeechSeq2Seq.from_pretrained(
-            teacher_model_id, torch_dtype=torch_dtype, low_cpu_mem_usage=low_cpu_mem_usage,
-            use_safetensors=use_safetensors, cache_dir=cache_dir)
-    # move to device
-    teacher_model.to(device)
-    processor = AutoProcessor.from_pretrained(teacher_model_id)
-    # student model
-    student_model = AutoModelForCausalLM.from_pretrained(
-        student_model_id, torch_dtype=torch_dtype, low_cpu_mem_usage=low_cpu_mem_usage, use_safetensors=use_safetensors)
-    student_model.to(device)
-    # pipeline
-    logger.info("working on transcribe_speculative_decoding_file:", audio_file)
-    pipe = pipeline("automatic-speech-recognition",
-                    model=teacher_model_id,
-                    tokenizer=processor.tokenizer,
-                    feature_extractor=processor.feature_extractor,
-                    max_new_tokens=max_new_tokens,
-                    generate_kwargs={"assistant_model": student_model},
-                    torch_dtype=torch_dtype, device=device)
-    outputs = pipe(book_audio_file, chunk_length_s=chunk_length_s,
-                   batch_size=1, return_timestamps=return_timestamps)
-    t1 = time.perf_counter()-t0
-    logger.info(f"transcribe_speculative_decoding_file: finished in {t1}")    
-    return {task: outputs["text"], "performance": t1, "detected_language": "en"}
+#     # techer model
+#     teacher_model = None
+#     if use_flash_attention_2:
+#         teacher_model = AutoModelForSpeechSeq2Seq.from_pretrained(
+#             teacher_model_id, torch_dtype=torch_dtype, low_cpu_mem_usage=low_cpu_mem_usage,
+#             use_safetensors=use_safetensors, attn_implementation="flash_attention_2", cache_dir=cache_dir)
+#     else:
+#         teacher_model = AutoModelForSpeechSeq2Seq.from_pretrained(
+#             teacher_model_id, torch_dtype=torch_dtype, low_cpu_mem_usage=low_cpu_mem_usage,
+#             use_safetensors=use_safetensors, cache_dir=cache_dir)
+#     # move to device
+#     teacher_model.to(device)
+#     processor = AutoProcessor.from_pretrained(teacher_model_id)
+#     # student model
+#     student_model = AutoModelForCausalLM.from_pretrained(
+#         student_model_id, torch_dtype=torch_dtype, low_cpu_mem_usage=low_cpu_mem_usage, use_safetensors=use_safetensors)
+#     student_model.to(device)
+#     # pipeline
+#     logger.info("working on transcribe_speculative_decoding_file:", audio_file)
+#     pipe = pipeline("automatic-speech-recognition",
+#                     model=teacher_model_id,
+#                     tokenizer=processor.tokenizer,
+#                     feature_extractor=processor.feature_extractor,
+#                     max_new_tokens=max_new_tokens,
+#                     generate_kwargs={"assistant_model": student_model},
+#                     torch_dtype=torch_dtype, device=device)
+#     outputs = pipe(book_audio_file, chunk_length_s=chunk_length_s,
+#                    batch_size=1, return_timestamps=return_timestamps)
+#     t1 = time.perf_counter()-t0
+#     logger.info(f"transcribe_speculative_decoding_file: finished in {t1}")    
+#     return {task: outputs["text"], "performance": t1, "detected_language": "en"}
 
-if __name__ == "__main__":
-    book_audio_file = "/home/pop/development/mclab/pavai/workspace/samples/audio_book_self_Improvement_101.wav"
-    book_audio_file = "/home/pop/development/mclab/pavai/workspace/samples/audio_chatgpt_usage_zh.wav"
-    book_audio_file = "/home/pop/development/mclab/pavai/workspace/samples/audio_file_phillips_screw_hp0.wav"
-    transcribed_texts=transcribe_faster_file(audio_file=book_audio_file,task= "transcribe")
-    print(transcribed_texts)
+# if __name__ == "__main__":
+#     book_audio_file = "/home/pop/development/mclab/pavai/workspace/samples/audio_book_self_Improvement_101.wav"
+#     book_audio_file = "/home/pop/development/mclab/pavai/workspace/samples/audio_chatgpt_usage_zh.wav"
+#     book_audio_file = "/home/pop/development/mclab/pavai/workspace/samples/audio_file_phillips_screw_hp0.wav"
+#     transcribed_texts=transcribe_faster_file(audio_file=book_audio_file,task= "transcribe")
+#     print(transcribed_texts)
     # transcribed_text_to_file(out_text=transcribed_texts,file_name="transcribe_audio_chatgpt_usage_zh.txt",output_dir="./workspace/audio")
     # translated_texts=transcribe_faster_file(audio_file=book_audio_file,task= "translate")
     # print(translated_texts)
