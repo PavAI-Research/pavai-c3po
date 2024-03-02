@@ -16,19 +16,19 @@ import warnings
 warnings.filterwarnings("ignore")
 
 from pathlib import Path
-from pavai.shared.audio.stt_vad import init_vad_model
-from pavai.shared.audio.voices_piper import espeak,get_voice_model_file
+#from pavai.shared.audio.stt_vad import init_vad_model
+#from pavai.shared.audio.voices_piper import espeak,get_voice_model_file
 #from pavai.shared.audio.voices_styletts2 import librispeak
 from pavai.shared.styletts2 import LibriSpeech, LJSpeech
-from pavai.shared.audio.vosk_client import api_speaker
-from pavai.shared.audio.tts_gtts import text_to_speech_gtts
+#from pavai.shared.audio.vosk_client import api_speaker
+#from pavai.shared.audio.tts_gtts import text_to_speech_gtts
 #from pavai.shared.styletts2 import (ljspeech,ljspeech_v2,test_lj_speech,test_lj_speech_v2)
 import time
 import numpy
 import sounddevice as sd
 
-print("--GLOBAL SYSTEM MODE----")
-print(system_config["GLOBAL_SYSTEM_MODE"])
+logger.warn("--GLOBAL SYSTEM MODE----")
+logger.warn(system_config["GLOBAL_SYSTEM_MODE"])
 _GLOBAL_SYSTEM_MODE=system_config["GLOBAL_SYSTEM_MODE"]
 _GLOBAL_TTS=system_config["GLOBAL_TTS"]
 _GLOBAL_TTS_LIBRETTS_VOICE=system_config["GLOBAL_TTS_LIBRETTS_VOICE"]
@@ -50,33 +50,33 @@ def get_speaker_audio_file(workspace_temp:str="workspace/temp")->str:
     return workspace_temp+"/espeak_text_to_speech.mp3"
 
 def system_tts_local(sd,text:str,output_voice:str=None,vosk_params=None,autoplay:bool=True):
-    if _GLOBAL_TTS_API_ENABLE=="true":
-        ## use vosk api - piper ai-voice 
-        vosk_params = {
-            "sentence":text,
-            "api_url":system_config["GLOBAL_TTS_API_URL"],  
-            "language": system_config["GLOBAL_TTS_API_LANGUAGE"] ,    
-            "speaker_model":system_config["GLOBAL_TTS_API_SPEAKER_MODEL"]
-        }        
-        api_speaker(vosk_params,text)
-    else:
-        if _GLOBAL_TTS=="LIBRETTS":
+    # if _GLOBAL_TTS_API_ENABLE=="true":
+    #     ## use vosk api - piper ai-voice 
+    #     vosk_params = {
+    #         "sentence":text,
+    #         "api_url":system_config["GLOBAL_TTS_API_URL"],  
+    #         "language": system_config["GLOBAL_TTS_API_LANGUAGE"] ,    
+    #         "speaker_model":system_config["GLOBAL_TTS_API_SPEAKER_MODEL"]
+    #     }        
+    #     api_speaker(vosk_params,text)
+    # else:
+    #     if _GLOBAL_TTS=="LIBRETTS":
             ## human-liked custom voices        
-            compute_style=system_config["GLOBAL_TTS_LIBRETTS_VOICE"]  
-            print("compute_style: ",compute_style)
-            ##librispeak(text=text,compute_style="jane")
-            speaker_file_v2(text=text,autoplay=True)  
-        elif _GLOBAL_TTS=="GTTS":            
-            # google voice
-            text_to_speech_gtts(text=text,autoplay=True)
-        elif _GLOBAL_TTS=="LINUX":            
-            # linux default voice
-            import os
-            os.system(f"spd-say {text}")
-        else:
-            if output_voice is None:
-                output_voice=system_config["GLOBAL_TTS_PIPER_VOICE"]
-            espeak(sd,text,output_voice=output_voice)
+    compute_style=system_config["GLOBAL_TTS_LIBRETTS_VOICE"]  
+    logger.warn(f"compute_style: {compute_style}")
+    ##librispeak(text=text,compute_style="jane")
+    speaker_file_v2(text=text,autoplay=True)  
+        # elif _GLOBAL_TTS=="GTTS":            
+        #     # google voice
+        #     text_to_speech_gtts(text=text,autoplay=True)
+        # elif _GLOBAL_TTS=="LINUX":            
+        #     # linux default voice
+        #     import os
+        #     os.system(f"spd-say {text}")
+        # else:
+        #     if output_voice is None:
+        #         output_voice=system_config["GLOBAL_TTS_PIPER_VOICE"]
+        #     espeak(sd,text,output_voice=output_voice)
 
 def speak_acknowledge():
     acknowledges = ["Nice,",
@@ -137,9 +137,12 @@ def speaker_file(text:str,autoplay:bool=True)->str:
     wav_file = LJSpeech().ljspeech_v2(text=text,autoplay=autoplay)
     return wav_file
 
-def speaker_file_v2(text:str,output_voice:str=None,vosk_params=None,chunk_size:int=500,autoplay=False)->str:
+def speaker_file_v2(text:str,output_voice:str=None,output_emotion:str=None,vosk_params=None,chunk_size:int=500,autoplay=False)->str:
     global onelibrispeech
     if output_voice is None:
         output_voice = system_config["GLOBAL_TTS_LIBRETTS_VOICE"]
-    wav_file = onelibrispeech.librispeech_v3(text=text,compute_style=output_voice,autoplay=autoplay)
+    if output_emotion is not None:
+        wav_file = onelibrispeech.librispeech_v2(text=text,compute_style=output_voice,emotion=output_emotion,autoplay=autoplay)
+    else:
+        wav_file = onelibrispeech.librispeech_v3(text=text,compute_style=output_voice,autoplay=autoplay)
     return wav_file

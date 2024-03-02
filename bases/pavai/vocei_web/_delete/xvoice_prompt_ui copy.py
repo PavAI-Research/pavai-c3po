@@ -20,7 +20,7 @@ from typing import BinaryIO, Union
 from transformers.utils import is_flash_attn_2_available
 from pavai.shared.system_checks import (pavai_vocie_system_health_check, DEFAULT_SYSTEM_MODE, SYSTEM_THEME_SOFT,SYSTEM_THEME_GLASS,VOICE_PROMPT_INSTRUCTIONS_TEXT)
 #from pavai.shared.llmproxy import chatbot_ui_client,chat_count_tokens,multimodal_ui_client
-#from pavai.shared.llmproxy import chat_count_tokens,multimodal_ui_client
+from pavai.shared.llmproxy import chat_count_tokens,multimodal_ui_client
 from pavai.shared.image.text2image import (StableDiffusionXL, image_generation_client,DEFAULT_TEXT_TO_IMAGE_MODEL)
 from pavai.shared.fileutil import get_text_file_content
 from pavai.shared.commands import filter_commmand_keywords
@@ -35,14 +35,13 @@ from pavai.shared.audio.tts_client import (system_tts_local,speaker_file_v2,get_
 from pavai.shared.aio.llmchat import get_llm_library
 from pavai.shared.aio.llmchat import (system_prompt_assistant, DEFAULT_LLM_CONTEXT_SIZE)
 from pavai.shared.llmcatalog import LLM_MODEL_KX_CATALOG_TEXT
-from pavai.shared.aio.chatprompt import knowledge_experts_system_prompts
+from pavai.shared.solar.llmprompt import knowledge_experts_system_prompts
 #from pavai.vocei_web.translator_ui import CommunicationTranslator,ScratchPad
 from pavai.vocei_web.system_settings_ui import SystemSetting
-import pavai.shared.aio.chatprompt as chatprompt
-import pavai.shared.aio.chatmodels as chatmodels
+import pavai.vocei_web.chatprompt as chatprompt 
+import traceback
 import sounddevice as sd
 import cleantext
-import traceback
 
 __author__ = "mychen76@gmail.com"
 __copyright__ = "Copyright 2024"
@@ -74,7 +73,6 @@ stablediffusion_model = StableDiffusionXL(model_id_or_path=DEFAULT_TEXT_TO_IMAGE
 # Knowledge experts and Domain Models
 knowledge_experts = list(knowledge_experts_system_prompts.keys())
 domain_models = list(get_llm_library().keys())
-
 # global settings
 _QUERY_ASK_EXPERT_ID=None  # planner
 _QUERY_ASK_EXPERT_PROMPT=None  # default
@@ -138,7 +136,8 @@ class VoicePrompt(SystemSetting):
         else:
             return gr.Textbox(visible=False), gr.Audio(visible=False), gr.Image(visible=False)
 
-    def vc_text_to_speech(self,text: str, output_voice: str = "jane",voice_emotion:str=None, mute=False, autoplay=False):
+    def vc_text_to_speech(self,text: str, output_voice: str = "jane", mute=False, autoplay=False):
+        #tts_voice=system_config["GLOBAL_TTS_LIBRETTS_VOICE"]
         out_file = speaker_file_v2(text=text,output_voice=output_voice,autoplay=autoplay)
         return out_file
 
@@ -152,43 +151,24 @@ class VoicePrompt(SystemSetting):
         else:
             return gr.Textbox(visible=True), gr.Audio(visible=True), gr.Image(visible=False), gr.Button(visible=False), gr.Button(visible=False)
 
-    def vc_query_parameters(self,domain_expert, response_style, api_base, api_key,activate_model_id,system_prompt,top_p,temperature,max_tokens,present_penalty,stop_words,frequency_penalty,gpu_offload_layers):
-        self.user_settings["_SYSTEM_MODE"] = system_config["GLOBAL_SYSTEM_MODE"]    
-        self.user_settings["_QUERY_API_BASE"] = str(api_base).strip()
-        self.user_settings["_QUERY_API_KEY"] = str(api_key).strip()
-        self.user_settings["_QUERY_MODEL_ID"] = str(activate_model_id).strip()
-        self.user_settings["_QUERY_TOP_P"] = int(top_p)
-        self.user_settings["_QUERY_TEMPERATURE"] = float(temperature)
-        self.user_settings["_QUERY_MAX_TOKENS"] = int(max_tokens)
-        self.user_settings["_QUERY_PRESENT_PENALTY"] = int(present_penalty)
-        if stop_words is not None:
-            stop_words=str(stop_words).split(",")
-        self.user_settings["_QUERY_STOP_WORDS"] = stop_words
-        self.user_settings["_QUERY_FREQUENCY_PENALTY"] = int(frequency_penalty)
-        self.user_settings["_QUERY_SYSTEM_PROMPT"] = str(system_prompt).strip()
-        self.user_settings["_QUERY_DOMAIN_EXPERT"] = str(domain_expert).strip()
-        self.user_settings["_QUERY_RESPONSE_STYLE"] = str(response_style).strip()
-        self.user_settings["_QUERY_GPU_OFFLOADING_LAYERS"] = int(gpu_offload_layers)
-
     def vc_ask_assistant_to_image(self,enable_image_generation: bool, input_text: str, bot_history: list, chat_history: list):
         logger.info(f"ask_assistant_to_image: {input_text}")
         new_image_file = None
         reply = ""
-        status_line=""
         if input_text is not None and len(input_text) > 0:
             if enable_image_generation:
                 new_image_file = self.vc_text_to_image(input_text)
-                return bot_history, chat_history, "AI image generated.", new_image_file, status_line
+                return bot_history, chat_history, "AI image generated.", new_image_file
             else:
-                bot_history, chat_history, reply, status_line = self.chat_client(input_text, chat_history,self.user_settings)
-                return bot_history, chat_history, reply, new_image_file, status_line
-        return bot_history, chat_history, reply, new_image_file, status_line
+                bot_history, chat_history, reply = self.chat_client(input_text, chat_history)
+                return bot_history, chat_history, reply, new_image_file
+        return bot_history, chat_history, reply, new_image_file
 
     def vc_add_query_log_entry(self,logdf: pd.DataFrame, query_text: str, response_text: str, duration: int = 0):
         if query_text is None or len(query_text) == 0:
             return
         idx = 1 if len(logdf) == 0 else len(logdf)+1
-        if response_text is None or len(response_text.strip())==0:
+        if response_text is None:
             return 
         new_row = {'index': idx,
                 'query_text': query_text, 'query_length': len(query_text),
@@ -235,89 +215,15 @@ class VoicePrompt(SystemSetting):
             fixed_size_sentences.append(sentences)
         return fixed_size_sentences
 
-    def vc_convert_text_to_speech(self,selected_voice:str=None,voice_emotion:str=None,input_text:str=None, output_voice:str=None, mute=False, autoplay=False, delay:int=33):
-        gr.Info(f"processing text to speech with voice:{selected_voice}") 
-        print(f"convert_text_to_speech voice: {selected_voice} emotion: {voice_emotion}")
-        if selected_voice is None or len(selected_voice)==0:
-            wav_file = speaker_file_v2(text=input_text,output_voice="jane",autoplay=autoplay)
+    def vc_convert_text_to_speech(self,selected_voice:str,input_text:str, output_voice:str, mute=False, autoplay=False, delay:int=33):
+        gr.Info("processing text to speech, please wait!")
+        if selected_voice is None:
+            wav=self.vc_text_to_speech(text=input_text,output_voice="jane",mute=False, autoplay=False)
         else:
-            if voice_emotion is not None and len(voice_emotion)>0:
-                wav_file= speaker_file_v2(text=input_text,output_voice=selected_voice,output_emotion=voice_emotion, autoplay=autoplay)
-            else:
-                wav_file= speaker_file_v2(text=input_text,output_voice=selected_voice,autoplay=autoplay)
-        return wav_file
-
-    def list_voices(self)->list:
-        import pavai.shared.styletts2.live_voices as live_voices
-        voice_path = system_config["REFERENCE_VOICES"]
-        voices = live_voices.get_voice_names(path=voice_path)
-        return voices
-
-    def list_speech_styles(self)->list:
-        return chatprompt.speech_styles.keys()
-
-    def get_api_base(self)->str:
-        if system_config["GLOBAL_SYSTEM_MODE"]=="solar-openai":
-            return system_config["SOLAR_LLM_DEFAULT_HOST"]            
-        elif system_config["GLOBAL_SYSTEM_MODE"]=="ollama-openai":
-            return system_config["SOLAR_LLM_OLLAMA_HOST"]  
-        else:
-             return "locally [all-in-one]"          
-
-    def get_api_key(self)->str:
-        if system_config["GLOBAL_SYSTEM_MODE"]=="solar-openai":
-            return system_config["SOLAR_LLM_DEFAULT_API_KEY"]            
-        elif system_config["GLOBAL_SYSTEM_MODE"]=="ollama-openai":
-            return system_config["SOLAR_LLM_OLLAMA_API_KEY"]  
-        else:
-             return "Not Applicable"          
-
-    def get_active_model(self)->str:
-        if system_config["GLOBAL_SYSTEM_MODE"]=="solar-openai":
-            return system_config["SOLAR_LLM_DEFAULT_MODEL_ID"]
-        elif system_config["GLOBAL_SYSTEM_MODE"]=="ollama-openai":
-            return system_config["SOLAR_LLM_OLLAMA_MODEL_ID"]
-        else:
-            return system_config["DEFAULT_LLM_MODEL_FILE"]          
-
-    def get_gpu_offload_layers(self)->int:
-        return int(system_config["DEFAULT_LLM_OFFLOAD_GPU_LAYERS"])
-
-    def list_models(self)->list:
-        if system_config["GLOBAL_SYSTEM_MODE"]=="solar-openai":
-            return chatmodels.load_solar_models().keys()
-        elif system_config["GLOBAL_SYSTEM_MODE"]=="ollama-openai":
-            return chatmodels.load_ollama_models().keys()
-        else:
-            return chatmodels.load_local_models().keys()            
-    
-    def list_domain_experts(self)->list:
-        return chatprompt.domain_experts.keys()
-
-    def list_emotions(self)->list:
-        return ["happy","sad","angry","surprised"]
-
-    def vc_update_llm_mode(self,llm_mode):
-        if llm_mode=="solar-openai":
-            api_host = system_config["SOLAR_LLM_DEFAULT_SERVER_URL"]  
-            api_key = system_config["SOLAR_LLM_DEFAULT_API_KEY"] 
-            active_model = system_config["SOLAR_LLM_DEFAULT_MODEL_ID"]                                              
-            model_dropdown = chatmodels.load_solar_models().keys()                                                                     
-        elif llm_mode=="ollama-openai":
-            api_host = system_config["SOLAR_LLM_OLLAMA_SERVER_URL"]  
-            api_key = system_config["SOLAR_LLM_OLLAMA_API_KEY"] 
-            active_model = system_config["SOLAR_LLM_OLLAMA_MODEL_ID"]                                              
-            model_dropdown = chatmodels.load_ollama_models().keys()                                                                     
-        else:
-            api_host = "locally-aio"
-            api_key = "not applicable"
-            active_model = system_config["DEFAULT_LLM_MODEL_FILE"]                                              
-            model_dropdown = chatmodels.load_local_models().keys()                                                                                             
-        return [api_host,api_key,active_model,model_dropdown]
-
+            wav=self.vc_text_to_speech(text=input_text,output_voice=selected_voice,mute=False, autoplay=False)
+        return wav
 
     def build_voice_prompt_ui(self):
-        self.set_user_settings()        
         self.blocks_voice_prompt = gr.Blocks(title="VOICE-PROMPT-UI",analytics_enabled=False)
         with self.blocks_voice_prompt as llm_voice_query_ui:
             with gr.Group():    
@@ -330,47 +236,33 @@ class VoicePrompt(SystemSetting):
                 with gr.Accordion("Spoken Language", open=False, visible=False):                
                     with gr.Row():
                         with gr.Column(1):
-                            available_ai_speaker_langs=["ar","cs","da","de","en","ru","zh","fr","uk","es"]
+                            available_ai_speaker_langs=["ar","cs","da","de","en","en_ryan","en_ryan_medium","en_ryan_low","en_amy","en_amy_low","en_kusal","en_lessac","en_lessac_low","ru","zh","fr","uk","es"]
                             self.vc_text_to_speech_target_lang = gr.Dropdown(label="Set spoken language",choices=available_ai_speaker_langs, value="en", info="default attempt to auto detect spoken language.")
                         with gr.Column(2):
                             textbox_detected_spoken_language = gr.Textbox(label="Auto detect spoken language", value="en")
                 with gr.Row():
+                    available_human_voices=["ryan","jane","vinay","nima","yinghao","keith","may","anthony_real","leia_01","leia_02","luke_force","yoda_force","mark_real","sleepy","c3po_01","c3po_02","c3po_03","c3po_04"]                    
                     with gr.Column(1):         
-                        """Human Voices"""       
-                        vc_human_voices_options = gr.Dropdown(label="Human Voices",choices=self.list_voices(), value="anthony_real")
+                        vc_voices_dropdown = gr.Dropdown(label="Output Voice",choices=available_human_voices, value="anthony_real")
                         vc_selected_voice = gr.Text(visible=False, value="anthony_real")
-                    with gr.Column(1):                                 
-                        """Voice Emotions"""       
-                        vc_voice_emotions = gr.Dropdown(label="Voice Emotions",choices=self.list_emotions())
-                        vc_selected_emotion = gr.Text(visible=False)
+                        """knowledge and domain model experts"""       
                     with gr.Column(1):         
-                        """knowledge and domain model experts"""                               
-                        vc_domain_expert_options = gr.Dropdown(choices=self.list_domain_experts(), label="Knowledge Experts (AI)")
-                        vc_selected_domain_expert = gr.Text(visible=False)
-                    with gr.Column(1):         
-                        """Response style"""                               
-                        vc_response_style_options = gr.Dropdown(label="Response Style", choices=self.list_speech_styles())
-                        vc_selected_response_tyle = gr.Text(visible=False)
-                    def change_domain_export(new_expert:str):
-                        gr.Info(f"set new domain expert to {new_expert}")    
-                        self.new_domain_expert=new_expert
-                        self.new_system_prompt=chatprompt.domain_experts[new_expert]
-                        return self.new_domain_expert, self.new_system_prompt
+                        vc_expert_options = gr.Dropdown(knowledge_experts, label="Knowledge Experts (AI)")
+                        vc_expert_options.change(fn=self.select_expert_option,inputs=vc_expert_options)        
+                    # with gr.Column(1):                            
+                    #     #model_options = gr.Dropdown(domain_models,label="Domain Models",info="[optional] use specialized model")                        
+                    #     #model_options.change(fn=self.select_model_option,inputs=model_options)      
+                    #     speech_style = gr.Dropdown(
+                    #                 label="Speech and Writing Style:",
+                    #                 choices=chatprompt.speech_styles.keys(),
+                    #                 interactive=True,
+                    #     )   
 
-                    def change_response_tyle(new_style:str):
-                        gr.Info(f"set new response style to {new_style}")    
-                        self.new_response_style=new_style
-                        return new_style
-
-                    def change_voice(new_voice:str):
-                        gr.Info(f"set voice to {new_voice}") 
-                        self.new_voice =  new_voice 
-                        return new_voice
-
-                    def change_emotion(new_emotion:str):
-                        gr.Info(f"set voice emotion to {new_emotion}") 
-                        self.new_emotion =  new_emotion 
-                        return new_emotion
+                def change_voice(new_voice:str):
+                    gr.Info(f"new voice selected: {new_voice}")    
+                    return new_voice
+                    
+                vc_voices_dropdown.change(fn=change_voice,inputs=[vc_voices_dropdown], outputs=[vc_selected_voice])               
 
                 with gr.Accordion("Additional Options", open=False):
                     with gr.Row():
@@ -378,8 +270,11 @@ class VoicePrompt(SystemSetting):
                             radio_task_mode = gr.Radio(choices=["transcribe", "translate"], value="transcribe",visible=False,interactive=True,
                                                     label="transcription options",
                                                     info="[transcribe] preserved spoken language while [translate] converts all spoken languages to english only.]")
-                            radio_task_mode.change(fn=self.vc_set_task_mode, inputs=[radio_task_mode, task_mode_state], outputs=task_mode_state)
-                            checkbox_enable_text_to_image = gr.Checkbox(value=False, label="enable image generation",info="speak a shorter prompts to generate creative AI image.")                                                        
+                            radio_task_mode.change(fn=self.vc_set_task_mode, inputs=[
+                                                radio_task_mode, task_mode_state], outputs=task_mode_state)
+                            checkbox_enable_text_to_image = gr.Checkbox(
+                                value=False, label="enable image generation",
+                                info="speak a shorter prompts to generate creative AI image.")                                                        
                         with gr.Column(1):
                             checkbox_enable_grammar_fix = gr.Checkbox(value=False,
                                                                     label="enable single-shot grammar synthesis correction model",
@@ -398,22 +293,22 @@ class VoicePrompt(SystemSetting):
                         # checkbox_content_safety.change(fn=self.select_content_safety_options,inputs=checkbox_content_safety)                                                                           
                         """data security options"""                
                         checkbox_enable_PII_analysis = gr.Checkbox(
-                            value=eval(system_config["_QUERY_ENABLE_PII_ANALYSIS"]), label="enable PII data analysis",
+                            value=False, label="enable PII data analysis",
                             info="analyze and report PII data on query input and outputs")
                         checkbox_enable_PII_analysis.change(fn=self.pii_data_analysis_options,
                                                             inputs=checkbox_enable_PII_analysis)
                         checkbox_enable_PII_anonymization = gr.Checkbox(
-                            value=eval(system_config["_QUERY_ENABLE_PII_ANONYMIZATION"]), label="enable PII data anonymization",
+                            value=False, label="enable PII data anonymization",
                             info="apply anonymization of PII data on input and output")    
                         checkbox_enable_PII_anonymization.change(fn=self.pii_data_amomymization_options,
                                                             inputs=checkbox_enable_PII_anonymization)                                       
                 """LANGUAGE SETIING"""
-                # def overrider_auto_detect_language(input_lang:str):
-                #     textbox_detected_spoken_language=input_lang
+                def overrider_auto_detect_language(input_lang:str):
+                    textbox_detected_spoken_language=input_lang
 
-                # self.vc_text_to_speech_target_lang.change(fn=overrider_auto_detect_language,
-                #                                           inputs=[self.vc_text_to_speech_target_lang], 
-                #                                           outputs=[textbox_detected_spoken_language])               
+                self.vc_text_to_speech_target_lang.change(fn=overrider_auto_detect_language,
+                                                          inputs=[self.vc_text_to_speech_target_lang], 
+                                                          outputs=[textbox_detected_spoken_language])               
 
                 """AUDIO INPUT/OUTPUTS"""
                 # with gr.Group():
@@ -477,8 +372,6 @@ class VoicePrompt(SystemSetting):
                     bot_output_image = gr.Image(
                         label="generated image", type="filepath", interactive=False, visible=False)
                 with gr.Row():
-                     bot_status_line = gr.HTML()            
-                with gr.Row():
                     # --summarize response
                     btn_generate_request_image = gr.Button(
                         value="Generate transcribed text image", size="sm", visible=False)
@@ -498,45 +391,46 @@ class VoicePrompt(SystemSetting):
                     btn_clear.click(
                         self.vc_hide_outputs, inputs=[checkbox_enable_text_to_image],
                         outputs=[bot_output_txt, bot_audio_output, bot_output_image], queue=False)
-                
+
                 with gr.Accordion("Model Parameters", open=False):
                     with gr.Row():
-                        radio_llm_mode = gr.Radio(choices=["locally-aio", "solar-openai", "ollama-openai"], 
-                                                  value=system_config["GLOBAL_SYSTEM_MODE"],
-                                                  visible=True,interactive=True,
-                                                    label="LLM modes", info="currently running mode")
-                    with gr.Row():
                         with gr.Column():
-                            bot_api_host = gr.Textbox(
+                            api_host = gr.Textbox(
                                 label="API base",
-                                info="api endpoint url",
-                                value=self.get_api_base(),
+                                value="local",
                             )
                         with gr.Column():
-                            bot_api_key = gr.Textbox(
-                                label="API Key",
-                                value=self.get_api_key(),
-                                type="password",
-                                placeholder="sk..",
-                                info="API keys for the url",
-                            )                            
-                        with gr.Column():
-                            bot_active_model = gr.Textbox(
+                            active_model = gr.Textbox(
                                 label="Active model",
-                                value=self.get_active_model(),
+                                value="zephyr:latest",
                                 info="current model",
                             )
                         with gr.Column():
-                            bot_model_dropdown = gr.Dropdown(
+                            api_key = gr.Textbox(
+                                label="API Key",
+                                value="ollama",
+                                type="password",
+                                placeholder="sk..",
+                                info="You have to provide your own GPT4 keys for this app to function properly",
+                            )
+                        with gr.Column():
+                            model_dropdown = gr.Dropdown(
                                 label="Available models",
-                                value=self.get_active_model(),
-                                choices=self.list_models(),
+                                value="zephyr:latest",
+                                choices=["zephyr"],
                                 info="select a model",
                                 interactive=True,
                             )
 
+                    ## in-line update event handler
+                    # model_dropdown.change(
+                    #     fn=self.update_active_model,
+                    #     inputs=[model_dropdown],
+                    #     outputs=[active_model],
+                    # )
+
                     system_msg_info = """System message helps set the behavior of the AI Assistant. For example, the assistant could be instructed with 'You are a helpful assistant.'"""
-                    bot_system_prompt = gr.Textbox(
+                    system_prompt = gr.Textbox(
                         label="Instruct the AI Assistant to set its beaviour",
                         info=system_msg_info,
                         value="You are helpful AI assistant on helping answer user question and research.",
@@ -550,7 +444,7 @@ class VoicePrompt(SystemSetting):
                     # top_p, temperature
                     with gr.Row():
                         with gr.Column():
-                            bot_top_p = gr.Slider(
+                            top_p = gr.Slider(
                                 minimum=-0,
                                 maximum=40.0,
                                 value=1.0,
@@ -559,7 +453,7 @@ class VoicePrompt(SystemSetting):
                                 label="Top-p (nucleus sampling)",
                             )
                         with gr.Column():
-                            bot_temperature = gr.Slider(
+                            temperature = gr.Slider(
                                 minimum=0,
                                 maximum=5.0,
                                 value=1.0,
@@ -569,28 +463,30 @@ class VoicePrompt(SystemSetting):
                             )
                     with gr.Row():
                         with gr.Column():
-                            bot_max_tokens = gr.Slider(info="number of new tokens",
+                            max_tokens = gr.Slider(
                                 minimum=1,
                                 maximum=16384,
-                                value=256,
+                                value=1024,
                                 step=1,
                                 interactive=True,
                                 label="Max Tokens",
                             )
                         with gr.Column():
-                            bot_presence_penalty = gr.Number(
+                            presence_penalty = gr.Number(
                                 label="presence_penalty", value=0, precision=0
                             )
                         with gr.Column():
-                            bot_stop_words = gr.Textbox(info="separate by commas",
+                            stop_words = gr.Textbox(
                                 label="stop words", value="<"
                             )
                         with gr.Column():
-                            bot_frequency_penalty = gr.Number(info="cost of repeat words",
+                            frequency_penalty = gr.Number(
                                 label="frequency_penalty", value=0, precision=0
                             )
                         with gr.Column():
-                            bot_gpu_offload_layers = gr.Number(label="gpu offloading layers",value=self.get_gpu_offload_layers(), visible=True, precision=0)
+                            chat_counter = gr.Number(
+                                value=0, visible=False, precision=0
+                            )
 
                 with gr.Accordion("Instructions", open=False):
                     gr.Markdown(VOICE_PROMPT_INSTRUCTIONS_TEXT)
@@ -602,7 +498,7 @@ class VoicePrompt(SystemSetting):
                         {"index": [], "query_text": [], "query_length": [],"response_text": [], "response_length": [], "took": []}
                     )
                     styler = df_query_log.style.highlight_between(color='lightgreen', axis=0)
-                    gr_query_log = gr.Dataframe(value=styler, interactive=False, wrap=True)
+                    gr_query_log = gr.Dataframe(value=styler, interactive=True, wrap=True)
 
                     max_values = 10
                     slider_max_query_log_entries.change(self.vc_update_log_entries,inputs=[slider_max_query_log_entries],outputs=[gr_query_log], queue=False)
@@ -617,18 +513,12 @@ class VoicePrompt(SystemSetting):
                     inputs=[checkbox_enable_text_to_image],
                     outputs=[bot_output_txt, bot_audio_output, bot_output_image,
                             btn_generate_request_image, btn_generate_response_image], queue=False
-                ).then(fn=self.vc_query_parameters, 
-                       inputs=[vc_selected_domain_expert,vc_selected_response_tyle,bot_api_host,bot_api_key,
-                               bot_active_model,bot_system_prompt,bot_top_p,bot_temperature,
-                               bot_max_tokens,bot_presence_penalty,
-                               bot_stop_words,bot_frequency_penalty,
-                               bot_gpu_offload_layers],queue=False
                 ).then(
                     self.vc_ask_assistant_to_image,
                     inputs=[checkbox_enable_text_to_image,
                             speaker_transcribed_input, activities_state, self.history_state],
                     outputs=[activities_state, self.history_state,
-                            bot_output_txt, bot_output_image, bot_status_line], queue=False
+                            bot_output_txt, bot_output_image], queue=False
                 ).then(
                     self.vc_add_query_log_entry,
                     inputs=[gr_query_log, speaker_transcribed_input, bot_output_txt],
@@ -637,7 +527,7 @@ class VoicePrompt(SystemSetting):
                     lambda: gr.update(visible=True), None, textbox_detected_spoken_language, queue=True
                 ).then(
                     self.vc_convert_text_to_speech,
-                    inputs=[vc_selected_voice,vc_voice_emotions,bot_output_txt, textbox_detected_spoken_language],
+                    inputs=[vc_selected_voice,bot_output_txt, textbox_detected_spoken_language],
                     outputs=[bot_audio_output], queue=False
                 )
 
@@ -651,25 +541,19 @@ class VoicePrompt(SystemSetting):
                     inputs=[checkbox_enable_text_to_image],
                     outputs=[bot_output_txt, bot_audio_output, bot_output_image,
                             btn_generate_request_image, btn_generate_response_image], queue=False
-                ).then(fn=self.vc_query_parameters, 
-                       inputs=[vc_selected_domain_expert,vc_selected_response_tyle,bot_api_host,bot_api_key,
-                               bot_active_model,bot_system_prompt,bot_top_p,bot_temperature,
-                               bot_max_tokens,bot_presence_penalty,
-                               bot_stop_words,bot_frequency_penalty,
-                               bot_gpu_offload_layers],queue=False
                 ).then(
                     self.vc_ask_assistant_to_image,
                     inputs=[checkbox_enable_text_to_image,
                             speaker_transcribed_input, activities_state, self.history_state],
                     outputs=[activities_state, self.history_state,
-                            bot_output_txt, bot_output_image,bot_status_line], queue=False
+                            bot_output_txt, bot_output_image], queue=False
                 ).then(
                     self.vc_add_query_log_entry,
                     inputs=[gr_query_log, speaker_transcribed_input, bot_output_txt],
                     outputs=[gr_query_log], queue=True
                 ).then(
                     self.vc_convert_text_to_speech,
-                    inputs=[vc_selected_voice,vc_voice_emotions,bot_output_txt, textbox_detected_spoken_language],
+                    inputs=[vc_selected_voice,bot_output_txt, textbox_detected_spoken_language],
                     outputs=[bot_audio_output], queue=False
                 )
 
@@ -682,25 +566,19 @@ class VoicePrompt(SystemSetting):
                     self.vc_unhide_outputs,
                     inputs=None,
                     outputs=[bot_output_txt, bot_audio_output], queue=False
-                ).then(fn=self.vc_query_parameters, 
-                       inputs=[vc_selected_domain_expert,vc_selected_response_tyle,bot_api_host,bot_api_key,
-                               bot_active_model,bot_system_prompt,bot_top_p,bot_temperature,
-                               bot_max_tokens,bot_presence_penalty,
-                               bot_stop_words,bot_frequency_penalty,
-                               bot_gpu_offload_layers],queue=False
                 ).then(
                     self.vc_ask_assistant_to_image,
                     inputs=[checkbox_enable_text_to_image,
                             speaker_transcribed_input, activities_state, self.history_state],
                     outputs=[activities_state, self.history_state,
-                            bot_output_txt, bot_output_image,bot_status_line], queue=False
+                            bot_output_txt, bot_output_image], queue=False
                 ).then(
                     self.vc_add_query_log_entry,
                     inputs=[gr_query_log, speaker_transcribed_input, bot_output_txt],
                     outputs=[gr_query_log], queue=True
                 ).then(
                     self.vc_convert_text_to_speech,
-                    inputs=[vc_selected_voice,vc_voice_emotions,bot_output_txt, textbox_detected_spoken_language],
+                    inputs=[vc_selected_voice,bot_output_txt, textbox_detected_spoken_language],
                     outputs=[bot_audio_output], queue=False
                 )
 
@@ -711,28 +589,6 @@ class VoicePrompt(SystemSetting):
                     outputs=[bot_output_txt, bot_audio_output, bot_output_image,
                             btn_generate_request_image, btn_generate_response_image], queue=False
                 )
-
-                ## User Options
-                vc_human_voices_options.change(fn=change_voice,inputs=[vc_human_voices_options], outputs=[vc_selected_voice])               
-                vc_voice_emotions.change(fn=change_emotion, inputs=[vc_voice_emotions], outputs=[vc_selected_emotion])
-                vc_domain_expert_options.change(fn=change_domain_export, inputs=[vc_domain_expert_options], outputs=[vc_selected_domain_expert,bot_system_prompt])
-                vc_response_style_options.change(fn=change_response_tyle, inputs=[vc_response_style_options], outputs=[vc_selected_response_tyle])
-
-                ## LLM mode
-                ## "locally-aio", "solar-openai", "ollama-openai"
-                                # in-line update event handler
-                def update_active_model(new_model_id):
-                    gr.Info(f"selected new model {new_model_id}")
-                    return new_model_id
-                
-                bot_model_dropdown.change(fn=update_active_model,
-                    inputs=[bot_model_dropdown],
-                    outputs=[bot_active_model]
-                )
-                
-                # radio_llm_mode.change(fn=self.vc_update_llm_mode, 
-                #                         inputs=[radio_llm_mode], 
-                #                         outputs=[bot_api_host,bot_api_key,bot_active_model,bot_model_dropdown])
                 # "realtime/gradio_tutor/audio/hp0.wav"
                 # "realtime/examples/jfk.wav"
                 # ------------

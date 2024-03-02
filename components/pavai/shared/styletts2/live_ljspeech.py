@@ -36,6 +36,7 @@ from pavai.shared.styletts2.Utils.PLBERT.util import load_plbert
 from pavai.shared.styletts2.Modules.diffusion.sampler import DiffusionSampler, ADPM2Sampler, KarrasSchedule
 from typing import Any, Dict
 import traceback
+import pavai.shared.styletts2.speech_type as speech_type
 # import torch.nn.functional as F
 # from munch import Munch
 # from torch import nn
@@ -45,27 +46,7 @@ import traceback
 # import sys
 # sys.path.append(os.path.join(os.path.dirname(__file__), '.'))
 
-class MetaSingleton(type):
-    """
-    Metaclass for implementing the Singleton pattern.
-    """
-    _instances: Dict[type, Any] = {}
-
-    def __call__(cls, *args: Any, **kwargs: Any) -> Any:
-        if cls not in cls._instances:
-            cls._instances[cls] = super(
-                MetaSingleton, cls).__call__(*args, **kwargs)
-        return cls._instances[cls]
-
-class Singleton(object, metaclass=MetaSingleton):
-    """
-    Base class for implementing the Singleton pattern.
-    """
-
-    def __init__(self):
-        super(Singleton, self).__init__()
-
-class LJSpeech(Singleton):
+class LJSpeech(speech_type.Singleton):
 
     def __init__(self,device:str=None, style_config:str=None, model_config:str=None):
         torch.manual_seed(100)
@@ -133,27 +114,6 @@ class LJSpeech(Singleton):
             sigma_schedule=KarrasSchedule(sigma_min=0.0001, sigma_max=3.0, rho=9.0), # empirical parameters
             clamp=False
         )
-
-        # def preprocess(self,wave):
-        #     wave_tensor = torch.from_numpy(wave).float()
-        #     mel_tensor = self.to_mel(wave_tensor)
-        #     mel_tensor = (torch.log(1e-5 + mel_tensor.unsqueeze(0)) - self.mean) / self.std
-        #     return mel_tensor
-
-        # def compute_style(ref_dicts):
-        #     reference_embeddings = {}
-        #     for key, path in ref_dicts.items():
-        #         wave, sr = librosa.load(path, sr=24000)
-        #         audio, index = librosa.effects.trim(wave, top_db=30)
-        #         if sr != 24000:
-        #             audio = librosa.resample(audio, sr, 24000)
-        #         mel_tensor = self.preprocess(audio).to(self.evice)
-
-        #         with torch.no_grad():
-        #             ref = self.model.style_encoder(mel_tensor.unsqueeze(1))
-        #         reference_embeddings[key] = (ref.squeeze(1), audio)
-            
-        #     return reference_embeddings
 
     ## Synthesize speech
     def inference(self,text, noise, diffusion_steps=5, embedding_scale=1):
@@ -267,7 +227,7 @@ class LJSpeech(Singleton):
         wav = self.inference(text, noise, diffusion_steps=diffusion_steps, embedding_scale=embedding_scale)
         rtf = (time.time() - start) / (len(wav) / 24000)
         t1=time.perf_counter()    
-        print(f"rtf inference took = {rtf:5f} in {t1-t0:.2f} seconds")
+        logger.info(f"rtf inference took = {rtf:5f} in {t1-t0:.2f} seconds")
         if autoplay:
             sd.play(wav,samplerate=24000,blocking=blocking_flag)
         return wav
@@ -277,7 +237,7 @@ class LJSpeech(Singleton):
             for obj in objects:
                 del obj
             collected = gc.collect()
-            print("Garbage collector: collected","%d objects." % collected)
+            logger.debug(f"Garbage collected {collected} objects.")
             torch.cuda.empty_cache()
         except:
             pass
@@ -296,7 +256,7 @@ class LJSpeech(Singleton):
             t0=time.perf_counter()
             ##device = 'cuda' if torch.cuda.is_available() else 'cpu'
             ##sentences = text.split('.') # simple split by comma
-            sentences = self.sentence_word_splitter(text=text,num_of_words=50)
+            sentences = self.sentence_word_splitter(text=text,num_of_words=49)
             wavs = []
             s_prev = None
             for text in sentences:
@@ -308,7 +268,7 @@ class LJSpeech(Singleton):
                 wavs.append(wav)
                 rtf = (time.time() - start) / (len(wav) / samplerate)
                 t1=time.perf_counter()    
-                print(f"rtf inference took = {rtf:5f} elapsed {t1-t0:.2f} seconds")            
+                logger.info(f"rtf inference took = {rtf:5f} elapsed {t1-t0:.2f} seconds")            
             #if autoplay:
             #    for wav in wavs:
             #        sd.play(wav,samplerate=samplerate,blocking=blocking_flag)    
@@ -325,8 +285,8 @@ class LJSpeech(Singleton):
             ## clean up
             self.wipe_memory(objects=[combined,text,wavs,sentences])            
         except Exception as e:
-            print("Exeption occurred ", e.args)
-            print(traceback.format_exc())
+            logger.error(f"Exeption occurred {str(e.args)}")
+            logger.error(traceback.format_exc())
         finally:
             self.wipe_memory()  
         return output_audiofile

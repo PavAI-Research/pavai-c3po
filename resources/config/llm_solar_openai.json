@@ -1,0 +1,106 @@
+{
+    "zephyr-7b-beta.Q4": [
+        "TheBloke/zephyr-7B-beta-GGUF",
+        "zephyr-7b-beta.Q4_K_M.gguf",
+        "resources/models/llm",
+        "mistral",    
+        "zephyr",
+        "general multilingual model"
+    ],
+    "zephyr-7b-beta.Q5": [
+        "TheBloke/zephyr-7B-beta-GGUF",
+        "zephyr-7b-beta.Q5_K_M.gguf",
+        "resources/models/llm",
+        "mistral",    
+        "zephyr",
+        "general multilingual model"
+    ],
+    "mixtral-8x7b-instruct-v0.1.Q3": [
+        "TheBloke/Mixtral-8x7B-Instruct-v0.1-GGUF",
+        "mixtral-8x7b-instruct-v0.1.Q3_K_M.gguf",
+        "resources/models/llm",
+        "mistral",    
+        "chatml",
+        "general"
+    ],
+    "mistral-7b-instruct-v0.2.Q4": [
+        "TheBloke/Mistral-7B-Instruct-v0.2-GGUF",
+        "mistral-7b-instruct-v0.2.Q4_K_M.gguf",
+        "resources/models/llm",
+        "mistral",            
+        "llama-2",
+        "general"
+    ],
+    "llamaguard-7b.Q3": [
+        "TheBloke/LlamaGuard-7B-GGUF",
+        "llamaguard-7b.Q3_K_M.gguf",
+        "resources/models/llm",
+        "llama-2",            
+        "llama-2",
+        "safety and protection"
+    ],
+    "functionary-7b-v1.Q4": [
+        "abetlen/functionary-7b-v1-GGUF",
+        "functionary-7b-v1.Q4_K_S.gguf",
+        "resources/models/llm",
+        "llama-2",            
+        "llama-2",
+        "function_calling"
+    ],
+    "llava-v1.5-7b.Q5": [
+        "abetlen/functionary-7b-v1-GGUF",
+        "mys/ggml_llava-v1.5-7b",
+        "resources/models/llm",
+        "llava",            
+        "llava",
+        "multimodal"
+    ],
+    "yarn-mistral-7b-128k.Q4": [
+        "TheBloke/Yarn-Mistral-7B-128k-GGUF",
+        "yarn-mistral-7b-128k.Q4_K_M.gguf",
+        "resources/models/llm",
+        "llama-2",            
+        "llama-2",
+        "general"
+    ],
+    "law-llm-13b.Q3": [
+        "TheBloke/law-LLM-13B-GGUF",
+        "law-llm-13b.Q3_K_M.gguf",
+        "resources/models/llm",
+        "llama-2",            
+        "llama-2",
+        "law"
+    ],
+    "finance-llm.Q4": [
+        "TheBloke/finance-LLM-GGUF",
+        "finance-llm.Q4_K_M.gguf",
+        "resources/models/llm",
+        "llama-2",            
+        "llama-2",
+        "finance"
+    ],
+    "medllama2.Q4": [
+        "garcianacho/MedLlama-2-7B-GGUF",
+        "MedLlama-2-7B.q4_K_S.gguf",
+        "resources/models/llm",
+        "llama-2",            
+        "llama-2",
+        "medical"
+    ],
+    "meditron-7b.Q4": [
+        "TheBloke/meditron-7B-GGUF",
+        "meditron-7b.Q4_K_M.gguf",
+        "resources/models/llm",
+        "llama-2",            
+        "llama-2",
+        "medical"
+    ],
+    "LLama-2-MedText.Q4": [
+        "iandennismiller/LLama-2-MedText-13b-GGUF",
+        "LLama-2-MedText-13b-Q4_K_S.gguf",
+        "resources/models/llm",
+        "llama-2",            
+        "llama-2",
+        "medical"
+    ]
+}

@@ -1,0 +1,34 @@
+{
+    "zephyr:latest": [
+        "llama",
+        "7B"
+    ],
+    "gemma:2b": [
+        "gemma",
+        "3B"
+    ],
+    "gemma:7b": [
+        "gemma",
+        "3B"
+    ],
+    "llava:7b-v1.6-mistral-q5_0": [
+        "llava",
+        "llama"
+    ],
+    "mistral:7b-instruct-v0.2-q5_0": [
+        "mistral",
+        "llama"
+    ],
+    "mistrallite:latest": [
+        "llama",
+        "llama"
+    ],
+    "openhermes:v2.5": [
+        "llama",
+        "llama"
+    ],
+    "solar:latest": [
+        "llama",
+        "llama"
+    ]    
+}

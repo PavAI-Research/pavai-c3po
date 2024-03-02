@@ -61,30 +61,12 @@ from collections import OrderedDict
 import traceback
 import gc
 import json
+import pavai.shared.styletts2.speech_type as speech_type
+import pavai.shared.styletts2.live_voices as live_voices 
 # sys.path.append("./styletts2") 
 # sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
-class MetaSingleton(type):
-    """
-    Metaclass for implementing the Singleton pattern.
-    """
-    _instances: Dict[type, Any] = {}
-
-    def __call__(cls, *args: Any, **kwargs: Any) -> Any:
-        if cls not in cls._instances:
-            cls._instances[cls] = super(
-                MetaSingleton, cls).__call__(*args, **kwargs)
-        return cls._instances[cls]
-
-class Singleton(object, metaclass=MetaSingleton):
-    """
-    Base class for implementing the Singleton pattern.
-    """
-
-    def __init__(self):
-        super(Singleton, self).__init__()
-
-class LibriSpeech(Singleton):
+class LibriSpeech(speech_type.Singleton):
 
     def __init__(self, device:str=None, style_config:str=None, model_config:str=None):
         torch.manual_seed(200)
@@ -110,7 +92,7 @@ class LibriSpeech(Singleton):
         try:
             self.config = yaml.safe_load(open(self.StyleTTS2_CONFIG_FILE))
         except:
-            print("StyleTTS2_CONFIG_FILE Not Found!")
+            logger.error("StyleTTS2_CONFIG_FILE Not Found!")
             get_styletts2_model_files()
             ## re-read file downloaded
             self.config = yaml.safe_load(open(self.StyleTTS2_CONFIG_FILE))
@@ -167,18 +149,14 @@ class LibriSpeech(Singleton):
         self.ref_texts['surprised'] = "I can't believe it! You mean to tell me that you have discovered a new species of bacteria in this pond?"
 
         self.cached_voice={}
-        # styleTTs2 reference voices
-        try:
-            with open('resources/config/reference_voices.json') as handle:
-                self.reference_voices = json.loads(handle.read())
-                print(self.reference_voices)
-        except Exception as e:
-            print(e)
-            raise ValueError("Missing reference voices config file. please check!")
+        # reference voices
+        voice_config = system_config["REFERENCE_VOICES"]
+        self.reference_voices = live_voices.load_voices(voice_config)
 
     def lookup_voice(self,name: str = "jane"):
+        name=name.lower()
         if name in self.cached_voice.keys():
-            print(f"get compute style from cached: {name}")
+            logger.info(f"get compute style from cached: {name}")
             return self.cached_voice[name]
         ## lookup
         if self.reference_voices is None:
@@ -203,8 +181,8 @@ class LibriSpeech(Singleton):
             voice_path = self.reference_voices[name.lower()]
             voice = self.compute_style(voice_path)
         else:
-            print(f" Error Missing voice file {name}, fallback to default")
-            name = "Jane"
+            logger.error(f" Error Missing voice file {name}, fallback to default")
+            name = "jane"
             voice_path = self.reference_voices[name.lower()]
             voice = self.compute_style(voice_path)
         ## cached it
@@ -452,7 +430,7 @@ class LibriSpeech(Singleton):
             for obj in objects:
                 del obj
             collected = gc.collect()
-            print("Garbage collector: collected","%d objects." % collected)
+            logger.debug(f"Garbage collected {collected} objects.")
             torch.cuda.empty_cache()
         except:
             pass
@@ -478,7 +456,7 @@ class LibriSpeech(Singleton):
                         embedding_scale=embedding_scale)
         rtf = (time.time() - start) / (len(wav) / 24000)
         t1=time.perf_counter()
-        print(f"librispeech rtf took {rtf:5f} in {t1-t0:.2f} seconds")
+        logger.info(f"librispeech rtf took {rtf:5f} in {t1-t0:.2f} seconds")
         if autoplay:
             sd.play(wav,samplerate=samplerate,blocking=blocking_flag)
         return wav
@@ -517,7 +495,7 @@ class LibriSpeech(Singleton):
                 rtf = (time.time() - start) / (len(wav) / samplerate)
                 t1=time.perf_counter()
                 wavs.append(wav)
-                print(f"librispeech_v2 rtf took {rtf:5f} in {t1-t0:.2f} seconds")
+                logger.info(f"librispeech_v2 rtf took {rtf:5f} in {t1-t0:.2f} seconds")
             ## putting them rogether    
             combined= np.concatenate(wavs) 
             scaled = np.int16(combined / np.max(np.abs(combined)) * 32767)
@@ -529,8 +507,8 @@ class LibriSpeech(Singleton):
                 return scaled
             self.wipe_memory(objects=[scaled])                               
         except Exception as e:
-            print("Exeption occurred ", e.args)
-            print(traceback.format_exc())
+            logger.error(f"Exeption occurred {str(e.args)}")
+            logger.error(traceback.format_exc())
         finally:
             self.wipe_memory()          
         return output_audiofile
@@ -563,20 +541,20 @@ class LibriSpeech(Singleton):
                 ref_s = compute_style # input torch.Tensor
             #sentences = text.split('.') # simple split by comma
             #sentences = self.chunk_text_to_fixed_length(text=text.strip(),length=48)
-            sentences = self.sentence_word_splitter(text=text.strip(),num_of_words=60)            
+            sentences = self.sentence_word_splitter(text=text.strip(),num_of_words=49)            
             wavs = []
             s_prev=None
             for text in sentences:
                 start = time.time()                
                 if text.strip() == "": continue
                 text += '.' # add it back
-                print("text length=", len(text))
+                logger.debug(f"text length={len(text)}")
                 #wav,s_prev = self.LFinference(text, s_prev, ref_s, alpha=alpha, beta=beta, diffusion_steps=diffusion_steps, embedding_scale=embedding_scale)
                 wav = self.inference(text, ref_s, alpha=alpha, beta=beta, diffusion_steps=diffusion_steps, embedding_scale=embedding_scale)                
                 wavs.append(wav)
                 rtf = (time.time() - start) / (len(wav) / samplerate)
                 t1=time.perf_counter()
-                print(f"librispeech_v3 rtf took {rtf:5f} in {t1-t0:.2f} seconds")
+                logger.info(f"librispeech_v3 rtf took {rtf:5f} in {t1-t0:.2f} seconds")
             ## putting them rogether    
             combined= np.concatenate(wavs) 
             scaled = np.int16(combined / np.max(np.abs(combined)) * 32767)
@@ -589,8 +567,8 @@ class LibriSpeech(Singleton):
             ## clean up
             self.wipe_memory(objects=[scaled])                    
         except Exception as e:
-            print("Exeption occurred ", e.args)
-            print(traceback.format_exc())
+            logger.error(f"Exeption occurred {str(e.args)}")
+            logger.error(traceback.format_exc())
         finally:
             self.wipe_memory()          
         return output_audiofile

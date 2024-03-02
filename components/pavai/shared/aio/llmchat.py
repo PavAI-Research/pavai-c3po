@@ -128,47 +128,8 @@ You are an intelligent AI assistant. You are helping user answer query.
 If the text does not contain sufficient information to answer the question, do not make up information and give the answer as "I don't know, please be specific.".
 """
 
-# multimodal: mys/ggml_bakllava-1
-# multimodal: mys/ggml_llava-v1.5-7b
-
-# gguf_map = {
-#     "zephyr-7b-beta.Q4_K_M.gguf": ["zephyr-7b-beta.Q4_K_M.gguf", "https://huggingface.co/TheBloke/zephyr-7B-beta-GGUF/resolve/main/zephyr-7b-beta.Q4_K_M.gguf", "chatml"],
-#     "zephyr-7b-beta.Q5_K_M.gguf": ["zephyr-7b-beta.Q5_K_M.gguf", "https://huggingface.co/TheBloke/zephyr-7B-beta-GGUF/resolve/main/zephyr-7b-beta.Q5_K_M.gguf", "chatml"],
-#     "mixtral-8x7b-instruct-v0.1.Q3_K_M.gguf": ["mixtral-8x7b-instruct-v0.1.Q3_K_M.gguf", "https://huggingface.co/TheBloke/Mixtral-8x7B-Instruct-v0.1-GGUF/resolve/main/mixtral-8x7b-instruct-v0.1.Q3_K_M.gguf", "llama-2"],
-#     "mistral-7b-instruct-v0.2.Q4_K_M.gguf": ["mistral-7b-instruct-v0.2.Q4_K_M.gguf", "https://huggingface.co/TheBloke/Mistral-7B-Instruct-v0.2-GGUF/resolve/main/mistral-7b-instruct-v0.2.Q4_K_M.gguf", "llama-2"],
-#     "llamaguard-7b.Q3_K_M.gguf": ["llamaguard-7b.Q3_K_M.gguf", "https://huggingface.co/TheBloke/LlamaGuard-7B-GGUF/resolve/main/llamaguard-7b.Q3_K_M.gguf", "llama-2"],
-#     "functionary-7b-v1.Q4_K_S.gguf": ["functionary-7b-v1.Q4_K_S.gguf", "https://huggingface.co/abetlen/functionary-7b-v1-GGUF/resolve/main/functionary-7b-v1.Q4_K_S.gguf", "llama-2"],
-#     "finance-llm.Q4_K_M.gguf": ["finance-llm.Q4_K_M.gguf", "https://huggingface.co/TheBloke/finance-LLM-GGUF/resolve/main/finance-llm.Q4_K_M.gguf", "llama-2"],
-#     "law-llm-13b.Q3_K_M.gguf": ["law-llm-13b.Q3_K_M.gguf", "https://huggingface.co/TheBloke/law-LLM-13B-GGUF/resolve/main/law-llm-13b.Q3_K_M.gguf", "llama-2"],
-#     "medicine-llm-13b.Q3_K_M.gguf": ["medicine-llm-13b.Q3_K_M.gguf", "https://huggingface.co/TheBloke/medicine-LLM-13B-GGUF/resolve/main/medicine-llm-13b.Q3_K_M.gguf", "llama-2"],    
-#     "yarn-mistral-7b-128k.Q4_K_M.gguf": ["yarn-mistral-7b-128k.Q4_K_M.gguf", "https://huggingface.co/TheBloke/Yarn-Mistral-7B-128k-GGUF/resolve/main/yarn-mistral-7b-128k.Q4_K_M.gguf", "llama-2"],
-#     "ggml-model-q5_k.gguf": ["ggml-model-q5_k.gguf", "https://huggingface.co/mys/ggml_llava-v1.5-7b/resolve/main/ggml-model-q5_k.gguf", "llava"],    
-# }
-
-# "use_download_root": "resources/models/llm",
-# llm_local = {
-#     "model_runtime": "llamacpp",
-#     "model_id": None,
-#     "model_file_name": "zephyr-7b-beta.Q5_K_M.gguf",
-#     "model_file_url": "https://huggingface.co/TheBloke/zephyr-7B-beta-GGUF/resolve/main/zephyr-7b-beta.Q5_K_M.gguf",
-#     "model_source": "filesystem",
-#     "model_architecure": "chatml",
-#     "api_base": None,
-#     "api_key": None,
-#     "api_domain": None,
-#     "api_organization": None,
-#     "use_device": "cuda",
-#     "use_torch_type": "float16",
-#     "model_tokenizer_id_or_path": None,
-#     "use_flash_attention_2": "",
-#     "use_download_root": "resources/models/llm/",
-#     "use_local_model_only": True,
-#     "use_max_context_size": 8192,
-#     "use_n_gpu_layers": 38,
-#     "verbose": True,
-#     "use_seed": 138
-# }
 from huggingface_hub import hf_hub_download
+import traceback
 
 llm_defaults = {
     "model_runtime": "llamacpp",
@@ -930,14 +891,13 @@ class LLM_Setting(object):
     def __call__(self, value):
         return self.config[value]
 
-class LLMClient():
+class LLMClient:
 
     def __init__(self, absctractLLM: AbstractLLMClass):
         self._llm = absctractLLM
 
     def simple_embedding(self,input:str,model:str) -> any:
         logger.debug(f"LLMClient: simple_embedding()")    
-        # "text-embedding-ada-002"    
         return self._llm.create_embedding(input=input,model=model)
 
     def simple_chat(self, prompt: str, history: list = [],
@@ -1042,11 +1002,12 @@ def new_llm_instance(target_model_info:list=None):
     logger.info(f"new_llm_instance: {target_model_info}")
     return llm_client
 
-def llm_chat_completion(user_Prompt: str, history: list = [],
+def local_chat_completion(user_Prompt: str, history: list = [],
                         system_prompt: str = system_prompt_assistant,
                         stop_criterias=["</s>"],
                         ask_expert: str = None,                      
-                        target_model_info:list=None                        
+                        target_model_info:list=None,
+                        user_settings:dict=None                        
                         ):
     global llm_client
     reply = None
@@ -1064,63 +1025,41 @@ def llm_chat_completion(user_Prompt: str, history: list = [],
         # make call
         llm_client = get_llm_instance()             
         history=[] if history is None else history  
-        messages, history, reply = llm_client.simple_chat(prompt=user_Prompt, 
-                                                          history=history,
-                                                          system_prompt=system_prompt, 
-                                                          stop_criterias=stop_criterias)
+
+        ## model parameters
+        if user_settings is not None:
+            activate_model_id = user_settings["_QUERY_MODEL_ID"] 
+            top_p=user_settings["_QUERY_TOP_P"] 
+            temperature = user_settings["_QUERY_TEMPERATURE"] 
+            max_tokens=user_settings["_QUERY_MAX_TOKENS"]
+            present_penalty=user_settings["_QUERY_PRESENT_PENALTY"] 
+            stop_criterias=user_settings["_QUERY_STOP_WORDS"] 
+            frequency_penalty= user_settings["_QUERY_FREQUENCY_PENALTY"] 
+            #system_prompt = user_settings["_QUERY_SYSTEM_PROMPT"] = str(system_prompt).strip()
+            #self.user_settings["_QUERY_DOMAIN_EXPERT"] = str(domain_expert).strip()
+            #self.user_settings["_QUERY_RESPONSE_STYLE"] = str(response_style).strip()
+            gpu_offload_layers = user_settings["_QUERY_GPU_OFFLOADING_LAYERS"]        
+            messages, history, reply = llm_client.simple_chat(prompt=user_Prompt, 
+                                                            history=history,
+                                                            system_prompt=system_prompt, 
+                                                            stop_criterias=stop_criterias,
+                                                            temperature=temperature,
+                                                            top_p=top_p,
+                                                            max_tokens=max_tokens)
+        else:
+            messages, history, reply = llm_client.simple_chat(prompt=user_Prompt, 
+                                                            history=history,
+                                                            system_prompt=system_prompt, 
+                                                            stop_criterias=stop_criterias)            
         return messages, history, reply        
     except Exception as e:
-        print(e)        
-        logger.error(f"LLMChat.llm_chat_completion has error")
+        print(e)    
+        print(traceback.format_exc())    
+        logger.error(f"LLMChat.llm_chat_completion has error {str(e.args)}")
         _free_gpu_resources()                                                                    
     return [], history, reply        
 
-def llm_chat(input_text, chat_history):
-    # messages, history, reply = voice_llm_api.text_chat_completion(input_text,chat_history)
-    messages, history, reply = llm_chat_completion(input_text, chat_history)
-    return messages, history, reply
-
-
-# library_json_file = "resources/config/llm_libary.json"
-# with open(library_json_file) as file:
-#     library = json.load(file)
-#     print(library)
-# client = OpenAI(api_key="EMPTY", base_url="http://localhost:7002/v1")
-
-# ------------remove-----------------
-# runtime_file="llm_defaults.json"
-# set_key("env_config", "DEFAULT_LLM_MODEL_DOWNLOAD_PATH", "TEST")
-# with open(runtime_file, 'w') as f:
-#     json.dump(llm_defaults, f)
-# logger.info(f"created llm_defaults.json  LLM file: {runtime_file}")
-# ------------remove-----------------
-
-# def llm_chat_openai(messages):
-#     response = client.chat.completions.create(
-#     model="gpt-3.5-turbo", messages=messages, stream=False,max_tokens=256)
-#     return response.choices[0].message.content
-
-# def process_chat_opeai(new_query:str,history:list, context_size:int=4096*2):
-#     character_prompt = 'You are a intelligent AI bot. your are helpful to answer user query.'
-#     history_buffer = HistoryTokenBuffer(history=history,max_tokens=context_size)
-#     history_buffer.update(new_query)
-#     logger.info(f"[gray]context token counts available: {history_buffer.token_count} / max {history_buffer.max_tokens}[/gray]")
-#     if len(history_buffer.overflow_summary)>0:
-#         # reduce and compress history content 
-#         logger.info(f"overflow summary: {history_buffer.overflow_summary}")
-#         summary="provide an summary of following text:\n "+history_buffer.overflow_summary
-#         user_messages=[{'role': 'system',  'content': character_prompt},
-#                        {'role': 'user',  'content': summary}]
-#         assistant_response = llm_chat_openai(user_messages)    
-#         ##text_speaker(sd,text=assistant_response)       
-#         history_buffer.update(summary)    
-#         history=history_buffer.history
-#         history_buffer.overflow_summary=""
-#         history.append({'role': 'assistant', 'content': assistant_response})                   
-
-#     # perform new query now
-#     history.append({'role': 'user', 'content': new_query})
-#     assistant_response = llm_chat_openai([{'role': 'system',  'content': character_prompt}] + history[-10:])
-#     #console.log(f"\nAI: {assistant_response}\n")
-#     history.append({'role': 'assistant', 'content': assistant_response})    
-#     return assistant_response, history 
+# def llm_chat(input_text, chat_history):
+#     # messages, history, reply = voice_llm_api.text_chat_completion(input_text,chat_history)
+#     messages, history, reply = llm_chat_completion(input_text, chat_history)
+#     return messages, history, reply

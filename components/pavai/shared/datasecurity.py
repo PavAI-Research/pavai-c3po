@@ -16,7 +16,7 @@ pretty.install()
 warnings.filterwarnings("ignore")
 sys.path.append(str(Path(__file__).parent.parent))
 import time
-import pavai.shared.solar.llmdatasecurity as llmdatasecurity
+import pavai.shared.llmdatasecurity as llmdatasecurity
 
 #global
 datasecurity = None

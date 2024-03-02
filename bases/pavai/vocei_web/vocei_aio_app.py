@@ -36,20 +36,20 @@ from pavai.shared.audio.tts_client import speak_instruction
 ## removed from os.path import dirname, join, abspath
 from pavai.shared.aio.llmchat import (system_prompt_assistant, DEFAULT_LLM_CONTEXT_SIZE)
 from pavai.shared.llmcatalog import LLM_MODEL_KX_CATALOG_TEXT
-from pavai.shared.solar.llmprompt import knowledge_experts_system_prompts
+from pavai.shared.aio.chatprompt import knowledge_experts_system_prompts
 from pavai.shared.aio.llmchat import get_llm_library
 from pavai.vocei_web.translator_ui import CommunicationTranslator,ScratchPad
-from pavai.vocei_web.system_settings_ui import SystemSetting
+#from pavai.vocei_web.system_settings_ui import SystemSetting
 from pavai.vocei_web.voice_prompt_ui import VoicePrompt
-from pavai.vocei_web.chatbot_speaker_ui import ChatbotSpeaker
+#from pavai.vocei_web.chatbot_speaker_ui import ChatbotSpeaker
 
 
 __author__ = "mychen76@gmail.com"
 __copyright__ = "Copyright 2024"
 __version__ = "0.0.3"
 
-print("--GLOBAL SYSTEM MODE----")
-print(system_config["GLOBAL_SYSTEM_MODE"])
+logger.warning("--GLOBAL SYSTEM MODE----")
+logger.warning(system_config["GLOBAL_SYSTEM_MODE"])
 _GLOBAL_SYSTEM_MODE=system_config["GLOBAL_SYSTEM_MODE"]
 _GLOBAL_TTS=system_config["GLOBAL_TTS"]
 
@@ -114,7 +114,7 @@ if "DEFAULT_SYSTEM_MODE" not in system_config.keys():
 else:
     system_mode = system_config["DEFAULT_SYSTEM_MODE"]
 
-class VoceiApp(VoicePrompt,ChatbotSpeaker,CommunicationTranslator,ScratchPad):
+class VoceiApp(VoicePrompt,CommunicationTranslator,ScratchPad):
     
     def __init__(self,name) -> None:
         super().__init__()
@@ -140,8 +140,8 @@ class VoceiApp(VoicePrompt,ChatbotSpeaker,CommunicationTranslator,ScratchPad):
         self.app_ui = gr.TabbedInterface(
             theme=theme,
             interface_list=[voice_prompt_ui,translator_ui,scratchpad_ui],
-            tab_names=["Voice Prompt", "Seamless Multilingual Communication","Scratch Pad"],
-            title="[Vocei] Real Voice Assistant 💬",
+            tab_names=["Voice Prompt", "Multilingual Communication","Scratch Pad"],
+            title="[C-3PO] Real Voice Assistant 💬",
             css=".gradio-container {background: url('file=pavai_logo_large.png')}",
             analytics_enabled=False            
         )

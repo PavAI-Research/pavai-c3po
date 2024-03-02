@@ -9,13 +9,14 @@ logger = logging.getLogger(__name__)
 pretty.install()
 import warnings 
 warnings.filterwarnings("ignore")
-import time
+
 import gradio as gr
 import torch
+
 from transformers.utils import is_flash_attn_2_available
 import pavai.shared.datasecurity as datasecurity
 from pavai.shared.llmproxy import chatbot_ui_client
-import pavai.shared.aio.chatprompt as chatprompt
+
 
 DEFAULT_COMPUTE_TYPE = "float16" if torch.cuda.is_available() else "int8"
 DEFAULT_DEVICE_TYPE = "cuda" if torch.cuda.is_available() else "cpu"
@@ -56,27 +57,6 @@ class SystemSetting:
         self.history_state = gr.State([])
         self.session_tokens = gr.State(0)
         self.detected_lang_state = gr.State("en")
-        self.set_user_settings()
-        self.new_domain_expert=None
-        self.new_response_style=None
-        self.new_voice =None
-        self.new_emotion =None       
-        self.chatbot=[] 
-        self.new_system_prompt=None
-
-    def set_user_settings(self):
-        self.user_settings={}
-        self.user_settings["_QUERY_ENABLE_PII_ANALYSIS"]=eval(system_config["_QUERY_ENABLE_PII_ANALYSIS"])
-        self.user_settings["_QUERY_ENABLE_PII_ANONYMIZATION"]=eval(system_config["_QUERY_ENABLE_PII_ANONYMIZATION"])
-        self.user_settings["_QUERY_CONTENT_SAFETY_GUARD"]=eval(system_config["_QUERY_CONTENT_SAFETY_GUARD"])
-        self.user_settings["_QUERY_ASK_EXPERT_ID"]=None
-        self.user_settings["_QUERY_ASK_EXPERT_PROMPT"]=None        
-        self.user_settings["_QUERY_LLM_MODEL_ID"]=None
-        self.user_settings["_QUERY_LLM_MODEL_INFO"]=None     
-        ## LLM
-        self.user_settings["_QUERY_DOMAIN_EXPERT"]=None
-        self.user_settings["_QUERY_RESPONSE_STYLE"]=None     
-        self.user_settings["_QUERY_SYSTEM_PROMPT"]=None     
 
     def chunk_text_to_fixed_length(self,text: str, length: int):
         text = text.strip()
@@ -93,34 +73,14 @@ class SystemSetting:
         else:
             return sentences
 
-    def chat_client(self,input_text:str, chat_history:list,user_settings:dict):
+    def chat_client(self,input_text:str, chat_history:list):
         #_GLOBAL
-        _QUERY_ASK_EXPERT_ID=user_settings["_QUERY_ASK_EXPERT_ID"]
-        _QUERY_ASK_EXPERT_PROMPT=user_settings["_QUERY_ASK_EXPERT_PROMPT"]
-        _QUERY_LLM_MODEL_ID=user_settings["_QUERY_LLM_MODEL_ID"]
-        _QUERY_LLM_MODEL_INFO=user_settings["_QUERY_LLM_MODEL_INFO"]
-        _QUERY_ENABLE_PII_ANALYSIS=user_settings["_QUERY_ENABLE_PII_ANALYSIS"]
-        _QUERY_ENABLE_PII_ANONYMIZATION=user_settings["_QUERY_ENABLE_PII_ANONYMIZATION"]
-        _QUERY_CONTENT_SAFETY_GUARD=user_settings["_QUERY_CONTENT_SAFETY_GUARD"]
-
-
-        ## LLM
-        _QUERY_DOMAIN_EXPERT=user_settings["_QUERY_DOMAIN_EXPERT"]
-        _QUERY_RESPONSE_STYLE=user_settings["_QUERY_RESPONSE_STYLE"]
-        ## pick up from UI    
-        _QUERY_ASK_EXPERT_PROMPT = user_settings["_QUERY_SYSTEM_PROMPT"]        
-        # if _QUERY_DOMAIN_EXPERT is not None and len(_QUERY_DOMAIN_EXPERT)>0:
-        #     _QUERY_ASK_EXPERT_PROMPT=chatprompt.domain_experts[_QUERY_DOMAIN_EXPERT]
-        if _QUERY_RESPONSE_STYLE is not None and len(_QUERY_DOMAIN_EXPERT)>0:
-            input_text=input_text+f"\n Consider respond in this style {_QUERY_RESPONSE_STYLE}"
-        print(f"domain expert  : {_QUERY_DOMAIN_EXPERT}")
-        print(f"query response : {_QUERY_RESPONSE_STYLE}")        
-
-        ## Model Parameters
-        
-
-        t0=time.perf_counter()
-        warnings=[]
+        global _QUERY_ASK_EXPERT_ID
+        global _QUERY_ASK_EXPERT_PROMPT
+        global _QUERY_LLM_MODEL_ID
+        global _QUERY_LLM_MODEL_INFO
+        global _QUERY_ENABLE_PII_ANALYSIS
+        global _QUERY_ENABLE_PII_ANONYMIZATION
         # content handling flags
         user_override=False
         skip_content_safety_check=True
@@ -135,30 +95,21 @@ class SystemSetting:
             user_override=True               
         ## data security check on input
         if _QUERY_ENABLE_PII_ANALYSIS:
-            if isinstance(input_text, str):
-                if "/tmp/gradio" not in input_text:
-                    pii_results = datasecurity.analyze_text(input_text=input_text)
-                    logger.info(pii_results,extra=dict(markup=True))  
-                    if len(pii_results)>0:
-                        gr.Warning('PII detected in INPUT text.')  
-                        warnings.append(f'> Warning: PII detected in INPUT {str(pii_results)}| ')      
-    
+            pii_results = datasecurity.analyze_text(input_text=input_text)
+            logger.info(pii_results,extra=dict(markup=True))  
+            gr.Warning('PII detected in INPUT text.')        
         if _QUERY_ASK_EXPERT_PROMPT is None:
             chatbot_ui_messages, chat_history, reply_text = chatbot_ui_client(input_text=input_text, 
-                                                                        chatbot=[],
                                                                         chat_history=chat_history,
-                                                                        system_prompt=_QUERY_ASK_EXPERT_PROMPT,
                                                                         ask_expert=_QUERY_ASK_EXPERT_ID,
                                                                         target_model_info=_QUERY_LLM_MODEL_INFO,
                                                                         user_override=user_override,
                                                                         skip_content_safety_check=skip_content_safety_check,
                                                                         skip_data_security_check=skip_data_security_check,
-                                                                        skip_self_critique_check=skip_self_critique_check,
-                                                                        user_settings=user_settings)
+                                                                        skip_self_critique_check=skip_self_critique_check)
         else:
             gr.Info("routing request to domain experts")    
             chatbot_ui_messages, chat_history, reply_text = chatbot_ui_client(input_text=input_text, 
-                                                                        chatbot=[],
                                                                         chat_history=chat_history,
                                                                         system_prompt=_QUERY_ASK_EXPERT_PROMPT,
                                                                         ask_expert=_QUERY_ASK_EXPERT_ID,
@@ -166,32 +117,23 @@ class SystemSetting:
                                                                         user_override=user_override,
                                                                         skip_content_safety_check=skip_content_safety_check,
                                                                         skip_data_security_check=skip_data_security_check,
-                                                                        skip_self_critique_check=skip_self_critique_check,
-                                                                        user_settings=user_settings)                        
+                                                                        skip_self_critique_check=skip_self_critique_check)                        
         ## data security check on output
         pii_results=None
         if _QUERY_ENABLE_PII_ANALYSIS:
-            if isinstance(reply_text, str):            
-                pii_results = datasecurity.analyze_text(input_text=reply_text)
-                logger.warn(pii_results,extra=dict(markup=True))
-                if len(pii_results)>0:
-                    gr.Warning('PII detected in OUTPUT text.')           
-                    warnings.append(f'> Warning: PII detected in OUTPUT {str(pii_results)}. |')                                  
+            pii_results = datasecurity.analyze_text(input_text=reply_text)
+            logger.warn(pii_results,extra=dict(markup=True))
+            gr.Warning('PII detected in OUTPUT text.')                           
 
         if _QUERY_ENABLE_PII_ANONYMIZATION:
-            if isinstance(reply_text, str):                        
-                if pii_results:
-                    reply_text = datasecurity.anonymize_text(input_text=reply_text,analyzer_results=pii_results)                
-                else:
-                    reply_text = datasecurity.anonymize_text(input_text=reply_text)
-                logger.info(pii_results,extra=dict(markup=True))
-                gr.Warning('OUTPUT text has been anonymized')
-                warnings.append('> OUTPUT text has been anonymized.')                                  
+            if pii_results:
+                reply_text = datasecurity.anonymize_text(input_text=reply_text,analyzer_results=pii_results)                
+            else:
+                reply_text = datasecurity.anonymize_text(input_text=reply_text)
+            logger.info(pii_results,extra=dict(markup=True))
+            gr.Warning('OUTPUT text. anonymized')
 
-        t1=time.perf_counter()
-        time_took=(t1-t0)
-        warnings.append(f" it took {time_took:.2f} seconds </p>")
-        return chatbot_ui_messages, chat_history, reply_text, "<p style='color:aqua;'>".join(warnings)
+        return chatbot_ui_messages, chat_history, reply_text
 
     def save_settings(self,settings):
         pass

@@ -34,23 +34,24 @@ from openai import OpenAI
 from pavai.shared.grammar import (get_or_download_grammar_model_snapshot,init_grammar_correction_model,
                           fix_grammar_error, DEFAULT_GRAMMAR_MODEL_SIZE)
 from pavai.shared.audio.transcribe import (get_or_download_whisper_model_snapshot,get_transcriber,speech_to_text, DEFAULT_WHISPER_MODEL_SIZE)
-from pavai.shared.aio.llmchat import (get_llm_instance, llm_chat_completion, llm_chat, LLM_Setting, LLMClient,
-                           LLMllamaLocal, AbstractLLMClass)
-from pavai.shared.audio.stt_vad import init_vad_model
-from pavai.shared.audio.voices_piper import espeak,get_voice_model_file
+from pavai.shared.aio.llmchat import (get_llm_instance, local_chat_completion,  LLM_Setting, LLMClient,LLMllamaLocal, AbstractLLMClass)
+#from pavai.shared.audio.stt_vad import init_vad_model
+# from pavai.shared.audio.voices_piper import espeak,get_voice_model_file
 #from pavai.shared.audio.tts_client import text_speaker_ai
-from pavai.shared.audio.tts_client import (system_tts_local)
-import pavai.shared.solar.llmchat as llmchat
+from pavai.shared.audio.tts_client import system_tts_local
+#import pavai.shared.solar.llmchat as llmchat
+import pavai.shared.llmproxy as llmproxy
 from pathlib import Path
 from pavai.shared.styletts2.download_models import get_styletts2_model_files
+import traceback
 
 __RELEASE_VERSION__="alpha-0.0.3"
 __RELEASE_DATE__="2024/01/07"
 
 DEFAULT_SYSTEM_MODE = "system_mode_all_in_one"
 
-print("--GLOBAL SYSTEM MODE----")
-print(system_config["GLOBAL_SYSTEM_MODE"])
+logger.info("--GLOBAL SYSTEM MODE----")
+logger.info(system_config["GLOBAL_SYSTEM_MODE"])
 _GLOBAL_SYSTEM_MODE=system_config["GLOBAL_SYSTEM_MODE"]
 _GLOBAL_TTS=system_config["GLOBAL_TTS"]
 _GLOBAL_TTS_LIBRETTS_VOICE=system_config["GLOBAL_TTS_LIBRETTS_VOICE"]
@@ -68,8 +69,8 @@ SYSTEM_THEME_DEFAULT = "default"
 PRODUCT_NAME = "PAVAI"
 #DEFAULT_SYSTEM_AI_NAME = "Amy"
 
-PAVAI_APP_VOCIE="PAVAI Vocie"
-DEFAULT_PAVAI_VOCIE_AGENT="Anthony"
+PAVAI_APP_VOCIE="PAVAI C3PO"
+DEFAULT_PAVAI_VOCIE_AGENT="Jane"
 
 DEFAULT_PAVAI_STARTUP_MSG_INTRO = " your personal multilingual AI assistant for everyday tasks, how may I help you today?"
 DEFAULT_PAVAI_STARTUP_MSG_INTRO2 = " an AI assistant. I can help you find answers on everyday tasks, do you have a question for me?"
@@ -275,7 +276,7 @@ def system_resources_check(output_voice:str="en"):
     logger.info("***running system resources checks***")    
     with Progress(transient=True) as progress: 
         try:       
-            task = progress.add_task("checking system resources...", total=8)
+            task = progress.add_task("checking system resources...", total=7)
 
             # 1. nltk downloads
             logger.info("download nltk [punk] resource files")                                              
@@ -294,30 +295,37 @@ def system_resources_check(output_voice:str="en"):
 
             logger.info("checking text-to-speech file exist")                                  
             # 3. voice model file        
-            local_voice_path = system_config["DEFAULT_TTS_VOICE_MODEL_PATH"]
-            isExist = os.path.exists(local_voice_path)
-            if not isExist:
-                os.makedirs(local_voice_path)
-            voice_onnx_file, voice_json_file = get_voice_model_file(local_voice_path=system_config["DEFAULT_TTS_VOICE_MODEL_PATH"],
-                                                                    spoken_language="en")
-            if voice_onnx_file is not None and voice_json_file is not None:
-                table.add_row("resource_check", f"get text-to-speech model file: {voice_json_file}", "[green]Found[/]")
-                logger.info(f"3.Found text-to-speech file {voice_json_file}")               
-            else:
-                table.add_row("resource_check", f"get text-to-speech model file: {voice_json_file}", "[red]Missing[/]")        
-                logger.error(f"Missing text-to-speech file {voice_json_file}")                           
+            # local_voice_path = system_config["DEFAULT_TTS_VOICE_MODEL_PATH"]
+            # isExist = os.path.exists(local_voice_path)
+            # if not isExist:
+            #     os.makedirs(local_voice_path)
+            # voice_onnx_file, voice_json_file = get_voice_model_file(local_voice_path=system_config["DEFAULT_TTS_VOICE_MODEL_PATH"],
+            #                                                         spoken_language="en")
+            # if voice_onnx_file is not None and voice_json_file is not None:
+            #     table.add_row("resource_check", f"get text-to-speech model file: {voice_json_file}", "[green]Found[/]")
+            #     logger.info(f"3.Found text-to-speech file {voice_json_file}")               
+            # else:
+            #     table.add_row("resource_check", f"get text-to-speech model file: {voice_json_file}", "[red]Missing[/]")        
+            #     logger.error(f"Missing text-to-speech file {voice_json_file}")                           
             progress.advance(task)
 
             # 4. LLM model file        
-            if _GLOBAL_SYSTEM_MODE=="SOLAR":
+            if _GLOBAL_SYSTEM_MODE=="solar-openai":
                 logger.info("checking SOLAR LLM server configuration exist")
                 default_url=system_config["SOLAR_LLM_DEFAULT_SERVER_URL"] 
                 default_api_key=system_config["SOLAR_LLM_DEFAULT_API_KEY"]             
-                domain_url=system_config["SOLAR_LLM_DOMAIN_SERVER_URL"] 
-                domain_api_key=system_config["SOLAR_LLM_DOMAIN_API_KEY"]     
+                default_model_id=system_config["SOLAR_LLM_DEFAULT_MODEL_ID"]                             
                 skip_content_safety_check=system_config["SOLAR_SKIP_CONTENT_SAFETY_CHECK"]    
                 skip_data_security_check=system_config["SOLAR_SKIP_DATA_SECURITY_CHECK"] 
                 skip_self_critique_check=system_config["SOLAR_SKIP_SELF_CRITIQUE_CHECK"]
+            elif _GLOBAL_SYSTEM_MODE=="ollama-openai":
+                logger.info("checking SOLAR Ollama server configuration exist")
+                default_url=system_config["SOLAR_LLM_OLLAMA_SERVER_URL"] 
+                default_api_key=system_config["SOLAR_LLM_OLLAMA_API_KEY"]             
+                default_model_id=system_config["SOLAR_LLM_OLLAMA_MODEL_ID"]             
+                skip_content_safety_check=system_config["SOLAR_SKIP_CONTENT_SAFETY_CHECK"]    
+                skip_data_security_check=system_config["SOLAR_SKIP_DATA_SECURITY_CHECK"] 
+                skip_self_critique_check=system_config["SOLAR_SKIP_SELF_CRITIQUE_CHECK"]                
             else:
                 logger.info("checking LLM file exist")                    
                 # setup LLM model file if not exist
@@ -364,19 +372,7 @@ def system_resources_check(output_voice:str="en"):
                 logger.error(f"Missing grammar synthesis model file!!!")                                                                                 
             progress.advance(task)
 
-            # 7. voice activity detection_model
-            logger.info("checking VAD model file exist")                 
-            model,utils=init_vad_model() 
-            #console.print("checking silero-vad ", end="")        
-            if (model is not None) and os.path.exists(DEFAULT_SYSTEM_VAD_MODEL_PATH):
-                table.add_row("resource_check", f"get VAD model file path {DEFAULT_SYSTEM_VAD_MODEL_PATH}", "[green]Found[/]")
-                logger.info(f"7.Found VAD model file {DEFAULT_SYSTEM_VAD_MODEL_PATH}")                           
-            else:
-                table.add_row("resource_check", f"get VAD model file", "[red]Missing[/]")
-                logger.error(f"Missing VAD model file!!!")                                                                                 
-            progress.advance(task)  
-
-            # 8. styletts2 model files
+            # 7. styletts2 model files
             logger.info("download styletts2 model files")                                                          
             get_styletts2_model_files()
             progress.advance(task)              
@@ -384,6 +380,17 @@ def system_resources_check(output_voice:str="en"):
         except Exception as e:
             print(e)
             logger.error("system_resources_check error.")
+            # # 7. voice activity detection_model
+            # logger.info("checking VAD model file exist")                 
+            # model,utils=init_vad_model() 
+            # #console.print("checking silero-vad ", end="")        
+            # if (model is not None) and os.path.exists(DEFAULT_SYSTEM_VAD_MODEL_PATH):
+            #     table.add_row("resource_check", f"get VAD model file path {DEFAULT_SYSTEM_VAD_MODEL_PATH}", "[green]Found[/]")
+            #     logger.info(f"7.Found VAD model file {DEFAULT_SYSTEM_VAD_MODEL_PATH}")                           
+            # else:
+            #     table.add_row("resource_check", f"get VAD model file", "[red]Missing[/]")
+            #     logger.error(f"Missing VAD model file!!!")                                                                                 
+            # progress.advance(task)  
             current_system_mode="oops, system_resources_check error. please check the log "
             system_tts_local(sd,text=current_system_mode,output_voice=output_voice)
 
@@ -432,38 +439,43 @@ def system_sanity_tests(output_voice:str="en"):
 
             # 3.llm model
             logger.info("[test#3] LLM model")   
-            if _GLOBAL_SYSTEM_MODE=="SOLAR":
-                current_message="running Solar LLM  sanity test"                
-                system_tts_local(sd,text=current_message,output_voice=output_voice)
-                default_url=str(system_config["SOLAR_LLM_DEFAULT_SERVER_URL"]).strip() 
-                default_api_key=str(system_config["SOLAR_LLM_DEFAULT_API_KEY"]).strip()             
-                domain_url=str(system_config["SOLAR_LLM_DOMAIN_SERVER_URL"]).strip()
-                domain_api_key=str(system_config["SOLAR_LLM_DOMAIN_API_KEY"]).strip()   
-                skip_content_safety_check=system_config["SOLAR_SKIP_CONTENT_SAFETY_CHECK"]    
+            if _GLOBAL_SYSTEM_MODE=="solar-openai" or _GLOBAL_SYSTEM_MODE=="ollama-openai":
+                current_message="testing Solar LLM"                
+                #system_tts_local(sd,text=current_message,output_voice=output_voice)
+                if _GLOBAL_SYSTEM_MODE=="ollama-openai":
+                    default_url=str(system_config["SOLAR_LLM_DEFAULT_SERVER_URL"]).strip() 
+                    default_api_key=str(system_config["SOLAR_LLM_DEFAULT_API_KEY"]).strip()            
+                    default_api_key=str(system_config["SOLAR_LLM_DEFAULT_MODEL_ID"]).strip()                                
+                else:
+                    default_url=str(system_config["SOLAR_LLM_OLLAMA_SERVER_URL"]).strip() 
+                    default_api_key=str(system_config["SOLAR_LLM_OLLAMA_API_KEY"]).strip()            
+                    default_api_key=str(system_config["SOLAR_LLM_OLLAMA_MODEL_ID"]).strip()                                
+
+                # skip_content_safety_check=system_config["SOLAR_SKIP_CONTENT_SAFETY_CHECK"]    
                 skip_data_security_check=system_config["SOLAR_SKIP_DATA_SECURITY_CHECK"] 
                 skip_self_critique_check=system_config["SOLAR_SKIP_SELF_CRITIQUE_CHECK"] 
-                #print(default_url,default_api_key)
-                guard_client = OpenAI(
-                    api_key=f"{default_api_key}",
-                    base_url=f"{default_url}"
-                )
-                #print(domain_url,domain_api_key)                
-                domain_client = OpenAI(
-                    api_key=f"{domain_api_key}",
-                    base_url=f"{domain_url}"
-                )
-                user_query = {
-                    "input_query": "hello"
-                }                    
-                history, moderate_object = llmchat.moderate_and_query(guard_client, domain_client, 
-                                                                      query=user_query, history=[])
-                logger.info("Solar Response:")
-                logger.info(moderate_object["output_text"])
+                # guard_client = OpenAI(
+                #     api_key=f"{default_api_key}",
+                #     base_url=f"{default_url}"
+                # )
+                # domain_client = OpenAI(
+                #     api_key=f"{default_api_key}",
+                #     base_url=f"{default_url}"
+                # )
+                # user_query = {
+                #     "input_query": "hello"
+                # }                    
+                reply_text, reply_messages = llmproxy.chat_service(user_prompt="hello")
+                #history, moderate_object = llmchat.moderate_and_query(guard_client, domain_client, 
+                #                                                      query=user_query, history=[])
+                logger.info(f"Solar Response:\n{reply_text}")
+                logger.info(f"[test#3] LLM Model: {reply_text} status: OK")                
+                table.add_row("functional_check", f"sanity test:LLM model", "[green]Passed[/]")                           
             else:
-                current_message="running Local LLM sanity test"                
+                current_message="testing Local LLM"                
                 #system_tts_local(sd,text=current_message,output_voice=output_voice)                
                 get_llm_instance()
-                messages, xhistory, reply = llm_chat_completion("hello", history=[])
+                messages, xhistory, reply = local_chat_completion("hello", history=[])
                 logger.info(f"[test#3] LLM Model: {reply} status: OK")
                 table.add_row("functional_check", f"sanity test:LLM model", "[green]Passed[/]")           
             progress.advance(task)        
@@ -481,7 +493,8 @@ def system_sanity_tests(output_voice:str="en"):
             logger.info("------------------------")        
         except Exception as e:
             system_is_ready = False
-            print(e)
+            print(e.args)
+            print(traceback.format_exc())
             logger.error("system funtional check - error")        
             if "DEFAULT_SYSTEM_STARTUP_MSG_SYSTEM_CHECK_FAILED" not in system_config.keys():
                 startup_message = DEFAULT_SYSTEM_STARTUP_MSG_SYSTEM_CHECK_FAILED
@@ -508,7 +521,7 @@ def activate_system_agent(system_agent:str=None, startup_message:str=None, syste
             agen_name = DEFAULT_PAVAI_VOCIE_AGENT
         else:
             agen_name = system_config["DEFAULT_PAVAI_VOCIE_AGENT"]
-        agen_greeting = f"hi, i am {agen_name} from PAVAI"
+        agen_greeting = f"hi, i am {agen_name} from PAVAI a galaxy far far away."
         system_tts_local(sd,text=agen_greeting,output_voice=output_voice)
         #time.sleep(0.5)              
         #rand_idx = random.randrange(len(DEFAULT_PAVAI_STARTUP_MSG_INTROS))

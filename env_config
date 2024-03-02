@@ -6,16 +6,19 @@ SYSTEM_THEME="glass"
 ## ---------------------------------------------------
 ## available system model:
 ## ---------------------------------------------------
-## AIO   -- run all-in-one mode locally
+## locally-aio   -- run all-in-one mode locally
 ## SOLAR -- run in distributed-mode using many API servers
+## "solar-openai", "ollama-openai"
 ## ---------------------------------------------------
-GLOBAL_SYSTEM_MODE="AIO"
+GLOBAL_SYSTEM_MODE="ollama-openai"
 
 ## Available Voice Systems: 
 ## LINUX     -- default linux sd-speech to text  
 ## GTTS      -- google 
 ## PIPER     -- AI voice systhesizer (default)
 ## LIBRETTS  -- human-liked voices
+
+REFERENCE_VOICES="resources/config/reference_voices.json"
 
 GLOBAL_TTS="LIBRETTS"
 GLOBAL_TTS_LIBRETTS_VOICE="Jane"
@@ -46,17 +49,24 @@ DEFAULT_LLM_MODEL_FILE="zephyr-7b-beta.Q4_K_M.gguf"
 DEFAULT_LLM_MODEL_WEB_URL="https://huggingface.co/TheBloke/zephyr-7B-beta-GGUF/resolve/main/zephyr-7b-beta.Q4_K_M.gguf"
 DEFAULT_LLM_MODEL_CHAT_FORMAT="chatml"
 DEFAULT_LLM_MODEL_DOWNLOAD_PATH='resources/models/llm/models--TheBloke--zephyr-7B-beta-GGUF/snapshots/e4714d14e9652aa9658fa937732cceadc63ac42e/zephyr-7b-beta.Q4_K_M.gguf'
-DEFAULT_LLM_OFFLOAD_GPU_LAYERS="35"
+DEFAULT_LLM_OFFLOAD_GPU_LAYERS=35
 #DEFAULT_LLM_SYSTEM_PROMPT="35"
 USE_VOICE_API="false"
 USE_ONNX="true"
 
 #### SYSTEM_MODE: SOLAR
-### LLM Solar Servers
-SOLAR_LLM_DEFAULT_SERVER_URL="http://192.168.0.29:8002/v1"
-SOLAR_LLM_DEFAULT_API_KEY="sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-SOLAR_LLM_DOMAIN_SERVER_URL="http://192.168.0.29:8004/v1"
-SOLAR_LLM_DOMAIN_API_KEY="sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+### LLM Solar - OLLama
+SOLAR_LLM_OLLAMA_HOST="http://192.168.0.18:12345"
+SOLAR_LLM_OLLAMA_SERVER_URL="http://192.168.0.18:12345/v1/"
+SOLAR_LLM_OLLAMA_API_KEY="sk-pavai"
+SOLAR_LLM_OLLAMA_MODEL_ID="zephyr:latest"
+
+### LLM Solar - Llamacpp-server
+SOLAR_LLM_DEFAULT_HOST="http://192.168.0.29:8004"
+SOLAR_LLM_DEFAULT_SERVER_URL="http://192.168.0.29:8004/v1"
+SOLAR_LLM_DEFAULT_API_KEY="sk-pavai"
+SOLAR_LLM_DEFAULT_MODEL_ID="zephyr-7b-beta.Q4"
+
 SOLAR_SKIP_CONTENT_SAFETY_CHECK="false"
 SOLAR_SKIP_DATA_SECURITY_CHECK="true"
 SOLAR_SKIP_SELF_CRITIQUE_CHECK="false"
@@ -78,7 +88,6 @@ DEFAULT_STT_MODEL_SIZE="large"
 DEFAULT_STT_MODEL_ID="Systran/faster-whisper-large-v3"
 
 #### text-to-speech Voice model
-#DEFAULT_TTS_VOICE_MODEL_PATH=/home/pop/development/mclab/talking-llama/models/voices/
 DEFAULT_TTS_VOICE_MODEL_PATH="resources/models/voices/"
 DEFAULT_TTS_VOICE_MODEL_LANGUAGE="en"
 
@@ -101,3 +110,8 @@ VOCIE_APP_PORT=7860
 VOCIE_APP_HOST="localhost"
 VOCIE_APP_SHARE=False
 
+## data security check - PII
+_QUERY_ENABLE_PII_ANALYSIS="True" 
+_QUERY_ENABLE_PII_ANONYMIZATION="False"
+## content safety check
+_QUERY_CONTENT_SAFETY_GUARD="False"
