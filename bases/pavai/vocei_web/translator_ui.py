@@ -5,11 +5,6 @@ import time
 import pavai.translator.filedata as filedata
 import pavai.translator.translator as translator
 import pavai.translator.lang_list as lang_list
-# import chatopenai
-# import chatprompt
-# import mediadata
-# import webdata
-# import historydata
 import pavai.vocei_web.translator_ui
 
 class CommunicationTranslator:

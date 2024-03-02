@@ -1,4 +1,3 @@
-# pip install python-dotenv
 from dotenv import dotenv_values
 system_config = dotenv_values("env_config")
 import logging
@@ -15,34 +14,34 @@ import gradio as gr
 import torch
 import pandas as pd
 import numpy as np
-#import pavai.shared.datasecurity as datasecurity
 from typing import BinaryIO, Union
 from transformers.utils import is_flash_attn_2_available
 from pavai.shared.system_checks import (pavai_vocie_system_health_check, DEFAULT_SYSTEM_MODE, SYSTEM_THEME_SOFT,SYSTEM_THEME_GLASS,VOICE_PROMPT_INSTRUCTIONS_TEXT)
-#from pavai.shared.llmproxy import chatbot_ui_client,chat_count_tokens,multimodal_ui_client
-#from pavai.shared.llmproxy import chat_count_tokens,multimodal_ui_client
 from pavai.shared.image.text2image import (StableDiffusionXL, image_generation_client,DEFAULT_TEXT_TO_IMAGE_MODEL)
 from pavai.shared.fileutil import get_text_file_content
 from pavai.shared.commands import filter_commmand_keywords
 from pavai.shared.grammar import (fix_grammar_error)
 from pavai.shared.audio.transcribe import (speech_to_text, FasterTranscriber,DEFAULT_WHISPER_MODEL_SIZE)
 from pavai.shared.audio.tts_client import (system_tts_local,speaker_file_v2,get_speaker_audio_file,speak_acknowledge,speak_wait, speak_done, speak_instruction)
-#from pavai.shared.audio.voices_piper import (text_to_speech, speak_acknowledge,speak_wait, speak_done, speak_instruction)
-#from pavai.shared.audio.voices_styletts2 import (text_to_speech, speak_acknowledge,speak_wait, speak_done, speak_instruction)
-
-## remove Iterable, List, NamedTuple, Optional, Tuple,
-## removed from os.path import dirname, join, abspath
 from pavai.shared.aio.llmchat import get_llm_library
-from pavai.shared.aio.llmchat import (system_prompt_assistant, DEFAULT_LLM_CONTEXT_SIZE)
-from pavai.shared.llmcatalog import LLM_MODEL_KX_CATALOG_TEXT
 from pavai.shared.aio.chatprompt import knowledge_experts_system_prompts
-#from pavai.vocei_web.translator_ui import CommunicationTranslator,ScratchPad
 from pavai.vocei_web.system_settings_ui import SystemSetting
 import pavai.shared.aio.chatprompt as chatprompt
 import pavai.shared.aio.chatmodels as chatmodels
 import sounddevice as sd
 import cleantext
 import traceback
+
+#from pavai.shared.aio.llmchat import (system_prompt_assistant, DEFAULT_LLM_CONTEXT_SIZE)
+#from pavai.shared.llmcatalog import LLM_MODEL_KX_CATALOG_TEXT
+#from pavai.vocei_web.translator_ui import CommunicationTranslator,ScratchPad
+#import pavai.shared.datasecurity as datasecurity
+#from pavai.shared.llmproxy import chatbot_ui_client,chat_count_tokens,multimodal_ui_client
+#from pavai.shared.llmproxy import chat_count_tokens,multimodal_ui_client
+#from pavai.shared.audio.voices_piper import (text_to_speech, speak_acknowledge,speak_wait, speak_done, speak_instruction)
+#from pavai.shared.audio.voices_styletts2 import (text_to_speech, speak_acknowledge,speak_wait, speak_done, speak_instruction)
+## remove Iterable, List, NamedTuple, Optional, Tuple,
+## removed from os.path import dirname, join, abspath
 
 __author__ = "mychen76@gmail.com"
 __copyright__ = "Copyright 2024"
@@ -53,6 +52,7 @@ print(system_config["GLOBAL_SYSTEM_MODE"])
 _GLOBAL_SYSTEM_MODE=system_config["GLOBAL_SYSTEM_MODE"]
 _GLOBAL_TTS=system_config["GLOBAL_TTS"]
 
+# pip install python-dotenv
 # tested version gradio version: 4.7.1
 # pip install gradio==4.7.1
 # whisper model
