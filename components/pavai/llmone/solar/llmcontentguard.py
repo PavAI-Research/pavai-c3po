@@ -1,6 +1,4 @@
 import time
-# import os
-# import openai
 from openai import OpenAI
 from string import Template
 

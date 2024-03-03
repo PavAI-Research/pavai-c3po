@@ -1,28 +1,10 @@
-# import os
-# from dotenv import dotenv_values
-# system_config = {
-#     **dotenv_values("env.shared"),  # load shared development variables
-#     **dotenv_values("env.secret"),  # load sensitive variables
-#     **os.environ,  # override loaded values with environment variables
-# }
 from pavai.setup import config 
 from pavai.setup import logutil
 logger = logutil.logging.getLogger(__name__)
-
-import sys
-import warnings
 import torch
 import os
 from rich.console import Console
-# from rich.logging import RichHandler
-# import logging
-# logging.basicConfig(level=logging.ERROR, format="%(message)s",
-#                     datefmt="[%X]", handlers=[RichHandler(rich_tracebacks=True)])
-# logger = logging.getLogger(__name__)
-# # pretty.install()
-# warnings.filterwarnings("ignore")
-from pavai.shared.handfree_aio import system_startup, system_initialization, activate_handfree_system
-
+import pavai.shared.handfree as handfree 
 from pavai.setup import config 
 from pavai.setup import logutil
 
@@ -47,9 +29,9 @@ LIBRI_AI_VOICES = ["Ryan", "Jane", "Vinay", "Nima","Yinghao", "Keith", "May", "J
 
 if __name__ == '__main__':
     try:
-        system_startup()
-        system_initialization()
-        activate_handfree_system()
+        handfree.system_startup()
+        handfree.system_initialization()
+        handfree.activate_handfree_system()
     except (KeyboardInterrupt, SystemExit):
         pass
 

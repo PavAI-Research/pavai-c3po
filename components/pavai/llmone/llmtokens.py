@@ -1,6 +1,4 @@
-#pip install tiktoken
 import tiktoken
-#import nltk
 import traceback
 
 def num_tokens_from_string(string: str) -> int:

@@ -2,19 +2,6 @@ from pavai.setup import config
 from pavai.setup import logutil
 logger = logutil.logging.getLogger(__name__)
 
-# import os
-# from dotenv import dotenv_values
-# system_config = {
-#     **dotenv_values("env.shared"),  # load shared development variables
-#     **dotenv_values("env.secret"),  # load sensitive variables
-#     **os.environ,  # override loaded values with environment variables
-# }
-# pip install openai
-# pip install gradio
-# import os
-# from dotenv import dotenv_values
-# system_config = dotenv_values("env_config")
-
 import time
 import base64
 import json
@@ -29,9 +16,8 @@ from hashlib import sha256
 from base64 import b64encode, b64decode
 from typing import Any, AnyStr, Union, Optional, Sequence, Mapping, Literal
 import tiktoken
-from rich import pretty
-pretty.install()
 
+#prompt = "Enter Your Query Here"
 # Streaming endpoint
 #API_HOST = "http://192.168.0.18:12345"
 #API_HOST = "http://192.168.0.29:8004"
@@ -40,9 +26,6 @@ LLM_PROVIDER=config.system_config["GLOBAL_SYSTEM_MODE"]
 API_HOST=config.system_config["SOLAR_LLM_DEFAULT_HOST"]
 API_URL_BASE = f"{API_HOST}/v1"
 API_URL_CHAT = f"{API_URL_BASE}/chat/completions"
-
-
-#prompt = "Enter Your Query Here"
 
 client = OpenAI(
     base_url=API_URL_BASE,

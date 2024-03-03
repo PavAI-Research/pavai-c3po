@@ -1,20 +1,6 @@
-# import os
-# from dotenv import dotenv_values
-# system_config = {
-#     **dotenv_values("env.shared"),  # load shared development variables
-#     **dotenv_values("env.secret"),  # load sensitive variables
-#     **os.environ,  # override loaded values with environment variables
-# }
-# import logging
-# import warnings 
-# from rich.logging import RichHandler
-# from rich import print,pretty
-# logging.basicConfig(level=logging.DEBUG, format="%(message)s", datefmt="[%X]", handlers=[RichHandler(rich_tracebacks=True)])
-# logger = logging.getLogger(__name__)
-# pretty.install()
-# warnings.filterwarnings("ignore")
 from pavai.setup import config 
 from pavai.setup import logutil
+logger = logutil.logging.getLogger(__name__)
 
 import os 
 import re
@@ -35,16 +21,7 @@ import docx2txt
 import datetime 
 import time
 
-# pip install PyMuPDF
-# pip install html2text
-# pip install aiofiles==0.6.0
-# pip install bs4
-# pip install markdown
-# pip install docx2txt
-# --pip install pypandoc
-
 _DEFAULT_SYSTEM_DOWNLOADS_PATH="./downloads"
-#system_config["DEFAULT_SYSTEM_DOWNLOADS_PATH"]
 
 def load_text_file(command_name: str,
                    input_text: str,
@@ -300,6 +277,14 @@ def load_session_files(filename:str,chatbot:list=[],history:list=[], storage_pat
 
 
 if __name__=="__main__":
+    # pip install PyMuPDF
+    # pip install html2text
+    # pip install aiofiles==0.6.0
+    # pip install bs4
+    # pip install markdown
+    # pip install docx2txt
+    # --pip install pypandoc
+
     #filepath="/mnt/win11/shared/multimodal/samples/LLM_VUI.docx"
     #chatbot, history = load_file_content(filepath)   
     #chatbot=[["hello","hi how are you"],["good","yesy"],["what a good day","yesy"]]

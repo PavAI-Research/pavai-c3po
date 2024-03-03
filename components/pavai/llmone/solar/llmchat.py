@@ -2,32 +2,12 @@
 from pavai.setup import config 
 from pavai.setup import logutil
 logger = logutil.logging.getLogger(__name__)
-
-# from rich import print, pretty, console
-# import warnings
-# from rich.pretty import (Pretty, pprint)
 import time
-# from rich.panel import Panel
-# from rich.logging import RichHandler
-# import logging
-# from dotenv import dotenv_values
-# system_config = dotenv_values("env_config")
-# logging.basicConfig(level=logging.INFO, format="%(message)s",
-#                     datefmt="[%X]", handlers=[RichHandler(rich_tracebacks=True)])
-# logger = logging.getLogger(__name__)
-# pretty.install()
-# warnings.filterwarnings("ignore")
-
 from abc import ABC, abstractmethod
 from openai import OpenAI
-# import openai
-# import instructor
-# import json
-# import os
-# import sys
-from pavai.shared.llm.solar.llmprompt import (system_prompt_assistant, lookup_expert_system_prompt,guard_system_prompt,guard_system_prompt_assistant)
-from pavai.shared.llm.solar.llmcontentguard import safety_check
-from pavai.shared.llm.solar.llmfunctionary import self_critique
+from pavai.llmone.solar.llmprompt import (system_prompt_assistant, lookup_expert_system_prompt,guard_system_prompt,guard_system_prompt_assistant)
+from pavai.llmone.solar.llmcontentguard import safety_check
+from pavai.llmone.solar.llmfunctionary import self_critique
 
 def simplechat(client: OpenAI, query: str,
                model_id: str = "zerphyr-7b-beta.Q4",

@@ -1,25 +1,6 @@
 from pavai.setup import config 
 from pavai.setup import logutil
 logger = logutil.logging.getLogger(__name__)
-
-# import os
-# from dotenv import dotenv_values
-# system_config = {
-#     **dotenv_values("env.shared"),  # load shared development variables
-#     **dotenv_values("env.secret"),  # load sensitive variables
-#     **os.environ,  # override loaded values with environment variables
-# }
-# from dotenv import dotenv_values
-# system_config = dotenv_values("env_config")
-# import logging
-# import warnings 
-# from rich.logging import RichHandler
-# from rich import print,pretty
-# logging.basicConfig(level=logging.DEBUG, format="%(message)s", datefmt="[%X]", handlers=[RichHandler(rich_tracebacks=True)])
-# logger = logging.getLogger(__name__)
-# pretty.install()
-# warnings.filterwarnings("ignore")
-
 import os 
 import re
 from pathlib import Path
@@ -34,8 +15,7 @@ from bs4 import BeautifulSoup
 from markdown import markdown  
 import html2text  
 import fitz  
-import asyncio
-
+#import asyncio
 # pip install PyMuPDF
 # pip install html2text
 # pip install aiofiles==0.6.0

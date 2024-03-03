@@ -5,9 +5,7 @@ from abc import ABC, abstractmethod
 from openai import OpenAI
 import openai
 from urllib.request import urlopen
-#import functools
 import json
-#from dotenv import dotenv_values
 import time
 
 class LLMSolarNetwork:
@@ -128,7 +126,6 @@ class LLMSolarNetwork:
         self._output_data = {}
         self._memory = {"type": "memory", "activity": [], "history": []}
 
-
 class LLMSolarSetting(object):
     def __init__(self, url):
         if "https" in url or "http" in url:
@@ -139,7 +136,6 @@ class LLMSolarSetting(object):
 
     def __call__(self, value):
         return self.config[value]
-
 
 class LLMSolarClient():
     """settings"""
@@ -226,7 +222,6 @@ class LLMSolarClient():
                                 skip_data_security_check=skip_data_security_check,
                                 skip_self_critique_check=skip_self_critique_check)
         return client
-
 
 class Action(ABC):
     """

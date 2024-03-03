@@ -1,18 +1,3 @@
-# import os
-# from dotenv import dotenv_values
-# system_config = {
-#     **dotenv_values("env.shared"),  # load shared development variables
-#     **dotenv_values("env.secret"),  # load sensitive variables
-#     **os.environ,  # override loaded values with environment variables
-# }
-# import logging
-# from rich.logging import RichHandler
-# from rich import pretty
-# logging.basicConfig(level=logging.INFO, format="%(message)s", datefmt="[%X]", handlers=[RichHandler(rich_tracebacks=True)])
-# logger = logging.getLogger(__name__)
-# pretty.install()
-# import warnings 
-# warnings.filterwarnings("ignore")
 from pavai.setup import config 
 from pavai.setup import logutil
 logger = logutil.logging.getLogger(__name__)
@@ -30,15 +15,7 @@ from pavai.shared.audio.tts_client import speak_instruction
 from pavai.vocei_web.translator_ui import CommunicationTranslator
 from pavai.vocei_web.scratchpad_ui import ScratchPad
 from pavai.vocei_web.voice_prompt_ui import VoicePrompt
-#from pavai.llmone.chatprompt import knowledge_experts_system_prompts
-#from pavai.llmone.local.localllm import get_llm_library
 import pavai.setup.versions as versions
-# from pavai.shared.aio.llmchat import (system_prompt_assistant, DEFAULT_LLM_CONTEXT_SIZE)
-# from pavai.shared.llmcatalog import LLM_MODEL_KX_CATALOG_TEXT
-# import pandas as pd
-# import numpy as np
-# from typing import BinaryIO, Union
-# pip install python-dotenv
 
 __author__ = "mychen76@gmail.com"
 __copyright__ = "Copyright 2024"
@@ -51,12 +28,12 @@ _GLOBAL_TTS=config.system_config["GLOBAL_TTS"]
 
 # tested version gradio version: 4.7.1
 # pip install gradio==4.7.1
+
 # whisper model
 DEFAULT_COMPUTE_TYPE = "float16" if torch.cuda.is_available() else "int8"
 DEFAULT_DEVICE_TYPE = "cuda" if torch.cuda.is_available() else "cpu"
 INT16_MAX_ABS_VALUE = 32768.0
 DEFAULT_MAX_MIC_RECORD_LENGTH_IN_SECONDS = 30*60*60  # 30 miniutes
-#DEFAULT_WORKING_DIR = "./workspace"
 
 # Global variables
 system_is_ready = True
@@ -66,10 +43,6 @@ use_flash_attention_2 = is_flash_attn_2_available()
 
 faster_transcriber = FasterTranscriber(model_id_or_path=DEFAULT_WHISPER_MODEL_SIZE)
 stablediffusion_model = StableDiffusionXL(model_id_or_path=DEFAULT_TEXT_TO_IMAGE_MODEL)
-
-# Knowledge experts and Domain Models
-#  knowledge_experts = list(knowledge_experts_system_prompts.keys())
-#domain_models = list(get_llm_library().keys())
 
 # global settings
 _QUERY_ASK_EXPERT_ID=None  # planner

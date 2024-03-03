@@ -2,34 +2,11 @@ from pavai.setup import config
 from pavai.setup import logutil
 logger = logutil.logging.getLogger(__name__)
 
-# import os
-# from dotenv import dotenv_values
-# system_config = {
-#     **dotenv_values("env.shared"),  # load shared development variables
-#     **dotenv_values("env.secret"),  # load sensitive variables
-#     **os.environ,  # override loaded values with environment variables
-# }
-# from dotenv import dotenv_values
-# system_config = dotenv_values("env_config")
-# import logging
-# from rich.logging import RichHandler
-# from rich import print,pretty,console
-# from rich.pretty import (Pretty,pprint)
-# from rich.panel import Panel
-# logging.basicConfig(level=logging.INFO, format="%(message)s", datefmt="[%X]", handlers=[RichHandler(rich_tracebacks=True)])
-# logger = logging.getLogger(__name__)
-# pretty.install()
-
-# import warnings 
-# warnings.filterwarnings("ignore")
 import os 
 import functools
 from transformers import pipeline, AutoTokenizer, AutoModelForSeq2SeqLM
 from transformers import pipeline
 from huggingface_hub import hf_hub_download,snapshot_download    
-#import torch 
-# use_device = "cuda" if torch.cuda.is_available() else "cpu"
-# use_torch_dtype = torch.float16 if torch.cuda.is_available() else torch.float32
 
 DEFAULT_GRAMMAR_MODEL_SIZE = "pszemraj/grammar-synthesis-small"
 grammar_corrector=None

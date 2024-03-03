@@ -1,20 +1,14 @@
 import enum
-import os
-import asyncio
-import openai
 import json
 from openai import OpenAI
 from pydantic import BaseModel
 import instructor
-from typing_extensions import Annotated
 from pydantic import BaseModel, BeforeValidator
 from pavai.llmone.solar.llmprompt import guard_system_prompt, system_prompt_assistant
-#!pip install -U instructor
-
-# Function Calling With OpenAI Python Client
-
-# Enables `response_model`
-# default_client = instructor.patch(client=default_client)
+# import os
+# import asyncio
+# import openai
+#from typing_extensions import Annotated
 
 def get_current_weather(location: str):
     """Get the current weather in a given location"""

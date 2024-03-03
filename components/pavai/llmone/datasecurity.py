@@ -1,32 +1,12 @@
-# import os
-# from dotenv import dotenv_values
-# system_config = {
-#     **dotenv_values("env.shared"),  # load shared development variables
-#     **dotenv_values("env.secret"),  # load sensitive variables
-#     **os.environ,  # override loaded values with environment variables
-# }
-# from dotenv import dotenv_values
 from pavai.setup import config 
 from pavai.setup import logutil
 logger = logutil.logging.getLogger(__name__)
 
-# from rich.logging import RichHandler
-# from rich.panel import Panel
-# from rich.pretty import (Pretty, pprint)
-# from rich import print, pretty, console
-# import logging
-# import warnings
 from pathlib import Path
 import sys
-import os
-# #system_config = dotenv_values("env_config")
-# logging.basicConfig(level=logging.ERROR, format="%(message)s",
-#                     datefmt="[%X]", handlers=[RichHandler(rich_tracebacks=True)])
-# logger = logging.getLogger(__name__)
-# pretty.install()
-# warnings.filterwarnings("ignore")
 sys.path.append(str(Path(__file__).parent.parent))
 import time
+import os
 import pavai.llmone.llmdatasecurity as llmdatasecurity
 
 #global

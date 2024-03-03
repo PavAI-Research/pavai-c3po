@@ -1,25 +1,17 @@
 ## m4s seamless communication
-import gradio as gr
+from pavai.setup import config 
+from pavai.setup import logutil
+logger = logutil.logging.getLogger(__name__)
 
+import gradio as gr
 import numpy as np
 import torch
 import torchaudio
 from transformers import SeamlessM4Tv2ForSpeechToSpeech
 from transformers import AutoProcessor
-import os
-import pathlib
-
 import pavai.translator.lang_list as lang_list
-
-# from lang_list import (
-#     ASR_TARGET_LANGUAGE_NAMES,
-#     LANGUAGE_NAME_TO_CODE,
-#     S2ST_TARGET_LANGUAGE_NAMES,
-#     S2TT_TARGET_LANGUAGE_NAMES,
-#     T2ST_TARGET_LANGUAGE_NAMES,
-#     T2TT_TARGET_LANGUAGE_NAMES,
-#     TEXT_SOURCE_LANGUAGE_NAMES,
-# )
+# import os
+# import pathlib
 
 SPEAKER_ID = 7
 
@@ -27,8 +19,6 @@ AUDIO_SAMPLE_RATE = 16000.0
 MAX_INPUT_AUDIO_LENGTH = 360  # in seconds
 DEFAULT_TARGET_LANGUAGE = "French"
 
-# device = "cuda:0" if torch.cuda.is_available() else "cpu"
-# device = "cpu"
 modelv2=None
 processorv2=None
 
@@ -73,11 +63,10 @@ def transcribe(
     ## text
     text_tokens = outputv2[2]
     out_texts = processorv2.decode(text_tokens.tolist()[0], skip_special_tokens=True)
-    print(f"TRANSLATION: {out_texts}")
+    logger.info(f"TRANSLATION: {out_texts}")
     ## audio
     out_audios = outputv2[0].cpu().numpy().squeeze()
     sample_rate = modelv2.config.sampling_rate
-    # {"sampling_rate": sample_rate, "raw": out_audios},
     return out_texts, out_audios, sample_rate
 
 def preprocess_audio(input_audio_filepath: str) -> None:
@@ -106,8 +95,8 @@ def run_s2st(
     audio_array = preprocess_audio(input_audio_filepath)
     source_language_code = lang_list.LANGUAGE_NAME_TO_CODE[source_language]
     target_language_code = lang_list.LANGUAGE_NAME_TO_CODE[target_language]
-    print("source lang:", source_language_code)
-    print("target lang:", target_language_code)
+    logger.info("source lang:", source_language_code)
+    logger.info("target lang:", target_language_code)
 
     ## determine optimal device to use
     device = "cuda:0" if torch.cuda.is_available() else "cpu"
@@ -125,7 +114,7 @@ def run_s2st(
             device=device,        
         )
     except Exception as e:
-        print("Exception occurred ", e.args)
+        logger.error(f"Exception occurred {e.args}")
         if "CUDA out of memory" in str(e.args):
             CUDA_OUT_OF_MEMORY=True
             gr.Warning("Retry with device: CPU only, please wait!")

@@ -1,11 +1,5 @@
 import gradio as gr
-import pandas as pd
-import os
-import time
 import pavai.translator.filedata as filedata
-# import pavai.translator.translator as translator
-# import pavai.translator.lang_list as lang_list
-# import pavai.vocei_web.translator_ui
 
 class ScratchPad:
     def build_scratchpad_ui(self):
@@ -116,7 +110,6 @@ class ScratchPad:
                 btn_load_notepad.click(fn=load_notespad, outputs=[box_notepad])
                 ## update expert mode and speech style
         return self.blocks_scratchpad
-
 
 class AppMain(ScratchPad):
 

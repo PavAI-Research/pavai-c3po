@@ -9,39 +9,7 @@ import pavai.llmone.remote.chatbotllm as chatbotllm
 from pavai.setup import config
 from pavai.setup import logutil
 logger = logutil.logging.getLogger(__name__)
-
-# import os
-# from dotenv import dotenv_values
-# system_config = {
-#     **dotenv_values("env.shared"),  # load shared development variables
-#     **dotenv_values("env.secret"),  # load sensitive variables
-#     **os.environ,  # override loaded values with environment variables
-# }
-# from rich import print, pretty, console
-# import pavai.shared.solar.llmprompt as llmprompt
-
-# from pavai.llmone.local.llmchat import get_llm_instance, local_chat_completion
-
-# import pavai.shared.solar.llmcognitive as llmcognitive
-# import os
-# import warnings
-# from rich.pretty import (Pretty, pprint)
-# import pavai.shared.solar.llmchat as llmchat
-# from pavai.shared.solar.llmchat import multimodalchat
-# from pavai.shared.solar.llmprompt import system_prompt_assistant
-# import functools
-# from rich.panel import Panel
-# from rich.logging import RichHandler
-# import logging
-# # from dotenv import dotenv_values
-# # system_config = dotenv_values("env_config")
-# logging.basicConfig(level=logging.INFO, format="%(message)s",datefmt="[%X]", handlers=[RichHandler(rich_tracebacks=True)])
-# logger = logging.getLogger(__name__)
-# pretty.install()
-# warnings.filterwarnings("ignore")
 sys.path.append(str(Path(__file__).parent.parent))
-# logger.info(os.getcwd())
-
 
 logger.warn("--GLOBAL SYSTEM MODE----")
 logger.warn(config.system_config["GLOBAL_SYSTEM_MODE"])
@@ -57,7 +25,6 @@ _GLOBAL_DEFAULT_LLM_MODEL_INFO = [config.system_config["DEFAULT_LLM_MODEL_FILE"]
                                   ]
 # global
 llmsolar = None
-
 
 def chat_api_ui(input_text: str,
                 chatbot: list, chat_history: list,
@@ -292,87 +259,6 @@ def chat_models_local(
 def create_llm_local(runtime_file:str="resources/config/llm_defaults.json"):
     return localllm.get_llm_instance(runtime_file)
 
-# def multimodal_ui_client(input_text: str, chat_history: list,
-#                          system_prompt: str = None,
-#                          user_query: str = "What does the image say?",
-#                          ask_expert: str = None,
-#                          target_model_info: list = None,
-#                          user_override: bool = False,
-#                          skip_content_safety_check: bool = True,
-#                          skip_data_security_check: bool = True,
-#                          skip_self_critique_check: bool = True
-#                          ):
-#     t0 = time.perf_counter()
-
-#     logger.debug("-----multimodal_ui_client----")
-#     # image_url: file:////tmp/gradio/26f63cc5e677d6e4b106a13413ac942c021ecb67/invoice1.png
-#     # image_url:"https://i0.wp.com/post.healthline.com/wp-content/uploads/2021/02/Left-Handed-Male-Writing-1296x728-Header.jpg?w=1155&h=1528"
-#     user_image_url = input_text
-#     domain_client = OpenAI(
-#         api_key=f"{system_config['SOLAR_LLM_DOMAIN_API_KEY']}",
-#         base_url=f"{system_config['SOLAR_LLM_DOMAIN_SERVER_URL']}"
-#     )
-#     history, reply_object = llmchat.multimodalchat(client=domain_client,
-#                                                    query=user_query,
-#                                                    image_url=user_image_url,
-#                                                    history=[],
-#                                                    system_prompt=llmprompt.system_prompt_assistant,
-#                                                    response_format={"type": "text"}, model_id="llava-v1.5-7b")
-#     logger.debug(reply_object["response"])
-#     history = normalize_imagechat_history(history)
-#     reply_messages = []
-#     for i in range(0, len(history)-1):
-#         if history[i]["role"] != "system":
-#             reply_messages.append(
-#                 (history[i]["content"], history[i+1]["content"]))
-#     t1 = time.perf_counter()-t0
-#     logger.info(f"llmproxy.multimodal_ui_client: took {t1:.6f} seconds")
-#     return reply_messages, history, reply_object["response"]
-
-# @functools.lru_cache
-# def get_solarclient(user_override: bool = False,
-#                     skip_content_safety_check: bool = True,
-#                     skip_data_security_check: bool = True,
-#                     skip_self_critique_check: bool = True
-#                     ):
-#     global llmsolar
-
-#     if system_config["GLOBAL_SYSTEM_MODE"]=="ollama-openai":
-#         default_url = system_config["SOLAR_LLM_OLLAMA_SERVER_URL"]
-#         default_api_key = system_config["SOLAR_LLM_OLLAMA_API_KEY"]
-#         default_model_id = system_config["SOLAR_LLM_OLLAMA_MODEL_ID"]
-#     else:
-#         ##"solar-openai"
-#         default_url = system_config["SOLAR_LLM_DEFAULT_SERVER_URL"]
-#         default_api_key = system_config["SOLAR_LLM_DEFAULT_API_KEY"]
-#         default_model_id = system_config["SOLAR_LLM_DEFAULT_MODEL_ID"]
-
-#     if not user_override:
-#         skip_content_safety_check = system_config["SOLAR_SKIP_CONTENT_SAFETY_CHECK"]
-#         skip_content_safety_check = True if skip_content_safety_check == "true" else False
-#         skip_data_security_check = system_config["SOLAR_SKIP_DATA_SECURITY_CHECK"]
-#         skip_data_security_check = True if skip_data_security_check == "true" else False
-#         skip_self_critique_check = system_config["SOLAR_SKIP_SELF_CRITIQUE_CHECK"]
-#         skip_self_critique_check = True if skip_self_critique_check == "true" else False
-#     logger.debug("---LLMSolarClient:Settings---")
-#     logger.debug(f"SOLAR_LLM_DEFAULT_SERVER_URL: {default_url}")
-#     logger.debug(f"SOLAR_LLM_DEFAULT_API_KEY: {default_api_key}")
-#     # logger.debug(f"SOLAR_LLM_DOMAIN_SERVER_URL: {domain_url}")
-#     # logger.debug(f"SOLAR_LLM_DOMAIN_API_KEY: {domain_api_key}")
-#     logger.debug(
-#         f"SOLAR_SKIP_CONTENT_SAFETY_CHECK: {skip_content_safety_check}")
-#     logger.debug(f"SOLAR_SKIP_DATA_SECURITY_CHECK: {skip_data_security_check}")
-#     logger.debug(f"SOLAR_SKIP_SELF_CRITIQUE_CHECK: {skip_self_critique_check}")
-#     llmsolar = llmcognitive.LLMSolarClient(default_url=default_url,
-#                                            default_api_key=default_api_key,
-#                                            domain_url=default_url,
-#                                            domain_api_key=default_api_key,
-#                                            skip_content_safety_check=skip_content_safety_check,
-#                                            skip_data_security_check=skip_data_security_check,
-#                                            skip_self_critique_check=skip_self_critique_check)
-#     return llmsolar
-
-
 def normalize_imagechat_history(history: list):
     clean_history = history
     for i in range(0, len(history)-1):
@@ -388,10 +274,8 @@ def normalize_imagechat_history(history: list):
                     history[i]["content"] = image_question
     return clean_history
 
-
 def word_count(text):
     return (len(text.strip().split(" ")))
-
 
 def chat_count_tokens(text):
     llm_client = localllm.get_llm_instance()

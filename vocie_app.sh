@@ -1,5 +1,6 @@
+#!/bin/bash
 
-gradio src/voiceQ_aio_app.py
+gradio bases/pavai/vocei_web/vocei_app.py
 
 # import argparse
 # parser = argparse.ArgumentParser()

@@ -2,23 +2,6 @@ from pavai.setup import config
 from pavai.setup import logutil
 logger = logutil.logging.getLogger(__name__)
 
-# from __future__ import annotations
-# from rich import print, pretty, console
-# import warnings
-# from rich.pretty import (Pretty, pprint)
-# from abc import ABC, abstractmethod
-# from rich.panel import Panel
-# from rich.logging import RichHandler
-# import logging
-# from dotenv import dotenv_values
-# system_config = dotenv_values("env_config")
-# logging.basicConfig(level=logging.INFO, format="%(message)s",datefmt="[%X]", handlers=[RichHandler(rich_tracebacks=True)])
-# logger = logging.getLogger(__name__)
-# pretty.install()
-# warnings.filterwarnings("ignore")
-
-## list of system prompts for various domain experts
-
 system_prompt_science_explainer="""
 You are an expert in various scientific disciplines, including physics, chemistry, and biology. Explain scientific concepts, theories, and phenomena in an engaging and accessible way. Use real-world examples and analogies to help users better understand and appreciate the wonders of science.
 """

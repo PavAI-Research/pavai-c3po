@@ -2,7 +2,6 @@ from pavai.setup import config
 from pavai.setup import logutil
 logger = logutil.logging.getLogger(__name__)
 
-# from __future__ import annotations
 from scipy.special import expit
 import numpy as np
 from sentence_transformers import CrossEncoder
@@ -10,62 +9,12 @@ from transformers import pipeline
 from transformers import AutoTokenizer
 from transformers import AutoModelForSequenceClassification, TFAutoModelForSequenceClassification
 import torch
-# from rich import print, pretty, console
-# import warnings
-# from rich.logging import RichHandler
-# import time
-# import logging
-# from dotenv import dotenv_values
-# system_config = dotenv_values("env_config")
-# logging.basicConfig(level=logging.DEBUG, format="%(message)s",
-#                     datefmt="[%X]", handlers=[RichHandler(rich_tracebacks=True)])
-# logger = logging.getLogger(__name__)
-# pretty.install()
-# warnings.filterwarnings("ignore")
-
 from sentence_transformers import SentenceTransformer, util
 import functools
-
-# pip install sentence_transformers
 
 # global instance 
 g_classify_topic_model = None
 g_classify_topic_tokenizer = None
-
-# def classify_text_emotion(query: str, model_id: str = "SamLowe/roberta-base-go_emotions", top_k=3, cache_dir: str = "./models", low_cpu_mem_usage=True, use_safetensors=True):
-#     device = "cuda:0" if torch.cuda.is_available() else "cpu"
-#     torch_dtype = torch.float16 if torch.cuda.is_available() else torch.float32
-#     tokenizer = AutoTokenizer.from_pretrained(model_id, cache_dir=cache_dir)
-#     model = AutoModelForSequenceClassification.from_pretrained(
-#         model_id, cache_dir=cache_dir, low_cpu_mem_usage=low_cpu_mem_usage, use_safetensors=use_safetensors)
-#     classifier = pipeline("text-classification", model=model,
-#                           tokenizer=tokenizer, torch_dtype=torch_dtype, device=device)
-#     predictions = classifier([query], top_k=top_k)
-#     # print(predictions[0])
-#     return predictions[0]
-
-
-# def hallucination_detection(text1: str, text2: str, model_id: str = 'vectara/hallucination_evaluation_model'):
-#     """
-#     The model outputs a probabilitity from 0 to 1, 0 being a hallucination and 1 being factually consistent. The predictions can be thresholded at 0.5 to predict whether a document is consistent with its source.
-#     """
-#     model = CrossEncoder('vectara/hallucination_evaluation_model')
-#     scores = model.predict([[text1, text2]])
-#     return scores
-
-# def classify_topic_model(query: str, model_id: str = "scroobiustrip/topic-model-v3", cache_dir: str = "./models"):
-#     device = "cuda:0" if torch.cuda.is_available() else "cpu"
-#     torch_dtype = torch.float16 if torch.cuda.is_available() else torch.float32
-
-#     tokenizer = AutoTokenizer.from_pretrained(model_id, cache_dir=cache_dir)
-#     model = AutoModelForSequenceClassification.from_pretrained(model_id, cache_dir=cache_dir,
-#                                                                low_cpu_mem_usage=True, use_safetensors=True)
-#     pipe = pipeline("text-classification", model=model,
-#                     tokenizer=tokenizer, torch_dtype=torch_dtype, device=device)
-#     result = pipe(query)
-#     # print(result[0]["label"],result[0]["score"])
-#     print("classify_topic_model:", result, end="\n")
-#     return result[0]
 
 def classify_intent(query: str, model_id: str = "Falconsai/intent_classification", cache_dir: str = "resources/models/classify"):
     device = "cuda:0" if torch.cuda.is_available() else "cpu"
@@ -115,42 +64,6 @@ def classify_multiple_topics(query: str, model_id: str = "cardiffnlp/tweet-topic
         if predictions[i]:
             topics.append(class_mapping[i])
     return topics
-
-
-# def test_classify_topic_model():
-#     t0 = time.perf_counter()
-#     query = "It is great to see athletes promoting awareness for climate change."
-#     result = classify_topic_model(query)
-#     print("test_classify_topic_model:",
-#           result['label'], result['score'], end="\n")
-#     print("test_classify_topic_model tooked ", time.perf_counter()-t0)
-
-
-# def test_classify_single_topic():
-#     t0 = time.perf_counter()
-#     query = "It is great to see athletes promoting awareness for climate change."
-#     result = classify_single_topic(query)
-#     print("test_classify_single_topic:",
-#           result['label'], result['score'], end="\n")
-#     print("test_classify_single_topic tooked ", time.perf_counter()-t0)
-
-
-# def test_classify_multiple_topics(query):
-#     t0 = time.perf_counter()
-#     topics = classify_multiple_topics(query)
-#     print("test_classify_multiple_topics:", topics, end="\n")
-#     print("test_classify_multiple_topics tooked ", time.perf_counter()-t0)
-
-
-# def test_hallucination_detection():
-#     scores = hallucination_detection(
-#         [["A man walks into a bar and buys a drink", "A bloke swigs alcohol at a pub"],])
-#     print(scores)
-
-# def test_text_emotion_detection():
-#     query = "I am not having a great day"
-#     scores = classify_text_emotion(query)
-#     print(scores)
 
 domain_models_map = {
     "default": "zerphyr-7b-beta.Q4",

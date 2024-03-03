@@ -2,43 +2,28 @@ from pavai.setup import config
 from pavai.setup import logutil
 logger = logutil.logging.getLogger(__name__)
 
-# import os
-# from dotenv import dotenv_values
-# system_config = {
-#     **dotenv_values("env.shared"),  # load shared development variables
-#     **dotenv_values("env.secret"),  # load sensitive variables
-#     **os.environ,  # override loaded values with environment variables
-# }
-# pip install ollama
-# pip install gradio
-# import os
-# from dotenv import dotenv_values
-# system_config = dotenv_values("env_config")
-
 import base64
 import time
-import random
-#from openai import OpenAI
 import ollama
 from ollama import Client
 import asyncio
 from ollama import AsyncClient
-
 from ollama._types import Message, Options, RequestError, ResponseError
 from typing import Any, AnyStr, Union, Optional, Sequence, Mapping, Literal
 import tiktoken
-#import pavai.shared.llm.solar.llmtype as llmtype
 
+#import random
+#import pavai.shared.llm.solar.llmtype as llmtype
+#from openai import OpenAI
 #openai.api_key = "YOUR_API_KEY"
 #prompt = "Enter Your Query Here"
 #LLM_PROVIDER=system_config["LLM_PROVIDER"]
+# client = Client(host='http://192.168.0.18:12345')
+# asclient = AsyncClient(host='http://192.168.0.18:12345')
 
 API_HOST=config.system_config["SOLAR_LLM_OLLAMA_HOST"]
 client = Client(host=API_HOST)
 asclient = AsyncClient(host=API_HOST)
-
-# client = Client(host='http://192.168.0.18:12345')
-# asclient = AsyncClient(host='http://192.168.0.18:12345')
 
 def num_tokens_from_string(string: str) -> int:
     """Returns the number of tokens in a text string."""
