@@ -1,31 +1,11 @@
 from pavai.setup import config 
 from pavai.setup import logutil
 logger = logutil.logging.getLogger(__name__)
-
-# import os
-# from dotenv import dotenv_values
-# system_config = {
-#     **dotenv_values("env.shared"),  # load shared development variables
-#     **dotenv_values("env.secret"),  # load sensitive variables
-#     **os.environ,  # override loaded values with environment variables
-# }
-# # from dotenv import dotenv_values
-# # system_config = dotenv_values("env_config")
-# import logging
-# from rich.logging import RichHandler
-# from rich import pretty
-# logging.basicConfig(level=logging.INFO, format="%(message)s", datefmt="[%X]", handlers=[RichHandler(rich_tracebacks=True)])
-# logger = logging.getLogger(__name__)
-# pretty.install()
-# import warnings 
-# warnings.filterwarnings("ignore")
-
 try: 
     import nltk
 except:
     nltk.download('punkt')
     import nltk
-# load packages
 import gc
 import time
 import yaml
@@ -37,7 +17,6 @@ from nltk.tokenize import word_tokenize
 import sounddevice as sd
 import phonemizer
 from scipy.io.wavfile import write, read
-#from utils import *
 from pavai.shared.styletts2.models import load_F0_models,load_ASR_models,build_model
 #,load_checkpoint
 from pavai.shared.styletts2.utils import length_to_mask,recursive_munch
@@ -48,14 +27,6 @@ from pavai.shared.styletts2.Modules.diffusion.sampler import DiffusionSampler, A
 from typing import Any, Dict
 import traceback
 import pavai.shared.styletts2.speech_type as speech_type
-# import torch.nn.functional as F
-# from munch import Munch
-# from torch import nn
-# import librosa
-#  List,Union, Optional, Sequence, Mapping, Literal,
-# import os
-# import sys
-# sys.path.append(os.path.join(os.path.dirname(__file__), '.'))
 
 class LJSpeech(speech_type.Singleton):
 
@@ -323,23 +294,7 @@ class LJSpeech(speech_type.Singleton):
         Yet for first-class homemade products there is a market in all large cities. 
         All first-class grocers have customers who purchase such goods."""
         audiofile = self.ljspeech_v2(text=passage,diffusion_steps=random.randint(3, 10), embedding_scale=random.randint(1, 2))
-        #ljspeech_v2(text=passage,diffusion_steps=random.randint(3, 10), embedding_scale=random.randint(1, 2))    
 
-## demo--1
-# text = "StyleTTS 2 is a text-to-speech model that leverages style diffusion and adversarial training with large speech language models to achieve human-level text-to-speech synthesis."
-# ljspeech(text=text,diffusion_steps=5, embedding_scale=1)  
-
-# ## With higher diffusion steps (more diverse)
-# ## Since the sampler is ancestral, the higher the stpes, the more diverse the samples are, with the cost of slower synthesis speed.
-
-# start = time.time()
-# noise = torch.randn(1,1,256).to(device)
-# wav = inference(text, noise, diffusion_steps=10, embedding_scale=1)
-# rtf = (time.time() - start) / (len(wav) / 24000)
-# print(f"RTF = {rtf:5f}")
-# #import IPython.display as ipd
-# #display(ipd.Audio(wav, rate=24000))
-# sd.play(wav)
 if __name__=="__main__":
     # test_lj_speech_v2()
     # Long-form generation

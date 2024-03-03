@@ -2,25 +2,6 @@ from pavai.setup import config
 from pavai.setup import logutil
 logger = logutil.logging.getLogger(__name__)
 
-# import os
-# from dotenv import dotenv_values
-# system_config = {
-#     **dotenv_values("env.shared"),  # load shared development variables
-#     **dotenv_values("env.secret"),  # load sensitive variables
-#     **os.environ,  # override loaded values with environment variables
-# }
-# # from dotenv import dotenv_values,load_dotenv,set_key
-# # system_config = dotenv_values("env_config")
-# import logging
-# from rich.logging import RichHandler
-# from rich import print,pretty,console
-# from rich.pretty import (Pretty,pprint)
-# from rich.panel import Panel
-# logging.basicConfig(level=logging.INFO, format="%(message)s", datefmt="[%X]", handlers=[RichHandler(rich_tracebacks=True)])
-# logger = logging.getLogger(__name__)
-# pretty.install()
-# import warnings 
-# warnings.filterwarnings("ignore")
 import gc
 import os
 import time
@@ -86,12 +67,6 @@ DEFAULT_LLM_USE_GPU_LAYERS = 35
 DEFAULT_LLM_CONTEXT_SIZE = 7892  # not 8192 discount special tokens
 
 DEFAULT_LLM_MODEL_INFO=[DEFAULT_LLM_MODEL_FILE,DEFAULT_LLM_MODEL_WEB_URL,DEFAULT_LLM_CHAT_FORMAT]
-
-## system_prompts
-## https://github.com/mustvlad/ChatGPT-System-Prompts
-
-### Good Chatbot Flow
-# [Input from User] --> [Analyze User Request] --> [Identify intend and Entities] --> [Compose reply]  
 
 system_prompt_assistant = """
 You are an artificial intelligence assistant, trained to engage in human-like voice conversations and to serve as a research assistant. 
@@ -1069,8 +1044,3 @@ def chat_completion(user_Prompt: str, history: list = [],
         logger.error(f"LLMChat.llm_chat_completion has error {str(e.args)}")
         _free_gpu_resources()                                                                    
     return [], history, reply        
-
-# def llm_chat(input_text, chat_history):
-#     # messages, history, reply = voice_llm_api.text_chat_completion(input_text,chat_history)
-#     messages, history, reply = llm_chat_completion(input_text, chat_history)
-#     return messages, history, reply

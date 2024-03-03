@@ -2,23 +2,6 @@ from pavai.setup import config
 from pavai.setup import logutil
 logger = logutil.logging.getLogger(__name__)
 
-# import os
-# from dotenv import dotenv_values
-# system_config = {
-#     **dotenv_values("env.shared"),  # load shared development variables
-#     **dotenv_values("env.secret"),  # load sensitive variables
-#     **os.environ,  # override loaded values with environment variables
-# }
-# # from dotenv import dotenv_values
-# # system_config = dotenv_values("env_config")
-# import logging
-# from rich.logging import RichHandler
-# from rich import pretty
-# logging.basicConfig(level=logging.INFO, format="%(message)s", datefmt="[%X]", handlers=[RichHandler(rich_tracebacks=True)])
-# logger = logging.getLogger(__name__)
-# pretty.install()
-# import warnings 
-# warnings.filterwarnings("ignore")
 import json
 
 def load_voices(path: str) -> dict:

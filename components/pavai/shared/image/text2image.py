@@ -1,29 +1,9 @@
 from pavai.setup import config 
 from pavai.setup import logutil
 logger = logutil.logging.getLogger(__name__)
-
-# import os
-# from dotenv import dotenv_values
-# system_config = {
-#     **dotenv_values("env.shared"),  # load shared development variables
-#     **dotenv_values("env.secret"),  # load sensitive variables
-#     **os.environ,  # override loaded values with environment variables
-# }
-# # from dotenv import dotenv_values
-# # system_config = dotenv_values("env_config")
-# import logging
-# from rich.logging import RichHandler
-# from rich import print,pretty,console
-# from rich.pretty import (Pretty,pprint)
-# from rich.panel import Panel
-# logging.basicConfig(level=logging.INFO, format="%(message)s", datefmt="[%X]", handlers=[RichHandler(rich_tracebacks=True)])
-# logger = logging.getLogger(__name__)
-# pretty.install()
-
-import time,os
+import time
 import torch 
 from diffusers import StableDiffusionXLPipeline
-import functools
 from abc import ABC, abstractmethod
 import gc
 import traceback

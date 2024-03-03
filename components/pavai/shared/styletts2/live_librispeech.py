@@ -2,41 +2,6 @@ from pavai.setup import config
 from pavai.setup import logutil
 logger = logutil.logging.getLogger(__name__)
 
-# import os
-# from dotenv import dotenv_values
-# system_config = {
-#     **dotenv_values("env.shared"),  # load shared development variables
-#     **dotenv_values("env.secret"),  # load sensitive variables
-#     **os.environ,  # override loaded values with environment variables
-# }
-
-## Install packages and download models
-## -------------------------------------
-# %%shell
-# git clone https://github.com/yl4579/StyleTTS2.git
-# cd StyleTTS2
-# pip install SoundFile torchaudio munch torch pydub pyyaml librosa nltk matplotlib accelerate transformers phonemizer einops einops-exts tqdm typing-extensions git+https://github.com/resemble-ai/monotonic_align.git
-# sudo apt-get install espeak-ng
-# git-lfs clone https://huggingface.co/yl4579/StyleTTS2-LibriTTS
-# mv StyleTTS2-LibriTTS/Models .
-# mv StyleTTS2-LibriTTS/reference_audio.zip .
-# unzip reference_audio.zip
-# mv reference_audio Demo/reference_audio
-
-# convert input audio to wav
-# ffmpeg -i inputfile.flac output.wav
-
-# from dotenv import dotenv_values
-# system_config = dotenv_values("env_config")
-# import logging
-# from rich.logging import RichHandler
-# from rich import pretty
-# logging.basicConfig(level=logging.INFO, format="%(message)s", datefmt="[%X]", handlers=[RichHandler(rich_tracebacks=True)])
-# logger = logging.getLogger(__name__)
-# pretty.install()
-# import warnings 
-# warnings.filterwarnings("ignore")
-
 try: 
     import nltk
 except:
@@ -48,9 +13,6 @@ import time
 import yaml
 import torch
 import random
-# from munch import Munch
-# from torch import nn
-# import torch.nn.functional as F
 import torchaudio
 import librosa
 from nltk.tokenize import word_tokenize
@@ -60,8 +22,6 @@ import phonemizer
 import sys, os
 import numpy as np
 from scipy.io.wavfile import write
-#,load_checkpoint
-#from models import *
 from pavai.shared.styletts2.utils import length_to_mask,recursive_munch
 from pavai.shared.styletts2.models import load_F0_models,load_ASR_models,build_model
 ## maximum_path,get_data_path_list,log_norm,get_image,log_print
@@ -76,8 +36,6 @@ import gc
 import json
 import pavai.shared.styletts2.speech_type as speech_type
 import pavai.shared.styletts2.live_voices as live_voices 
-# sys.path.append("./styletts2") 
-# sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
 class LibriSpeech(speech_type.Singleton):
 

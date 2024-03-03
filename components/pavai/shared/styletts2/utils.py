@@ -6,8 +6,6 @@ import torch
 import copy
 from torch import nn
 import torch.nn.functional as F
-# import torchaudio
-# import librosa
 import matplotlib.pyplot as plt
 from munch import Munch
 
@@ -68,7 +66,7 @@ def recursive_munch(d):
     else:
         return d
     
-def log_print(message, logger):
-    logger.info(message)
-    print(message)
+# def log_print(message, logger):
+#     logger.info(message)
+#     print(message)
     
