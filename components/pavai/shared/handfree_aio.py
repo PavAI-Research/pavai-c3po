@@ -37,10 +37,10 @@ import pavai.llmone.llmproxy as llmproxy
 console = Console()
 
 # user settings
-TALKIER_SYS_VOICE=config["GLOBAL_TTS_LIBRETTS_VOICE"]
+TALKIER_SYS_VOICE=config.system_config["GLOBAL_TTS_LIBRETTS_VOICE"]
 
-TALKIER_USER_VOICE=config["TALKIER_USER_VOICE"]
-TALKIER_USER_WAKEUP_WORD=config["TALKIER_USER_WAKEUP_WORD"]
+TALKIER_USER_VOICE=config.system_config["TALKIER_USER_VOICE"]
+TALKIER_USER_WAKEUP_WORD=config.system_config["TALKIER_USER_WAKEUP_WORD"]
 
 _USE_VOICE_API=False
 USE_ONNX = False
