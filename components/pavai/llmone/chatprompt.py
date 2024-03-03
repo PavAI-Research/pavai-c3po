@@ -122,7 +122,7 @@ guard_system_prompt=".Always assist with care, respect, and truth. Respond with 
 
 guard_system_prompt_assistant=system_prompt_assistant_v2+"\n"+guard_system_prompt+"\n"
 
-safe_system_prompt=system_prompt_default+".\n"+guard_system_prompt+"\n"
+safe_system_prompt=system_prompt_assistant_v2+".\n"+guard_system_prompt+"\n"
 
 short_response_style=".\nYou answer should be brief, precise and enthusiastic in few words, no more than 30 words."
 

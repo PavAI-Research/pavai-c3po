@@ -34,6 +34,7 @@ from pavai.shared.audio.tts_client import system_tts_local
 import pavai.llmone.llmproxy as llmproxy
 from pathlib import Path
 from pavai.shared.styletts2.download_models import get_styletts2_model_files
+import pavai.llmone.datasecurity as datasecurity
 import traceback
 
 __RELEASE_VERSION__="alpha-0.0.3"
@@ -303,6 +304,7 @@ def system_resources_check(output_voice:str="jane"):
             # else:
             #     table.add_row("resource_check", f"get text-to-speech model file: {voice_json_file}", "[red]Missing[/]")        
             #     logger.error(f"Missing text-to-speech file {voice_json_file}")                           
+            
             progress.advance(task)
 
             # 4. LLM model file        
@@ -468,6 +470,12 @@ def system_sanity_tests(output_voice:str="jane"):
             logger.info(f"[test#4] grammar model {DEFAULT_GRAMMAR_MODEL_SIZE}: Passed")                   
             table.add_row("functional_check", f"sanity test:grammar model", "[green]Passed[/]")    
             progress.advance(task)        
+
+            ## 5 data security check
+            logger.info("data security check")                                              
+            pii_results = datasecurity.analyze_text(input_text="John Smith reservation checking-in today at 5:00 PM at hotel Bravo!")
+            logger.info(str(pii_results))
+
             logger.info("------------------------")
             logger.info(startup_message)
             logger.info("------------------------")        

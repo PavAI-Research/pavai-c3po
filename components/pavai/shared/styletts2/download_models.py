@@ -1,3 +1,7 @@
+from pavai.setup import config 
+from pavai.setup import logutil
+logger = logutil.logging.getLogger(__name__)
+
 import os
 import traceback
 import requests
@@ -19,30 +23,31 @@ def get_styletts2_model_files(local_voice_path: str="resources/models/styletts2/
         LibriTTS=local_voice_path+"/LibriTTS/"
         if not os.path.exists(LibriTTS):
             os.mkdir(LibriTTS)
-            print(f"downloading {LibriTTS}")
+            logger.warn(f"downloading {LibriTTS}")
             LibriTTS_model_config_url=f"{remote_folder}/styletts2/resolve/main/Models/LibriTTS/config.yml"
             local_filename = download_file(url=LibriTTS_model_config_url,local_path=LibriTTS)
-            print(f"styletts2_model downloaded {local_filename}")
+            logger.warn(f"styletts2_model downloaded {local_filename}")
             LibriTTS_model_bin=f"{remote_folder}/styletts2/resolve/main/Models/LibriTTS/epochs_2nd_00020.pth"
             local_filename = download_file(url=LibriTTS_model_bin,local_path=LibriTTS)
-            print(f"styletts2_model downloaded {local_filename}")
+            logger.warn(f"styletts2_model downloaded {local_filename}")
         else:
-            print(f"styletts2_model already exist: {LibriTTS}")            
+            logger.info(f"styletts2_model already exist: {LibriTTS}")            
 
         LJSpeech=local_voice_path+"/LJSpeech/"
         if not os.path.exists(LJSpeech):
             os.mkdir(LJSpeech)
-            print(f"downloading {LJSpeech}")            
+            logger.warn(f"downloading {LJSpeech}")            
             LJSpeech_model_config_url=f"{remote_folder}/styletts2/resolve/main/Models/LJSpeech/config.yml"
             local_filename = download_file(url=LJSpeech_model_config_url,local_path=LJSpeech)
-            print(f"styletts2_model downloaded {local_filename}")                      
+            logger.warn(f"styletts2_model downloaded {local_filename}")                      
             LJSpeech_model_bin=f"{remote_folder}/styletts2/resolve/main/Models/LJSpeech/epoch_2nd_00100.pth"
             local_filename = download_file(url=LJSpeech_model_bin,local_path=LJSpeech)
-            print(f"styletts2_model downloaded {local_filename}")          
+            logger.info(f"styletts2_model downloaded {local_filename}")          
         else:
-            print(f"styletts2_model already exist: {LJSpeech}")            
+            logger.info(f"styletts2_model already exist: {LJSpeech}")            
     except Exception as e:
-        print("Exception occured ",e.args)
+        logger.error(f"Exception occured {e.args}")
         print(traceback.format_exc())
+        logger.error(str(traceback.format_exc()))
         raise Exception("Failed to download styletts2 model files!")
     

@@ -30,21 +30,39 @@ def chat_api_ui(input_text: str,
                 chatbot: list, chat_history: list,
                 system_prompt: str = None,
                 ask_expert: str = None,
+                model_id:str=None,
+                response_style:str=None,                
                 target_model_info: list = None,
                 user_override: bool = False,
                 skip_content_safety_check: bool = True,
                 skip_data_security_check: bool = True,
                 skip_self_critique_check: bool = True,
-                user_settings: dict = None,
-                ):
+                user_settings: dict = None,):
     t0 = time.perf_counter()
-    query_system_prompt = system_prompt if system_prompt is not None else chatprompt.system_prompt_assistant
-    # query_system_prompt = query_system_prompt + \
-    #     "\n\nResponse should be short and precise in less than 30 words or max 100 words if possible."
-    query_user_prompt = input_text+ chatprompt.short_response_style
+    if input_text is None:
+        logger.error("Empty input query is not valid!")
+        return 
+    
+    ## prepare system prompt 
+    if system_prompt is None or len(system_prompt.strip())==0:
+        query_system_prompt=chatprompt.safe_system_prompt
+    else:
+        ## guard content safety in response 
+        query_system_prompt = system_prompt +".\n"+chatprompt.guard_system_prompt
+
+    ## user query
+    if response_style is not None:
+        query_user_prompt = input_text+f".\ Please respond in this writing style {response_style}"
+    else:
+        query_user_prompt = input_text
+
+    ## context routing
+    ## persona / expert (model)
     query_ask_expert = ask_expert if ask_expert is not None else None
-    # skip invalid input such as file upload
-    # logger.info("system prompt: ", query_system_prompt)
+    ## model id and model info
+    # model_id = # target_model_info = 
+
+    logger.info(f"LLM User Query: {input_text}")
     if isinstance(input_text, list):
         logger.info(f"[blue]{str(input_text)}[/blue]", extra=dict(markup=True))
         return chatbot, chat_history, input_text[0]
@@ -61,7 +79,8 @@ def chat_api_ui(input_text: str,
                                                    skip_content_safety_check=skip_content_safety_check,
                                                    skip_data_security_check=skip_data_security_check,
                                                    skip_self_critique_check=skip_self_critique_check,
-                                                   user_settings=user_settings
+                                                   user_settings=user_settings,
+                                                   model_id=model_id                                                   
                                                    )
     else:
         # mode: locally-aio
@@ -70,7 +89,8 @@ def chat_api_ui(input_text: str,
                                                                                  system_prompt=query_system_prompt,
                                                                                  ask_expert=query_ask_expert,
                                                                                  target_model_info=target_model_info,
-                                                                                 user_settings=user_settings
+                                                                                 user_settings=user_settings,
+                                                                                 model_id=model_id
                                                                                  )
         logger.debug(f"[blue]{reply_text}[/blue]", extra=dict(markup=True))
 
@@ -92,7 +112,8 @@ def chat_api_remote(user_prompt: str = None, history: list = [],
                     skip_content_safety_check: bool = True,
                     skip_data_security_check: bool = True,
                     skip_self_critique_check: bool = True,
-                    user_settings: dict = None
+                    user_settings: dict = None,
+                    model_id:str=None   
                     ):
 
     t0 = time.perf_counter()
@@ -149,7 +170,8 @@ def chat_api_local(user_Prompt: str, history: list = [],
                    stop_criterias=["</s>"],
                    ask_expert: str = None,
                    target_model_info: list = None,
-                   user_settings: dict = None
+                   user_settings: dict = None,
+                   model_id:str=None   
                    ):
     global llm_client
     reply = None
@@ -202,7 +224,7 @@ def chat_api_local(user_Prompt: str, history: list = [],
     return [], history, reply
 
 def chat_api(user_prompt: str = None, history: list = [],
-                    system_prompt: str = chatprompt.system_prompt_assistant,
+                    system_prompt: str = chatprompt.system_prompt_default,
                     stop_criterias=["</s>"],
                     ask_expert: str = None,
                     target_model_info: list = None,

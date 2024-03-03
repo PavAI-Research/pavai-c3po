@@ -95,8 +95,8 @@ def run_s2st(
     audio_array = preprocess_audio(input_audio_filepath)
     source_language_code = lang_list.LANGUAGE_NAME_TO_CODE[source_language]
     target_language_code = lang_list.LANGUAGE_NAME_TO_CODE[target_language]
-    logger.info("source lang:", source_language_code)
-    logger.info("target lang:", target_language_code)
+    logger.info(f"source lang: {source_language_code}")
+    logger.info(f"target lang: {target_language_code}")
 
     ## determine optimal device to use
     device = "cuda:0" if torch.cuda.is_available() else "cpu"

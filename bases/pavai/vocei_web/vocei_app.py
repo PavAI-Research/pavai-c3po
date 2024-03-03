@@ -73,7 +73,7 @@ function createGradioAnimation() {
     container.style.textAlign = 'center';
     container.style.marginBottom = '10px';
 
-    var text = 'Welcome to Vocie (C-3P0 real assistant)';
+    var text = 'Welcome,Vocie(C-3P0) 2024';
     for (var i = 0; i < text.length; i++) {
         (function(i){
             setTimeout(function(){
@@ -99,7 +99,7 @@ function createGradioAnimation() {
 """
 MAIN User Interface
 """
-title = '🤖 PAvAI Vocei(C3PO) - an advance private multilingual LLM-based AI Voice Assistant'
+title = '🤖 Pavai-Vocei(C3PO) - an advance private multilingual LLM-based AI Voice Assistant'
 description = """an advance private multilingual AI Voice Assistant."""
 
 theme = gr.themes.Default()
@@ -134,19 +134,18 @@ class VoceiApp(VoicePrompt,CommunicationTranslator,ScratchPad):
         voice_prompt_ui=self.build_voice_prompt_ui()
         translator_ui=self.build_translator_ui()
         scratchpad_ui=self.build_scratchpad_ui()        
-        """APP UI"""
-        ##            title="Vocie (C-3PO real assistant) 💬",
-
-        css = ".gradio-container {background: url(https://upload.wikimedia.org/wikipedia/commons/4/49/Abstract_-_Coconut_Leaf_%28Imagicity_186%29.jpg)}"
+        """APP UI""" 
+        ##    title="Vocie (C-3PO real assistant) 💬",
+        ##    css=".gradio-container {background: url('file=pavai_logo_large.png')}",
+        css = ".gradio-container {background: url(https://w0.peakpx.com/wallpaper/249/289/HD-wallpaper-c3po-and-r2d2-star-wars-c3po-movies-r2d2.jpg)}"       
         self.app_ui = gr.TabbedInterface(
             theme=theme,
             interface_list=[voice_prompt_ui,translator_ui,scratchpad_ui],
-            tab_names=["Voice Prompt", "Multilingual Communication","Scratch Pad"],
-            css=".gradio-container {background: url('file=pavai_logo_large.png')}",
+            tab_names=["Voice Prompt", "Seamless Multilingual Communication","Scratch Pad"],
             analytics_enabled=False,
             js=js,
             css=css,
-            head="PAvAI Vocei"            
+            head="Pavai-Vocei"            
         )
         with self.app_ui:
             with gr.Group():
@@ -172,7 +171,7 @@ class VoceiApp(VoicePrompt,CommunicationTranslator,ScratchPad):
             self.main()
             absolute_path = os.path.abspath(background_image)
             pavai_vocie_system_health_check()
-            #self.update_gc_threshold()       
+            self.update_gc_threshold()       
             self.wipe_memory()  
             self.app_ui.queue()
             self.app_ui.launch(share=False,auth=None,allowed_paths=[absolute_path],server_name=server_name,server_port=server_port)
@@ -189,5 +188,5 @@ if __name__ == "__main__":
     server_port = 7860 if "VOCIE_APP_PORT" not in config.system_config.keys() else int(config.system_config["VOCIE_APP_PORT"])        
     share=False if "VOCIE_APP_SHARE" not in config.system_config.keys() else bool(config.system_config["VOCIE_APP_SHARE"])
 
-    voiceapp=VoceiApp("PAvAI-Vocie(C3PO)")
+    voiceapp=VoceiApp("Pavai-Vocie(C3PO)")
     voiceapp.launch(server_name=server_name,server_port=server_port,share=share)

@@ -29,8 +29,8 @@ __author__ = "mychen76@gmail.com"
 __copyright__ = "Copyright 2024"
 __version__ = "0.0.3"
 
-logger.warn("--GLOBAL SYSTEM MODE----")
-logger.warn(config.system_config["GLOBAL_SYSTEM_MODE"])
+logger.warn(f"--SYSTEM MODE--:{config.system_config['GLOBAL_SYSTEM_MODE']}")
+
 _GLOBAL_SYSTEM_MODE=config.system_config["GLOBAL_SYSTEM_MODE"]
 _GLOBAL_TTS=config.system_config["GLOBAL_TTS"]
 
@@ -39,7 +39,7 @@ DEFAULT_COMPUTE_TYPE = "float16" if torch.cuda.is_available() else "int8"
 DEFAULT_DEVICE_TYPE = "cuda" if torch.cuda.is_available() else "cpu"
 INT16_MAX_ABS_VALUE = 32768.0
 DEFAULT_MAX_MIC_RECORD_LENGTH_IN_SECONDS = 30*60*60  # 30 miniutes
-DEFAULT_WORKING_DIR = "./workspace"
+#DEFAULT_WORKING_DIR = "./workspace"
 
 # Global variables
 system_is_ready = True
@@ -51,7 +51,7 @@ faster_transcriber = FasterTranscriber(model_id_or_path=DEFAULT_WHISPER_MODEL_SI
 stablediffusion_model = StableDiffusionXL(model_id_or_path=DEFAULT_TEXT_TO_IMAGE_MODEL)
 
 # Knowledge experts and Domain Models
-knowledge_experts = list(chatprompt.knowledge_experts_system_prompts.keys())
+# knowledge_experts = list(chatprompt.knowledge_experts_system_prompts.keys())
 
 # global settings
 _QUERY_ASK_EXPERT_ID=None  # planner
@@ -316,19 +316,19 @@ class VoicePrompt(SystemSetting):
                 with gr.Row():
                     with gr.Column(1):         
                         """Human Voices"""       
-                        vc_human_voices_options = gr.Dropdown(label="Voice",choices=self.list_voices(), value="anthony_real")
+                        vc_human_voices_options = gr.Dropdown(label="Voice(Person)",choices=self.list_voices(), value="anthony_real")
                         vc_selected_voice = gr.Text(visible=False, value="anthony_real")
                     with gr.Column(1):                                 
                         """Voice Emotions"""       
-                        vc_voice_emotions = gr.Dropdown(label="Emotion",choices=self.list_emotions())
+                        vc_voice_emotions = gr.Dropdown(label="Emotion(AI)",choices=self.list_emotions())
                         vc_selected_emotion = gr.Text(visible=False)
                     with gr.Column(1):         
                         """knowledge and domain model experts"""                               
-                        vc_domain_expert_options = gr.Dropdown(choices=self.list_domain_experts(), label="Persona(AI)")
+                        vc_domain_expert_options = gr.Dropdown(choices=self.list_domain_experts(), label="Assistant(AI)")
                         vc_selected_domain_expert = gr.Text(visible=False)
                     with gr.Column(1):         
                         """Response style"""                               
-                        vc_response_style_options = gr.Dropdown(label="Tone", choices=self.list_speech_styles())
+                        vc_response_style_options = gr.Dropdown(label="Tone(AI)", choices=self.list_speech_styles())
                         vc_selected_response_tyle = gr.Text(visible=False)
                     def change_domain_export(new_expert:str):
                         gr.Info(f"set new domain expert to {new_expert}")    

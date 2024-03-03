@@ -460,7 +460,7 @@ class LibriSpeech(speech_type.Singleton):
             else:
                 ref_s=compute_style # input torch.Tensor
 
-            sentences = text.split('.') # simple split by comma
+            sentences = self.sentence_word_splitter(text=text.strip(),num_of_words=43) 
             wavs = []        
             for text in sentences:        
                 start = time.time()
@@ -518,7 +518,6 @@ class LibriSpeech(speech_type.Singleton):
             else:
                 ref_s = compute_style # input torch.Tensor
             #sentences = text.split('.') # simple split by comma
-            #sentences = self.chunk_text_to_fixed_length(text=text.strip(),length=48)
             sentences = self.sentence_word_splitter(text=text.strip(),num_of_words=43)            
             wavs = []
             s_prev=None
@@ -528,7 +527,8 @@ class LibriSpeech(speech_type.Singleton):
                 text += '.' # add it back
                 text=self.lpad_text(text)
                 logger.debug(f"text length={len(text)}")
-                #wav,s_prev = self.LFinference(text, s_prev, ref_s, alpha=alpha, beta=beta, diffusion_steps=diffusion_steps, embedding_scale=embedding_scale)
+                ## disable due higher memory usage
+                ## wav,s_prev = self.LFinference(text, s_prev, ref_s, alpha=alpha, beta=beta, diffusion_steps=diffusion_steps, embedding_scale=embedding_scale)
                 wav = self.inference(text, ref_s, alpha=alpha, beta=beta, diffusion_steps=diffusion_steps, embedding_scale=embedding_scale)                
                 wavs.append(wav)
                 rtf = (time.time() - start) / (len(wav) / samplerate)
