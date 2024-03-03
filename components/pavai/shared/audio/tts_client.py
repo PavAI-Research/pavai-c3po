@@ -67,34 +67,10 @@ def get_speaker_audio_file(workspace_temp:str="workspace/temp")->str:
     return workspace_temp+"/espeak_text_to_speech.mp3"
 
 def system_tts_local(text:str,output_voice:str=None,vosk_params=None,autoplay:bool=True):
-    # if _GLOBAL_TTS_API_ENABLE=="true":
-    #     ## use vosk api - piper ai-voice 
-    #     vosk_params = {
-    #         "sentence":text,
-    #         "api_url":system_config["GLOBAL_TTS_API_URL"],  
-    #         "language": system_config["GLOBAL_TTS_API_LANGUAGE"] ,    
-    #         "speaker_model":system_config["GLOBAL_TTS_API_SPEAKER_MODEL"]
-    #     }        
-    #     api_speaker(vosk_params,text)
-    # else:
-    #     if _GLOBAL_TTS=="LIBRETTS":
-            ## human-liked custom voices        
     compute_style=config.system_config["GLOBAL_TTS_LIBRETTS_VOICE"]  
-    logger.warn(f"tts compute_style: {compute_style}")
-    logger.info(f"tts text: {text}")    
-    ##librispeak(text=text,compute_style="jane")
+    logger.info(f"tts: {compute_style}")
+    logger.info(f"tts: {text}")    
     speaker_file_v2(text=text,output_voice=output_voice,autoplay=autoplay)  
-        # elif _GLOBAL_TTS=="GTTS":            
-        #     # google voice
-        #     text_to_speech_gtts(text=text,autoplay=True)
-        # elif _GLOBAL_TTS=="LINUX":            
-        #     # linux default voice
-        #     import os
-        #     os.system(f"spd-say {text}")
-        # else:
-        #     if output_voice is None:
-        #         output_voice=system_config["GLOBAL_TTS_PIPER_VOICE"]
-        #     espeak(sd,text,output_voice=output_voice)
 
 def speak_acknowledge():
     acknowledges = ["Nice,",
