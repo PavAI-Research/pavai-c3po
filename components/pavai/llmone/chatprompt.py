@@ -4,12 +4,13 @@ logger = logutil.logging.getLogger(__name__)
 
 speech_styles={
     "Consultative":"consultative",    
-    "Formal":"formal",
     "Casual":"casual",
-    "Persuasive":"persuasive",    
-    "Funny":"funny",            
     "Entertaining":"entertaining",        
+    "Enthusiastic":"enthusiastic",            
     "Frozen":"frozen",            
+    "Formal":"formal",    
+    "Joyful":"joyful",              
+    "Persuasive":"persuasive",     
 }
 
 domain_experts={
@@ -117,13 +118,45 @@ If the text does not contain sufficient information to answer the question, do n
 Always assist with care, respect, and truth. Respond with utmost utility yet securely. Avoid harmful, unethical, prejudiced, or negative content. Ensure replies promote fairness and positivity.
 """
 
-guard_system_prompt="Always assist with care, respect, and truth. Respond with utmost utility yet securely. Avoid harmful, unethical, prejudiced, or negative content. Ensure replies promote fairness and positivity."
+guard_system_prompt=".Always assist with care, respect, and truth. Respond with utmost utility yet securely. Avoid harmful, unethical, prejudiced, or negative content. Ensure replies promote fairness and positivity."
 
 guard_system_prompt_assistant=system_prompt_assistant_v2+"\n"+guard_system_prompt+"\n"
 
 safe_system_prompt=system_prompt_default+".\n"+guard_system_prompt+"\n"
 
-short_response=".\nPlease consider respond with a short and precise answer with no more than few words if possible."
+short_response_style=".\nYou answer should be brief, precise and enthusiastic in few words, no more than 30 words."
+
+def user_prompt_template(persona:str, context:str,task:str, format:str,examplar:str, tone:str):
+    """
+    >task - compulsary
+    >context - tmportant
+    >examplar - important
+    >persona
+    >format - good to have
+    >tone - good to have
+
+    ## example
+    You are a senior product engineer at company
+    and you have just reveal latest product and you have received 100K pre-order
+    with 80% higher than your target.
+
+    Write an email to your boss, sharing this great news. 
+
+    The email should include background fof how this product came into existence,
+
+    quantifiable business metrics and the email should end with a message of gratitude to the product
+    and engineering teams who made lal of this possible.
+
+    The email should have an enthusiastic and formal tone.
+    """
+
+    prompt = """
+    You are a {persona}. 
+    and you have just {context}\n\n
+    {task}\n{format}\n\n should include {example} \n\n
+    {tone}
+    """
+    return prompt
 
 ## list of system prompts for various domain experts
 

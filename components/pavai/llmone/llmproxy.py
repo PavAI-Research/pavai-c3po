@@ -39,8 +39,9 @@ def chat_api_ui(input_text: str,
                 ):
     t0 = time.perf_counter()
     query_system_prompt = system_prompt if system_prompt is not None else chatprompt.system_prompt_assistant
-    query_system_prompt = query_system_prompt + \
-        "\n\nResponse should be short and precise in less than 30 words or max 100 words if possible."
+    # query_system_prompt = query_system_prompt + \
+    #     "\n\nResponse should be short and precise in less than 30 words or max 100 words if possible."
+    query_user_prompt = input_text+ chatprompt.short_response_style
     query_ask_expert = ask_expert if ask_expert is not None else None
     # skip invalid input such as file upload
     # logger.info("system prompt: ", query_system_prompt)
@@ -52,7 +53,7 @@ def chat_api_ui(input_text: str,
 
     # mode: "solar-openai", "ollama-openai"
     if _GLOBAL_SYSTEM_MODE == "solar-openai" or _GLOBAL_SYSTEM_MODE == "ollama-openai":
-        reply_text, chat_history = chat_api_remote(user_prompt=input_text,
+        reply_text, chat_history = chat_api_remote(user_prompt=query_user_prompt,
                                                    history=chat_history,
                                                    ask_expert=query_ask_expert,
                                                    system_prompt=query_system_prompt,
@@ -64,7 +65,7 @@ def chat_api_ui(input_text: str,
                                                    )
     else:
         # mode: locally-aio
-        chatbot_ui_messages, chat_history, reply_text = localllm.chat_completion(user_Prompt=input_text,
+        chatbot_ui_messages, chat_history, reply_text = localllm.chat_completion(user_Prompt=query_user_prompt,
                                                                                  history=chat_history,
                                                                                  system_prompt=query_system_prompt,
                                                                                  ask_expert=query_ask_expert,

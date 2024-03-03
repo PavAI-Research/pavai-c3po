@@ -1,3 +1,10 @@
+from pathlib import Path
+from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
+import uvicorn
+import gradio as gr
+from datetime import datetime
+
 from pavai.setup import config 
 from pavai.setup import logutil
 logger = logutil.logging.getLogger(__name__)
@@ -64,7 +71,7 @@ _USER_UPLOADED_IMAGE_DEFAULT_QUERY="describe what does the image say?"
 _USER_UPLOADED_IMAGE_FILE_DESCRIPTION=None
 _TURN_OFF_IMAGE_CHAT_MODE=True
 
-js = """
+welcomejs = """
 function createGradioAnimation() {
     var container = document.createElement('div');
     container.id = 'gradio-animation';
@@ -96,6 +103,17 @@ function createGradioAnimation() {
 }
 """
 
+# create a FastAPI app
+app = FastAPI()
+
+# create a static directory to store the static files
+static_dir = Path('./resources')
+static_dir.mkdir(parents=True, exist_ok=True)
+
+# mount FastAPI StaticFiles server
+app.mount("/resources", StaticFiles(directory=static_dir), name="static")
+
+# Gradio code
 """
 MAIN User Interface
 """
@@ -135,16 +153,16 @@ class VoceiApp(VoicePrompt,CommunicationTranslator,ScratchPad):
         translator_ui=self.build_translator_ui()
         scratchpad_ui=self.build_scratchpad_ui()        
         """APP UI"""
+        css = ".gradio-container {background: url(https://upload.wikimedia.org/wikipedia/commons/4/49/Abstract_-_Coconut_Leaf_%28Imagicity_186%29.jpg)}"        
         ##            title="Vocie (C-3PO real assistant) 💬",
+        #css=".gradio-container {background: url('file=http://localhost:7860/resources/images/pavai_logo_large.png')}",
 
-        css = ".gradio-container {background: url(https://upload.wikimedia.org/wikipedia/commons/4/49/Abstract_-_Coconut_Leaf_%28Imagicity_186%29.jpg)}"
         self.app_ui = gr.TabbedInterface(
             theme=theme,
             interface_list=[voice_prompt_ui,translator_ui,scratchpad_ui],
             tab_names=["Voice Prompt", "Multilingual Communication","Scratch Pad"],
-            css=".gradio-container {background: url('file=pavai_logo_large.png')}",
             analytics_enabled=False,
-            js=js,
+            js=welcomejs,
             css=css,
             head="PAvAI Vocei"            
         )
@@ -165,29 +183,44 @@ class VoceiApp(VoicePrompt,CommunicationTranslator,ScratchPad):
             pass
 
     def launch(self,server_name:str="0.0.0.0",server_port:int=7868,share:bool=False,**kwargs):
-        background_image="resources/images/pavai_logo_large.png"
+        # background_image="resources/images/pavai_logo_large.png"
+        # absolute_path = os.path.abspath(background_image)
         authorized_users=[("abc:123"),("admin:123"),("john:smith"),("hello:hello")]      
         auth=[tuple(cred.split(':')) for cred in authorized_users] if authorized_users else None 
         try:
             self.main()
-            absolute_path = os.path.abspath(background_image)
             pavai_vocie_system_health_check()
             #self.update_gc_threshold()       
             self.wipe_memory()  
-            self.app_ui.queue()
-            self.app_ui.launch(share=False,auth=None,allowed_paths=[absolute_path],server_name=server_name,server_port=server_port)
+            #self.app_ui.queue()
+            #self.app_ui.launch(share=False,auth=None,allowed_paths=[absolute_path],server_name=server_name,server_port=server_port)
         except Exception as ex:
             print("An error has occurred ",ex)
             logger.error(traceback.format_exc())
             gr.Error("Something went wrong! see console or log file for more details")
             speak_instruction(instruction="oops!, An error has occurred. start up failed. please check the console and logs.")
             speak_instruction(instruction="error message says "+str(ex.args))
+        return self.app_ui
 
-"""MAIN"""
+server_name = "0.0.0.0" if "VOCIE_APP_HOST" not in config.system_config.keys() else config.system_config["VOCIE_APP_HOST"]
+server_port = 7860 if "VOCIE_APP_PORT" not in config.system_config.keys() else int(config.system_config["VOCIE_APP_PORT"])        
+share=False if "VOCIE_APP_SHARE" not in config.system_config.keys() else bool(config.system_config["VOCIE_APP_SHARE"])
+
+voiceblock=VoceiApp("PAvAI-Vocie(C3PO)")
+#voiceblock.launch(server_name=server_name,server_port=server_port,share=share)
+
+# mount Gradio app to FastAPI app
+background_image="resources/images/pavai_logo_large.png"
+absolute_path = os.path.abspath(background_image)
+app = gr.mount_gradio_app(app, voiceblock.launch(allowed_paths=[absolute_path]), path="/")
+
+# serve the app
 if __name__ == "__main__":
-    server_name = "0.0.0.0" if "VOCIE_APP_HOST" not in config.system_config.keys() else config.system_config["VOCIE_APP_HOST"]
-    server_port = 7860 if "VOCIE_APP_PORT" not in config.system_config.keys() else int(config.system_config["VOCIE_APP_PORT"])        
-    share=False if "VOCIE_APP_SHARE" not in config.system_config.keys() else bool(config.system_config["VOCIE_APP_SHARE"])
+    uvicorn.run(app, host="0.0.0.0", port=7860)
 
-    voiceapp=VoceiApp("PAvAI-Vocie(C3PO)")
-    voiceapp.launch(server_name=server_name,server_port=server_port,share=share)
+# run the app with
+# python app.py
+# or
+# uvicorn "vocei:app" --host "0.0.0.0" --port 7860 --reload
+# os.path.join(os.path.dirname(__file__)
+

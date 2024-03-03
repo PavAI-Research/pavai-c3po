@@ -1,5 +1,10 @@
 #!/bin/bash
-gradio bases/pavai/vocei_web/vocei_app.py
+
+## gradio mode
+## gradio bases/pavai/vocei_web/vocei_app.py
+
+## fastapi 
+uvicorn "vocei:app" --host "0.0.0.0" --port 7860 --reload
 
 # import argparse
 # parser = argparse.ArgumentParser()

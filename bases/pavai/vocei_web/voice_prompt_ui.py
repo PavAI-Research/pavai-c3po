@@ -295,7 +295,9 @@ class VoicePrompt(SystemSetting):
 
     def build_voice_prompt_ui(self):
         self.set_user_settings()        
-        self.blocks_voice_prompt = gr.Blocks(title="VOICE-PROMPT-UI",analytics_enabled=False)
+        self.blocks_voice_prompt = gr.Blocks(title="VOICE-PROMPT-UI",analytics_enabled=False,
+                                             css=".gradio-container {background: url('file=pavai_logo_large.png')}"
+                                             )
         with self.blocks_voice_prompt as llm_voice_query_ui:
             with gr.Group():    
                 self.history_state = gr.State([])
@@ -314,19 +316,19 @@ class VoicePrompt(SystemSetting):
                 with gr.Row():
                     with gr.Column(1):         
                         """Human Voices"""       
-                        vc_human_voices_options = gr.Dropdown(label="Human Voices",choices=self.list_voices(), value="anthony_real")
+                        vc_human_voices_options = gr.Dropdown(label="Voice",choices=self.list_voices(), value="anthony_real")
                         vc_selected_voice = gr.Text(visible=False, value="anthony_real")
                     with gr.Column(1):                                 
                         """Voice Emotions"""       
-                        vc_voice_emotions = gr.Dropdown(label="Voice Emotions",choices=self.list_emotions())
+                        vc_voice_emotions = gr.Dropdown(label="Emotion",choices=self.list_emotions())
                         vc_selected_emotion = gr.Text(visible=False)
                     with gr.Column(1):         
                         """knowledge and domain model experts"""                               
-                        vc_domain_expert_options = gr.Dropdown(choices=self.list_domain_experts(), label="Knowledge Experts (AI)")
+                        vc_domain_expert_options = gr.Dropdown(choices=self.list_domain_experts(), label="Persona(AI)")
                         vc_selected_domain_expert = gr.Text(visible=False)
                     with gr.Column(1):         
                         """Response style"""                               
-                        vc_response_style_options = gr.Dropdown(label="Response Style", choices=self.list_speech_styles())
+                        vc_response_style_options = gr.Dropdown(label="Tone", choices=self.list_speech_styles())
                         vc_selected_response_tyle = gr.Text(visible=False)
                     def change_domain_export(new_expert:str):
                         gr.Info(f"set new domain expert to {new_expert}")    
@@ -357,33 +359,31 @@ class VoicePrompt(SystemSetting):
                                                     info="[transcribe] preserved spoken language while [translate] converts all spoken languages to english only.]")
                             radio_task_mode.change(fn=self.vc_set_task_mode, inputs=[radio_task_mode, task_mode_state], outputs=task_mode_state)
                             checkbox_enable_text_to_image = gr.Checkbox(value=False, label="enable image generation",info="speak a shorter prompts to generate creative AI image.")                                                        
+                            checkbox_enable_grammar_fix = gr.Checkbox(value=False, label="enable single-shot grammar synthesis correction model", info="It does not semantically change that is grammatically correct.")
                         with gr.Column(1):
-                            checkbox_enable_grammar_fix = gr.Checkbox(value=False,
-                                                                    label="enable single-shot grammar synthesis correction model",
-                                                                    info="It does not semantically change text/information that is grammatically correct.")
+                            """content safety options"""                                
+                            # checkbox_content_safety = gr.Checkbox(
+                            #         value=False, label="enable content safety guard",
+                            #         info="enforce content safety check on input and output")    
+                            # checkbox_content_safety.change(fn=self.select_content_safety_options,inputs=checkbox_content_safety)                                                                           
+                            """data security options"""                
+                            checkbox_enable_PII_analysis = gr.Checkbox(
+                                value=eval(config.system_config["_QUERY_ENABLE_PII_ANALYSIS"]), label="enable PII data analysis",
+                                info="analyze and report PII data on query input and outputs")
+                            checkbox_enable_PII_analysis.change(fn=self.pii_data_analysis_options,
+                                                                inputs=checkbox_enable_PII_analysis)
+                            checkbox_enable_PII_anonymization = gr.Checkbox(
+                                value=eval(config.system_config["_QUERY_ENABLE_PII_ANONYMIZATION"]), label="enable PII data anonymization",
+                                info="apply anonymization of PII data on input and output")    
+                            checkbox_enable_PII_anonymization.change(fn=self.pii_data_amomymization_options,
+                                                            inputs=checkbox_enable_PII_anonymization)                                      
                         with gr.Column(1):
                             checkbox_show_transcribed_text = gr.Checkbox(value=True,
                                                                         label="show transcribed voice text")
                             checkbox_show_response_text = gr.Checkbox(value=True,
                                                                     label="show response text")
                             slider_max_query_log_entries = gr.Slider(5, 30, step=1, label="Max logs", interactive=True)                            
-                    with gr.Row():
-                        """content safety options"""                                
-                        # checkbox_content_safety = gr.Checkbox(
-                        #         value=False, label="enable content safety guard",
-                        #         info="enforce content safety check on input and output")    
-                        # checkbox_content_safety.change(fn=self.select_content_safety_options,inputs=checkbox_content_safety)                                                                           
-                        """data security options"""                
-                        checkbox_enable_PII_analysis = gr.Checkbox(
-                            value=eval(config.system_config["_QUERY_ENABLE_PII_ANALYSIS"]), label="enable PII data analysis",
-                            info="analyze and report PII data on query input and outputs")
-                        checkbox_enable_PII_analysis.change(fn=self.pii_data_analysis_options,
-                                                            inputs=checkbox_enable_PII_analysis)
-                        checkbox_enable_PII_anonymization = gr.Checkbox(
-                            value=eval(config.system_config["_QUERY_ENABLE_PII_ANONYMIZATION"]), label="enable PII data anonymization",
-                            info="apply anonymization of PII data on input and output")    
-                        checkbox_enable_PII_anonymization.change(fn=self.pii_data_amomymization_options,
-                                                            inputs=checkbox_enable_PII_anonymization)                                       
+ 
                 """LANGUAGE SETIING"""
                 # def overrider_auto_detect_language(input_lang:str):
                 #     textbox_detected_spoken_language=input_lang
