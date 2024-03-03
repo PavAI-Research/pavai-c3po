@@ -2,14 +2,6 @@ from pavai.setup import config
 from pavai.setup import logutil
 logger = logutil.logging.getLogger(__name__)
 
-# import os
-# from dotenv import dotenv_values
-# system_config = {
-#     **dotenv_values("env.shared"),  # load shared development variables
-#     **dotenv_values("env.secret"),  # load sensitive variables
-#     **os.environ,  # override loaded values with environment variables
-# }
-
 from transformers import AutoModelForSpeechSeq2Seq, AutoProcessor, pipeline
 from transformers import pipeline
 import transformers
@@ -18,18 +10,9 @@ from transformers import AutoModelForCausalLM
 import time
 import torch
 import os
-# import logging
-# logging.basicConfig()
-# logging.getLogger("faster_whisper").setLevel(logging.INFO)
-# logger = logging.getLogger(__name__)
-# distilled whisper
-# pip install faster-whisper
-# pip install optinum
-# import optimum
-
-logger.info("---WHISPER---")
-logger.info(transformers.__version__)
-logger.info(torch.__version__)
+# logger.info("---WHISPER---")
+# logger.info(transformers.__version__)
+# logger.info(torch.__version__)
 
 # # When running on CPU, make sure to set the same number of threads.
 # cpus=str(int(os.cpu_count()/2))

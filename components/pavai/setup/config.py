@@ -30,12 +30,14 @@ use_flash_attention_2 = is_flash_attn_2_available()
 
 INT16_MAX_ABS_VALUE = 32768.0
 DEFAULT_MAX_MIC_RECORD_LENGTH_IN_SECONDS = 30*60*60  # 30 miniutes
-
+print("-----ENVIRONMENT------------------")
 print("system cpu:",system_cpus_count)
 print("system device:",device)
 print("system compute_type:",compute_type)
 print("system torch_type:",use_torch_dtype)
 print("system use_flash_attention_2:",use_flash_attention_2)
+print("torch version: ",torch.__version__)
+print("----------------------------------")
 
 # import random
 # random.seed(0)

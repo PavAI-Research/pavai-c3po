@@ -2,40 +2,9 @@ from pavai.setup import config
 from pavai.setup import logutil
 logger = logutil.logging.getLogger(__name__)
 
-# import os
-# from dotenv import dotenv_values
-# system_config = {
-#     **dotenv_values("env.shared"),  # load shared development variables
-#     **dotenv_values("env.secret"),  # load sensitive variables
-#     **os.environ,  # override loaded values with environment variables
-# }
-# # from dotenv import dotenv_values
-# # system_config = dotenv_values("env_config")
-# import logging
 import random
-# from rich.logging import RichHandler
-# from rich import print,pretty,console
-# from rich.pretty import (Pretty,pprint)
-# from rich.panel import Panel
-# from rich.table import Table
-# from rich.console import Console
-# from rich.progress import Progress
-# logging.basicConfig(level=logging.INFO, format="%(message)s", datefmt="[%X]", handlers=[RichHandler(rich_tracebacks=True)])
-# logger = logging.getLogger(__name__)
-# #pretty.install()
-# import warnings 
-# warnings.filterwarnings("ignore")
-
 from pathlib import Path
-#from pavai.shared.audio.stt_vad import init_vad_model
-#from pavai.shared.audio.voices_piper import espeak,get_voice_model_file
-#from pavai.shared.audio.voices_styletts2 import librispeak
 from pavai.shared.styletts2 import LibriSpeech, LJSpeech
-#from pavai.shared.audio.vosk_client import api_speaker
-#from pavai.shared.audio.tts_gtts import text_to_speech_gtts
-#from pavai.shared.styletts2 import (ljspeech,ljspeech_v2,test_lj_speech,test_lj_speech_v2)
-# import time
-# import numpy
 import sounddevice as sd
 
 logger.warn("--GLOBAL SYSTEM MODE----")
@@ -102,10 +71,7 @@ def speak_wait():
                     "process your request."]
     ack_text = str(random.choice(acknowledges))
     print("speak_wait: ", ack_text)
-    #text_to_speech(text=ack_text, output_voice="en", autoplay=True)
     system_tts_local(text=ack_text,autoplay=True)    
-    #librispeak(text=ack_text,compute_style="jane")
-    #text_speaker_ai(sd,text=ack_text)          
 
 def speak_done():
     acknowledges = ["all done!, please check.",

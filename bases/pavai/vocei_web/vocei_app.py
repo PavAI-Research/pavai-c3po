@@ -68,7 +68,7 @@ _TURN_OFF_IMAGE_CHAT_MODE=True
 """
 MAIN User Interface
 """
-title = '🤖 PAvAI C3PO - an advance private multilingual LLM-based AI Voice Assistant'
+title = '🤖 PAvAI Vocei(C3PO) - an advance private multilingual LLM-based AI Voice Assistant'
 description = """an advance private multilingual AI Voice Assistant."""
 
 theme = gr.themes.Default()
@@ -105,7 +105,7 @@ class VoceiApp(VoicePrompt,CommunicationTranslator,ScratchPad):
             theme=theme,
             interface_list=[voice_prompt_ui,translator_ui,scratchpad_ui],
             tab_names=["Voice Prompt", "Multilingual Communication","Scratch Pad"],
-            title="PAvAI-Vocie (C-3PO Assistant) 💬",
+            title="Vocie (C-3PO Real Assistant) 💬",
             css=".gradio-container {background: url('file=pavai_logo_large.png')}",
             analytics_enabled=False            
         )
