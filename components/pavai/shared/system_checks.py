@@ -573,13 +573,13 @@ def pavai_talkie_system_health_check(output_voice:str=None):
         set_default_system_voice(system_agent=PAVAI_APP_TALKIE)    
         system_resources_check()
         startup_message=system_sanity_tests(output_voice=output_voice)
-        activate_system_agent(system_agent=PAVAI_APP_TALKIE,startup_message=startup_message,output_voice=output_voice)    
+        activate_system_agent(system_agent=PAVAI_APP_TALKIE,startup_message=startup_message)    
         logger.info("pavai_talkie_system_health_check results")                                
         Console().print(table)
         Console().print(":white_check_mark: Ready? I am listening. how may I help you today?")
         System_ready = True
     except Exception as e:
-        logger.error("pavai_talkie_system_health_check error!",e)
+        logger.error(f"pavai_talkie_system_health_check error! {str(e.args)}")
     return System_ready                     
 
 """MAIN"""

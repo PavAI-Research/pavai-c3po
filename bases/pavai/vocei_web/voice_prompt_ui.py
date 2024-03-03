@@ -316,19 +316,19 @@ class VoicePrompt(SystemSetting):
                 with gr.Row():
                     with gr.Column(1):         
                         """Human Voices"""       
-                        vc_human_voices_options = gr.Dropdown(label="Voice(Person)",choices=self.list_voices(), value="anthony_real")
+                        vc_human_voices_options = gr.Dropdown(label="Reference Voice (Person)",choices=self.list_voices(), value="anthony_real")
                         vc_selected_voice = gr.Text(visible=False, value="anthony_real")
                     with gr.Column(1):                                 
                         """Voice Emotions"""       
-                        vc_voice_emotions = gr.Dropdown(label="Emotion(AI)",choices=self.list_emotions())
+                        vc_voice_emotions = gr.Dropdown(label="Emotion (AI)",choices=self.list_emotions())
                         vc_selected_emotion = gr.Text(visible=False)
                     with gr.Column(1):         
                         """knowledge and domain model experts"""                               
-                        vc_domain_expert_options = gr.Dropdown(choices=self.list_domain_experts(), label="Assistant(AI)")
+                        vc_domain_expert_options = gr.Dropdown(choices=self.list_domain_experts(), label="Assistant Persona(AI)")
                         vc_selected_domain_expert = gr.Text(visible=False)
                     with gr.Column(1):         
                         """Response style"""                               
-                        vc_response_style_options = gr.Dropdown(label="Tone(AI)", choices=self.list_speech_styles())
+                        vc_response_style_options = gr.Dropdown(label="Tone (AI)", choices=self.list_speech_styles())
                         vc_selected_response_tyle = gr.Text(visible=False)
                     def change_domain_export(new_expert:str):
                         gr.Info(f"set new domain expert to {new_expert}")    

@@ -73,7 +73,7 @@ function createGradioAnimation() {
     container.style.textAlign = 'center';
     container.style.marginBottom = '10px';
 
-    var text = 'Welcome,Vocie(C-3P0) 2024';
+    var text = 'Welcome to Vocie(C-3P0) 2024';
     for (var i = 0; i < text.length; i++) {
         (function(i){
             setTimeout(function(){

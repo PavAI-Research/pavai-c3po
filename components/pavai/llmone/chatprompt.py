@@ -124,7 +124,7 @@ guard_system_prompt_assistant=system_prompt_assistant_v2+"\n"+guard_system_promp
 
 safe_system_prompt=system_prompt_assistant_v2+".\n"+guard_system_prompt+"\n"
 
-short_response_style=".\nYou answer should be brief, precise and enthusiastic in few words, no more than 30 words."
+short_response_style=".\nYou answer should be brief, precise and enthusiastic with fewer words and no more than 30 words if possible."
 
 def user_prompt_template(persona:str, context:str,task:str, format:str,examplar:str, tone:str):
     """

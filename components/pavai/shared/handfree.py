@@ -50,19 +50,19 @@ TALKIER_ACTIVATE_VOICE = TALKIER_USER_VOICE
 # TALKIER_MARK_WAKEUP_WORD="mark"
 
 TALKIER_ANTHONY_VOICE="anthony_real"
-TALKIER_ANTHONY_WAKEUP_WORD="activate anthony"
+TALKIER_ANTHONY_WAKEUP_WORD="anthony anthony"
 
 TALKIER_C3PO_VOICE="c3po_01"
-TALKIER_C3PO_WAKEUP_WORD="activate c3po"
+TALKIER_C3PO_WAKEUP_WORD="c-3po"
 
 TALKIER_LUKE_VOICE="luke_force"
-TALKIER_LUKE_WAKEUP_WORD="activate luke"
+TALKIER_LUKE_WAKEUP_WORD="skywalker"
 
 TALKIER_YODA_VOICE="yoda_force"
-TALKIER_YODA_WAKEUP_WORD="activate yoda"
+TALKIER_YODA_WAKEUP_WORD="yoda master"
 
 TALKIER_LEIA_VOICE="leia_01"
-TALKIER_LEIA_WAKEUP_WORD="activate leia"
+TALKIER_LEIA_WAKEUP_WORD="princess leia"
 
 
 _USE_VOICE_API=False
@@ -140,7 +140,7 @@ def process_conversation(new_query:str,history:list, context_size:int=4096*2,
     console.print(f"[gray]context token counts available: {history_buffer.token_count} / max {history_buffer.max_tokens}[/gray]")
 
     conversation_system_prompt = chatprompt.safe_system_prompt
-    new_query = new_query + chatprompt.short_response
+    new_query = new_query + chatprompt.short_response_style
 
     if len(history_buffer.overflow_summary)>0:
         # reduce and compress history content 
