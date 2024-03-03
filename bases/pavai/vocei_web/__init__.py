@@ -1,3 +1,3 @@
-from pavai.vocei_web import core
+# from pavai.vocei_web import core
 
-__all__ = ["core"]
+# __all__ = ["core"]

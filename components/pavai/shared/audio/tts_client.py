@@ -92,9 +92,7 @@ def speak_acknowledge():
     waiting = str(random.choice(wait_phases))
     ack_text = str(random.choice(acknowledges))+waiting
     print("speak_acknowledge: ", ack_text)
-    #text_to_speech(text=ack_text, output_voice="en", autoplay=True)
     system_tts_local(text=ack_text,autoplay=True)  
-    #text_speaker_ai(sd,text=ack_text)      
 
 def speak_wait():
     acknowledges = ["okay! please wait",
@@ -116,16 +114,11 @@ def speak_done():
                     "completed your request!, please check"
                     ]
     ack_text = str(random.choice(acknowledges))
-    # print("speak_done: ", ack_text)
-    #text_to_speech(text=ack_text, output_voice="en", autoplay=True)
     system_tts_local(text=ack_text,autoplay=True)    
-    #text_speaker_ai(sd,text=ack_text)              
 
 def speak_instruction(instruction: str, output_voice: str = "jane"):
     logger.info(f"speak_instruction: {instruction}")
-    ##text_to_speech(text=instruction, output_voice=output_voice, autoplay=True)
-    system_tts_local(text=instruction,autoplay=True)    
-    #text_speaker_ai(sd,text=instruction)                  
+    system_tts_local(text=instruction,autoplay=True, output_voice=output_voice)    
 
 def speaker_file(text:str,autoplay:bool=True)->str:
     wav_file = LJSpeech().ljspeech_v2(text=text,autoplay=autoplay)

@@ -178,7 +178,7 @@ TALKIER_SYS_VOICE=config.system_config["GLOBAL_TTS_LIBRETTS_VOICE"]
 TALKIER_USER_VOICE=config.system_config["TALKIER_USER_VOICE"]
 TALKIER_USER_WAKEUP_WORD=config.system_config["TALKIER_USER_WAKEUP_WORD"]
 
-def wakeup_time(output_voice:str="en"):
+def wakeup_time(output_voice:str=None):
     t = time.localtime()
     logger.info(f'Local Time is {t}')
     current_time = time.strftime("%H:%M:%S", t)
@@ -487,7 +487,7 @@ def system_sanity_tests(output_voice:str="jane"):
             startup_message = startup_message+failed_message
     return startup_message
 
-def activate_system_agent(system_agent:str=None, startup_message:str=None, system_mode:str=None,output_voice:str="en"):
+def activate_system_agent(system_agent:str=None, startup_message:str=None, system_mode:str=None):
     logger.info(f"activate_system_agent: {system_agent}")         
     DEFAULT_PAVAI_STARTUP_MSG_INTROS = [
         DEFAULT_PAVAI_STARTUP_MSG_INTRO,
@@ -496,6 +496,9 @@ def activate_system_agent(system_agent:str=None, startup_message:str=None, syste
         DEFAULT_PAVAI_STARTUP_MSG_INTRO4,
         DEFAULT_PAVAI_STARTUP_MSG_INTRO5
     ]
+    TALKIER_SYS_VOICE=config.system_config["TALKIER_SYS_VOICE"]
+    output_voice = TALKIER_SYS_VOICE
+
     if system_agent==PAVAI_APP_VOCIE:    
         if "DEFAULT_PAVAI_VOCIE_AGENT" not in config.system_config.keys():
             agen_name = DEFAULT_PAVAI_VOCIE_AGENT
