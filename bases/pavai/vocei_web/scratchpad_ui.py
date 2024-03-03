@@ -117,7 +117,6 @@ class AppMain(ScratchPad):
         super().__init__()
 
     def main(self):
-        self.build_translator_ui()
         self.build_scratchpad_ui()
         self.app = gr.TabbedInterface(
             [self.blocks_scratchpad],

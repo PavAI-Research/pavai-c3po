@@ -97,21 +97,15 @@ class VoceiApp(VoicePrompt,CommunicationTranslator,ScratchPad):
         gc.set_threshold(50_000,g1*5,g2*10)
 
     def main(self):
-        #system_settings_ui=self.build_system_setting_ui()
         voice_prompt_ui=self.build_voice_prompt_ui()
-        #chatbot_speaker_ui=self.build_chatbot_speaker_ui()
         translator_ui=self.build_translator_ui()
         scratchpad_ui=self.build_scratchpad_ui()        
         """APP UI"""
-        # css_code='body{background-image:url("https://picsum.photos/seed/picsum/200/300");}'
-        # css_image='div {margin-left: auto; margin-right: auto; width: 100%;\
-        #     background-image: url("file=pavai_logo_large.png"); repeat 0 0;}'
-
         self.app_ui = gr.TabbedInterface(
             theme=theme,
             interface_list=[voice_prompt_ui,translator_ui,scratchpad_ui],
             tab_names=["Voice Prompt", "Multilingual Communication","Scratch Pad"],
-            title="[C-3PO] Real Voice Assistant 💬",
+            title="PAvAI-Vocie (C-3PO Assistant) 💬",
             css=".gradio-container {background: url('file=pavai_logo_large.png')}",
             analytics_enabled=False            
         )
@@ -126,7 +120,7 @@ class VoceiApp(VoicePrompt,CommunicationTranslator,ScratchPad):
             for obj in objects:
                 del obj
             collected = gc.collect()
-            print("Garbage collector: collected","%d objects." % collected)
+            logger.debug("Garbage collector: collected","%d objects." % collected)
             torch.cuda.empty_cache()
         except:
             pass
@@ -145,7 +139,7 @@ class VoceiApp(VoicePrompt,CommunicationTranslator,ScratchPad):
             self.app_ui.launch(share=False,auth=None,allowed_paths=[absolute_path],server_name=server_name,server_port=server_port)
         except Exception as ex:
             print("An error has occurred ",ex)
-            print(traceback.format_exc())
+            logger.error(traceback.format_exc())
             gr.Error("Something went wrong! see console or log file for more details")
             speak_instruction(instruction="oops!, An error has occurred. start up failed. please check the console and logs.")
             speak_instruction(instruction="error message says "+str(ex.args))
@@ -156,5 +150,5 @@ if __name__ == "__main__":
     server_port = 7860 if "VOCIE_APP_PORT" not in config.system_config.keys() else int(config.system_config["VOCIE_APP_PORT"])        
     share=False if "VOCIE_APP_SHARE" not in config.system_config.keys() else bool(config.system_config["VOCIE_APP_SHARE"])
 
-    voiceapp=VoceiApp("Real-C3PO-Vocie")
+    voiceapp=VoceiApp("PAvAI-Vocie(C3PO)")
     voiceapp.launch(server_name=server_name,server_port=server_port,share=share)

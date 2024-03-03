@@ -1,5 +1,4 @@
 #!/bin/bash
-
 gradio bases/pavai/vocei_web/vocei_app.py
 
 # import argparse

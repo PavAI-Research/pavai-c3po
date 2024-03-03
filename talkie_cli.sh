@@ -1,6 +1,5 @@
 #!/bin/bash
-
-gradio bases/pavai/talkie_cli/talkie_app.py
+python bases/pavai/talkie_cli/talkie_app.py
 
 # import argparse
 # parser = argparse.ArgumentParser()
