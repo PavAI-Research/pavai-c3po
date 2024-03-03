@@ -2,36 +2,18 @@ from pavai.setup import config
 from pavai.setup import logutil
 logger = logutil.logging.getLogger(__name__)
 
-# import os
-# from dotenv import dotenv_values
-# system_config = {
-#     **dotenv_values("env.shared"),  # load shared development variables
-#     **dotenv_values("env.secret"),  # load sensitive variables
-#     **os.environ,  # override loaded values with environment variables
-# }
-
-# from dotenv import dotenv_values
-# system_config = dotenv_values("env_config")
-# import logging
-# from rich.logging import RichHandler
 from rich import print,pretty,console
 from rich.pretty import (Pretty,pprint)
 from rich.panel import Panel
 from rich.table import Table
 from rich.console import Console
 from rich.progress import Progress
-#logging.basicConfig(level=logging.INFO, format="%(message)s", datefmt="[%X]", handlers=[RichHandler(rich_tracebacks=True)])
 
-#logger = logging.getLogger(__name__)
-
-#pretty.install()
 import sys,os
 from pathlib import Path
 sys.path.append(str(Path(__file__).parent.parent))
 logger.info(os.getcwd())
 
-import warnings 
-warnings.filterwarnings("ignore")
 import nltk
 import os
 import time
@@ -48,17 +30,8 @@ from openai import OpenAI
 from pavai.shared.grammar import (get_or_download_grammar_model_snapshot,init_grammar_correction_model,
                           fix_grammar_error, DEFAULT_GRAMMAR_MODEL_SIZE)
 from pavai.shared.audio.transcribe import (get_or_download_whisper_model_snapshot,get_transcriber,speech_to_text, DEFAULT_WHISPER_MODEL_SIZE)
-
-
-#from pavai.shared.audio.stt_vad import init_vad_model
-# from pavai.shared.audio.voices_piper import espeak,get_voice_model_file
-#from pavai.shared.audio.tts_client import text_speaker_ai
 from pavai.shared.audio.tts_client import system_tts_local
-#import pavai.shared.solar.llmchat as llmchat
 import pavai.llmone.llmproxy as llmproxy
-#from pavai.llmone.local.localllm import (get_llm_instance, local_chat_completion,  LLM_Setting, LLMClient,LLMllamaLocal, AbstractLLMClass)
-# import pavai.llmone.local.localllm as localllm
-
 from pathlib import Path
 from pavai.shared.styletts2.download_models import get_styletts2_model_files
 import traceback
@@ -199,6 +172,12 @@ table = Table(title="PAVAI System Health Checks")
 table.add_column("Task", justify="left", style="magenta", no_wrap=True)     
 table.add_column("Description", style="blue")
 table.add_column("Status", justify="right")    
+
+""" user settings """
+TALKIER_SYS_VOICE=config.system_config["GLOBAL_TTS_LIBRETTS_VOICE"]
+
+TALKIER_USER_VOICE=config.system_config["TALKIER_USER_VOICE"]
+TALKIER_USER_WAKEUP_WORD=config.system_config["TALKIER_USER_WAKEUP_WORD"]
 
 def wakeup_time(output_voice:str="en"):
     t = time.localtime()
@@ -583,9 +562,10 @@ def pavai_vocie_system_health_check(output_voice:str="en_amy"):
         logger.error("pavai_talkie_system_health_check error!",e)
     return System_ready                     
 
-def pavai_talkie_system_health_check(output_voice:str="jane"):
-    System_ready = False
+def pavai_talkie_system_health_check(output_voice:str=None):
+    System_ready = False    
     try:
+        output_voice = TALKIER_SYS_VOICE if output_voice is None else output_voice
         environment_info()
         set_default_system_voice(system_agent=PAVAI_APP_TALKIE)    
         system_resources_check()

@@ -76,9 +76,11 @@ def system_startup(output_voice:str=None):
         logger.error(f"An exception occurred at system_startup!")
         raise SystemExit("program exited")
     if SYSTEM_READY:
-        text_speaker_ai(f"I am listening. how may I help you today?",output_voice="jane")     
+        text_speaker_ai(f"system is ready. now turn to you {TALKIER_USER_VOICE}",output_voice=TALKIER_SYS_VOICE)     
+        text_speaker_ai(f"thanks! my name is {TALKIER_USER_VOICE}. I am your voice assistant.",output_voice=TALKIER_USER_VOICE)             
+        text_speaker_ai(f"to start a conversation, just call my name. how may I help you today?",output_voice=TALKIER_USER_VOICE)             
     else:
-        text_speaker_ai("Oops, system startup check failed!. please check console log.",output_voice="jane")   
+        text_speaker_ai("Oops, system startup check failed!. please check console log.",output_voice=TALKIER_SYS_VOICE)   
 
 def text_speaker_ai(text:str,output_voice:str=None):
     output_voice = TALKIER_USER_VOICE if output_voice is None else output_voice
