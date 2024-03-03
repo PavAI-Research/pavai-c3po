@@ -20,6 +20,7 @@ class TextCleaner:
             try:
                 indexes.append(self.word_index_dictionary[char])
             except KeyError as ke:
-                print("KeyError:",ke.args)                
+                pass
+                #print("KeyError:",ke.args)                
                 #print("KeyError:",text)
         return indexes

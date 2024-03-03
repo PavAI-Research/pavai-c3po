@@ -131,7 +131,6 @@ ACTIVE_TTS_VOICE_MODEL_AGENT=""
 ACTIVE_TTS_VOICE_MODEL_ONNX_FILE=""
 ACTIVE_ESPEAK_VOICE_LANGUAGE = ""
 
-
 """INSTRUCTIONS"""
 VOICE_PROMPT_INSTRUCTIONS_TEXT = """
             #### Voice Query Instructions:
@@ -373,7 +372,6 @@ def system_resources_check(output_voice:str="jane"):
             logger.info("download styletts2 model files")                                                          
             get_styletts2_model_files()
             progress.advance(task)              
-
         except Exception as e:
             print(e)
             logger.error("system_resources_check error.")
@@ -397,8 +395,7 @@ def system_sanity_tests(output_voice:str="jane"):
     if "DEFAULT_SYSTEM_STARTUP_MSG_SYSTEM_CHECK_SUCCESS" not in config.system_config.keys():
         startup_message = DEFAULT_SYSTEM_STARTUP_MSG_SYSTEM_CHECK_SUCCESS    
     else:
-        startup_message = config.system_config["DEFAULT_SYSTEM_STARTUP_MSG_SYSTEM_CHECK_SUCCESS"]    
-        
+        startup_message = config.system_config["DEFAULT_SYSTEM_STARTUP_MSG_SYSTEM_CHECK_SUCCESS"]         
     with Progress(transient=True) as progress:        
         task = progress.add_task("running system sanity test...", total=4)
         try:        
@@ -448,10 +445,6 @@ def system_sanity_tests(output_voice:str="jane"):
                     default_api_key=str(config.system_config["SOLAR_LLM_OLLAMA_API_KEY"]).strip()            
                     default_api_key=str(config.system_config["SOLAR_LLM_OLLAMA_MODEL_ID"]).strip()                                
 
-                # skip_content_safety_check=system_config["SOLAR_SKIP_CONTENT_SAFETY_CHECK"]    
-                #skip_data_security_check=config.system_config["SOLAR_SKIP_DATA_SECURITY_CHECK"] 
-                #skip_self_critique_check=config.system_config["SOLAR_SKIP_SELF_CRITIQUE_CHECK"] 
-                   
                 reply_text, reply_messages = llmproxy.chat_api_remote(user_prompt="hello")
                 #history, moderate_object = llmchat.moderate_and_query(guard_client, domain_client, 
                 #                                                      query=user_query, history=[])
@@ -546,7 +539,6 @@ def activate_system_agent(system_agent:str=None, startup_message:str=None, syste
         else:
             launch_message = config.system_config["DEFAULT_SYSTEM_STARTUP_MSG_OPEN_BROWSER"]
         ##system_tts_local(text=launch_message,output_voice=output_voice)            
-
     logger.info(f"system funtional check - completed")         
 
 def pavai_vocie_system_health_check(output_voice:str="en_amy"):

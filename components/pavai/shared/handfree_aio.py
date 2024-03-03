@@ -37,10 +37,33 @@ import pavai.llmone.llmproxy as llmproxy
 console = Console()
 
 # user settings
-TALKIER_SYS_VOICE=config.system_config["GLOBAL_TTS_LIBRETTS_VOICE"]
+TALKIER_SYS_VOICE=config.system_config["TALKIER_SYS_VOICE"]
+TALKIER_SYS_WAKEUP_WORD=config.system_config["TALKIER_SYS_WAKEUP_WORD"]
 
 TALKIER_USER_VOICE=config.system_config["TALKIER_USER_VOICE"]
 TALKIER_USER_WAKEUP_WORD=config.system_config["TALKIER_USER_WAKEUP_WORD"]
+
+
+TALKIER_ACTIVATE_VOICE = TALKIER_USER_VOICE
+## WHOLE TEAM
+# TALKIER_MARK_VOICE="mark_real"
+# TALKIER_MARK_WAKEUP_WORD="mark"
+
+TALKIER_ANTHONY_VOICE="anthony_real"
+TALKIER_ANTHONY_WAKEUP_WORD="anthony"
+
+TALKIER_C3PO_VOICE="c3po_01"
+TALKIER_C3PO_WAKEUP_WORD="c3po"
+
+TALKIER_LUKE_VOICE="luke_force"
+TALKIER_LUKE_WAKEUP_WORD="luke"
+
+TALKIER_YODA_VOICE="yoda_force"
+TALKIER_YODA_WAKEUP_WORD="yoda"
+
+TALKIER_LEIA_VOICE="leia_01"
+TALKIER_LEIA_WAKEUP_WORD="leia"
+
 
 _USE_VOICE_API=False
 USE_ONNX = False
@@ -65,6 +88,7 @@ def fn_current_time():
     return current_time   
 
 def system_startup(output_voice:str=None):
+    global TALKIER_ACTIVATE_VOICE
     SYSTEM_READY=False        
     try:
         output_voice = TALKIER_SYS_VOICE if output_voice is None else output_voice
@@ -75,15 +99,23 @@ def system_startup(output_voice:str=None):
         print("An error occurred:", repr(e))                
         logger.error(f"An exception occurred at system_startup!")
         raise SystemExit("program exited")
+
     if SYSTEM_READY:
         text_speaker_ai(f"system is ready. now turn to you {TALKIER_USER_VOICE}",output_voice=TALKIER_SYS_VOICE)     
         text_speaker_ai(f"thanks! my name is {TALKIER_USER_VOICE}. I am your voice assistant.",output_voice=TALKIER_USER_VOICE)             
-        text_speaker_ai(f"to start a conversation, just call my name. how may I help you today?",output_voice=TALKIER_USER_VOICE)             
+        text_speaker_ai(f"to start a conversation, just call my name. ask your question then say please at the end.",output_voice=TALKIER_USER_VOICE)             
+        text_speaker_ai(f"yep. you got it. so how may I help you today?",output_voice=TALKIER_USER_VOICE)                     
+        console.print(f"[green]to start a conversation, just call my name:{TALKIER_USER_VOICE}. ask your question then say please at the end.[/green]")
+        console.print(f"[green]you got it. so how may I help you today?[/green]")
     else:
         text_speaker_ai("Oops, system startup check failed!. please check console log.",output_voice=TALKIER_SYS_VOICE)   
+        console.print(f"[red]Oops, system startup check failed!. please check console log.[/red]")        
 
 def text_speaker_ai(text:str,output_voice:str=None):
     output_voice = TALKIER_USER_VOICE if output_voice is None else output_voice
+    if TALKIER_ACTIVATE_VOICE != TALKIER_USER_VOICE:
+        output_voice = TALKIER_ACTIVATE_VOICE
+    logger.info(f"Active Voice: {output_voice}")
     tts_client.system_tts_local(text=text, output_voice=output_voice)
 
 def text_speaker_human(sd,text:str,output_voice:str=None,vosk_params=None):
@@ -322,12 +354,15 @@ def moderate_conversation(whisper_model,audio_chunk,language:str=_CONVERSATION_L
     global RUNNING_STATUS
     global IN_SPEECH_RECORDING
     global IN_CONVERSATION_MODE    
-    global WAIT_USER_RESPONSE        
+    global WAIT_USER_RESPONSE      
+    global TALKIER_ACTIVATE_VOICE
 
     output_voice = TALKIER_USER_VOICE if output_voice is None else output_voice
-
+    if TALKIER_ACTIVATE_VOICE!=TALKIER_USER_VOICE:
+       output_voice= TALKIER_ACTIVATE_VOICE
+    
     #@Halo(text='conversation begin:', spinner='dots',color='green')
-    def conversation_begin():
+    def conversation_begin(output_voice:str=None):
         global speech_buffer
         global ai_voice_text    
         global RUNNING_STATUS
@@ -336,7 +371,7 @@ def moderate_conversation(whisper_model,audio_chunk,language:str=_CONVERSATION_L
         global WAIT_USER_RESPONSE 
         #console.log(f"conversarion_begin")
         spinner.enabled=False        
-        ai_voice_text=wakeup_greeting()   
+        ai_voice_text=wakeup_greeting(output_voice)   
         transcribed_text=""
         speech_buffer=""       
         IN_SPEECH_RECORDING=True 
@@ -346,7 +381,7 @@ def moderate_conversation(whisper_model,audio_chunk,language:str=_CONVERSATION_L
         return transcribed_text       
 
     #@Halo(spinner='dots', color='red', animation='marquee')
-    def conversation_query(user_prompt:str):
+    def conversation_query(user_prompt:str,output_voice:str=None):
         global ai_voice_text   
         global conversation_history
         if user_prompt is None or len(user_prompt.strip())==0:
@@ -361,14 +396,14 @@ def moderate_conversation(whisper_model,audio_chunk,language:str=_CONVERSATION_L
             console.print(f"[bold]Answer:[/bold]: [magenta]{assistant_response}[/magenta]")            
             #time.sleep(1)
             if assistant_response is not None:
-                assistant_response=assistant_response.replace("\n"," ") 
-            text_speaker_ai(text=f"{assistant_response}") #is that good?                           
+                assistant_response=assistant_response.replace("\n"," ")             
+            text_speaker_ai(text=f"{assistant_response}",output_voice=output_voice) #is that good?                           
         except Exception as e:
             status=1
             traceback.print_exc()        
             print("An error occurred:", e)                
             logger.error(f"An exception occurred at conversation_query!")
-            text_speaker_ai(text="oops!, request failed due error. please check console log.") 
+            text_speaker_ai(text="oops!, request failed due error. please check console log.",output_voice=TALKIER_SYS_VOICE) 
         return "ok", status
 
     #@Halo(text='conversation capturing:', spinner='dots',color='yellow',animation='bounce')
@@ -389,6 +424,7 @@ def moderate_conversation(whisper_model,audio_chunk,language:str=_CONVERSATION_L
         global ai_voice_text    
         global RUNNING_STATUS
         global IN_SPEECH_RECORDING
+        global TALKIER_ACTIVATE_VOICE
         RUNNING_STATUS="conversation"   
         console.print(f":loudspeaker: {transcribed_text}",style="bold")
         transcribed_text=transcribed_text.rsplit(' ', 1)[0]
@@ -398,7 +434,7 @@ def moderate_conversation(whisper_model,audio_chunk,language:str=_CONVERSATION_L
             speech_buffer=transcribed_text
         speech_buffer=speech_buffer.replace(ai_voice_text,"").strip()
         speech_buffer=speech_buffer.replace(sentence_last_word,"").strip()
-        result, status=conversation_query(user_prompt=speech_buffer)
+        result, status=conversation_query(user_prompt=speech_buffer, output_voice=TALKIER_ACTIVATE_VOICE)
         if status==0:
             spinner.succeed(result)  
         else:
@@ -453,13 +489,63 @@ def moderate_conversation(whisper_model,audio_chunk,language:str=_CONVERSATION_L
     transcribed_text,transcribed_lang=whisper_transcribe(whisper_model,audio_chunk,language=_CONVERSATION_LANGUAGE)
     transcribed_text=transcribed_text.lower()
     sentence_last_word=get_sentence_last_word(transcribed_text)
-    if _CONVERSATION_BEGIN_WORD in transcribed_text.lower():
+    ##if _CONVERSATION_BEGIN_WORD in transcribed_text.lower():
+    if TALKIER_SYS_WAKEUP_WORD in transcribed_text.lower():
         WAIT_USER_RESPONSE=False
         # discard last word
-        transcribed_text=transcribed_text.replace(_CONVERSATION_BEGIN_WORD,"")                
-        transcribed_text=conversation_begin()
+        transcribed_text=transcribed_text.replace(TALKIER_SYS_WAKEUP_WORD,"")                
+        transcribed_text=conversation_begin(output_voice=TALKIER_SYS_VOICE)
         WAIT_USER_RESPONSE=True
-        return 
+        return     
+    if TALKIER_USER_WAKEUP_WORD in transcribed_text.lower():
+        WAIT_USER_RESPONSE=False
+        # discard last word
+        transcribed_text=transcribed_text.replace(TALKIER_USER_WAKEUP_WORD,"")                
+        transcribed_text=conversation_begin(output_voice=TALKIER_USER_VOICE)
+        WAIT_USER_RESPONSE=True
+        TALKIER_ACTIVATE_VOICE=TALKIER_USER_VOICE
+        return     
+    if TALKIER_C3PO_WAKEUP_WORD in transcribed_text.lower():
+        WAIT_USER_RESPONSE=False
+        # discard last word
+        transcribed_text=transcribed_text.replace(TALKIER_C3PO_WAKEUP_WORD,"")                
+        transcribed_text=conversation_begin(output_voice=TALKIER_C3PO_VOICE)
+        WAIT_USER_RESPONSE=True
+        TALKIER_ACTIVATE_VOICE=TALKIER_C3PO_VOICE        
+        return     
+    if TALKIER_LUKE_WAKEUP_WORD in transcribed_text.lower():
+        WAIT_USER_RESPONSE=False
+        # discard last word
+        transcribed_text=transcribed_text.replace(TALKIER_LUKE_WAKEUP_WORD,"")                
+        transcribed_text=conversation_begin(output_voice=TALKIER_LUKE_VOICE)
+        WAIT_USER_RESPONSE=True
+        TALKIER_ACTIVATE_VOICE=TALKIER_LUKE_VOICE                
+        return     
+    if TALKIER_YODA_WAKEUP_WORD in transcribed_text.lower():
+        WAIT_USER_RESPONSE=False
+        # discard last word
+        transcribed_text=transcribed_text.replace(TALKIER_YODA_WAKEUP_WORD,"")                
+        transcribed_text=conversation_begin(output_voice=TALKIER_YODA_VOICE)
+        WAIT_USER_RESPONSE=True
+        TALKIER_ACTIVATE_VOICE=TALKIER_YODA_VOICE                        
+        return     
+    if TALKIER_ANTHONY_WAKEUP_WORD in transcribed_text.lower():
+        WAIT_USER_RESPONSE=False
+        # discard last word
+        transcribed_text=transcribed_text.replace(TALKIER_ANTHONY_WAKEUP_WORD,"")                
+        transcribed_text=conversation_begin(output_voice=TALKIER_ANTHONY_VOICE)
+        WAIT_USER_RESPONSE=True
+        TALKIER_ACTIVATE_VOICE=TALKIER_ANTHONY_VOICE                                
+        return     
+    if TALKIER_LEIA_WAKEUP_WORD in transcribed_text.lower():
+        WAIT_USER_RESPONSE=False
+        # discard last word
+        transcribed_text=transcribed_text.replace(TALKIER_LEIA_WAKEUP_WORD,"")                
+        transcribed_text=conversation_begin(output_voice=TALKIER_LEIA_VOICE)
+        TALKIER_ACTIVATE_VOICE=TALKIER_LEIA_VOICE                                        
+        WAIT_USER_RESPONSE=True
+        return     
+
     if _CONVERSATION_END_WORD in sentence_last_word or _CONVERSATION_CLEAR_WORD in sentence_last_word:
         spinner.warn("reset...")  
         WAIT_USER_RESPONSE=False        
