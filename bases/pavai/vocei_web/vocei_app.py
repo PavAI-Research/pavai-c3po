@@ -105,7 +105,7 @@ class VoceiApp(VoicePrompt,CommunicationTranslator,ScratchPad):
             theme=theme,
             interface_list=[voice_prompt_ui,translator_ui,scratchpad_ui],
             tab_names=["Voice Prompt", "Multilingual Communication","Scratch Pad"],
-            title="Vocie (C-3PO Real Assistant) 💬",
+            title="Vocie (C-3PO real assistant) 💬",
             css=".gradio-container {background: url('file=pavai_logo_large.png')}",
             analytics_enabled=False            
         )
