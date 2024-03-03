@@ -2,31 +2,10 @@ from pavai.setup import config
 from pavai.setup import logutil
 logger = logutil.logging.getLogger(__name__)
 
-# import os
-# from dotenv import dotenv_values
-# system_config = {
-#     **dotenv_values("env.shared"),  # load shared development variables
-#     **dotenv_values("env.secret"),  # load sensitive variables
-#     **os.environ,  # override loaded values with environment variables
-# }
-# from dotenv import dotenv_values
-# system_config = dotenv_values("env_config")
-# import logging
-# from rich.logging import RichHandler
 from rich import print,pretty,console
-# from rich.pretty import (Pretty,pprint)
-# from rich.panel import Panel
 from rich.console import Console
 from rich.progress import Progress
-# logging.basicConfig(level=logging.INFO, format="%(message)s", datefmt="[%X]", handlers=[RichHandler(rich_tracebacks=True)])
-# logger = logging.getLogger(__name__)
-# #pretty.install()
-# import warnings 
-# warnings.filterwarnings("ignore")
 
-# import os, sys
-# from os.path import dirname, join, abspath
-# sys.path.insert(0, abspath(join(dirname(__file__), './shared')))
 import torch
 torch.manual_seed(0)
 torch.backends.cudnn.benchmark = True
@@ -41,53 +20,33 @@ import os
 CPUs = os.cpu_count()
 torch.set_num_threads(int(CPUs/2))
 
-#import numpy as np
-# import os
-# import time
 from halo import Halo
 import traceback
 import random
 from datetime import datetime
 import sounddevice as sd
-#import torch
 from faster_whisper import WhisperModel
 import faster_whisper
-# logging.getLogger("faster_whisper").setLevel(logging.WARN)
-#from pavai.shared.audio.stt_vad import init_vad_model,init_vadaudio,has_speech_activity,normalize_audio_chunks
-#from pavai.shared.system_checks import PAVAI_APP_TALKIE,DEFAULT_TTS_VOICE_MODEL_TALKIE_AGENT,pavai_talkie_system_health_check
-# from pavai.shared.audio.voices_piper import espeak,convert_text_to_speech,librispeak
-# from pavai.shared.audio.vosk_client import api_speaker
 import pavai.shared.system_checks as system_checks
 import pavai.shared.audio.stt_vad as stt_vad
 import pavai.shared.audio.tts_client as tts_client 
 import pavai.llmone.llmtokens as llmtokens
 import pavai.llmone.chatprompt as chatprompt 
 import pavai.llmone.llmproxy as llmproxy
-#from pavai.shared.llm.llmtokens import HistoryTokenBuffer
-#from pavai.shared.aio.llmchat import (system_prompt_assistant, llm_chat_completion,llm_chat)
-#from shared.llm.llm_cognitive import 
 
 console = Console()
+
+# user settings
+TALKIER_SYS_VOICE=config["GLOBAL_TTS_LIBRETTS_VOICE"]
+
+TALKIER_USER_VOICE=config["TALKIER_USER_VOICE"]
+TALKIER_USER_WAKEUP_WORD=config["TALKIER_USER_WAKEUP_WORD"]
+
 _USE_VOICE_API=False
 USE_ONNX = False
 
 DEFAULT_SAMPLE_RATE = 16000
 _CONVERSATION_LANGUAGE="en"
-
-# def system_startup(output_voice:str="en_ryan"):
-#     SYSTEM_READY=False        
-#     try:
-#         SYSTEM_READY=pavai_talkie_system_health_check(output_voice=output_voice)        
-#         console.print("\n[blue]System Ready...")             
-#     except Exception as e:       
-#         traceback.print_exc()        
-#         print("An error occurred:", repr(e))                
-#         logger.error(f"An exception occurred at system_startup!")
-#         raise SystemExit("program exited")
-#     if SYSTEM_READY:
-#         text_speaker_ai(sd,f"I am listening. how may I help you today?",output_voice="en_ryan")     
-#     else:
-#         text_speaker_ai(sd,"Oops, system startup check failed!. please check console log.",output_voice="en_ryan")                
 
 def get_time_of_day(time):
     if time < 12:
@@ -105,9 +64,10 @@ def fn_current_time():
     current_time=(f"current time: {time_now} at {now.hour} {now.minute} .")
     return current_time   
 
-def system_startup(output_voice:str="jane"):
+def system_startup(output_voice:str=None):
     SYSTEM_READY=False        
     try:
+        output_voice = TALKIER_SYS_VOICE if output_voice is None else output_voice
         SYSTEM_READY=system_checks.pavai_talkie_system_health_check(output_voice=output_voice)        
         console.print("\n[blue]System Ready...")             
     except Exception as e:       
@@ -120,74 +80,13 @@ def system_startup(output_voice:str="jane"):
     else:
         text_speaker_ai("Oops, system startup check failed!. please check console log.",output_voice="jane")   
 
-## Text-to-Speech 
-# def speaker_announce(text:str,output_voice:str="jane"):
-#     tts_client.system_tts_local(text=text, output_voice=output_voice)
-#     #text_speaker_ai(instruction,output_voice)    
-#     #os.system(f"spd-say {greeting} sir!")
-#     #console.print(f"\n[blue]announcement: {instruction}") 
-#     #return instruction
-
-def text_speaker_ai(text:str,output_voice:str="jane"):
+def text_speaker_ai(text:str,output_voice:str=None):
+    output_voice = TALKIER_USER_VOICE if output_voice is None else output_voice
     tts_client.system_tts_local(text=text, output_voice=output_voice)
 
-def text_speaker_human(sd,text:str,output_voice:str="jane",vosk_params=None):
+def text_speaker_human(sd,text:str,output_voice:str=None,vosk_params=None):
+    output_voice = TALKIER_USER_VOICE if output_voice is None else output_voice    
     text_speaker_ai(text=text, output_voice=output_voice)
-    # if _USE_VOICE_API:
-    #     api_speaker(vosk_params,text)
-    # else:
-    #     librispeak(text,compute_style=DEFAULT_TTS_VOICE_MODEL_TALKIE_AGENT)
-    #     response = convert_text_to_speech(text, output_voice)
-    #     npa = np.asarray(response['data'], dtype=np.int16)
-    #     time.sleep(1.6)
-    #     sd.play(npa, response['sample-rate'], blocking=True)
-    #     sd.wait()      
-        #time.sleep(1.6) 
-        #espeak(sd,text,output_voice=output_voice)   
-
-# def text_speaker_ai(text:str,output_voice:str="en_ryan",vosk_params=None):    
-#     if _USE_VOICE_API:
-#         api_speaker(vosk_params,text)
-#     else:
-#         #librispeak(text,compute_style=SYSTEM_AI_NAME)
-#         # response = convert_text_to_speech(text, output_voice)
-#         # npa = np.asarray(response['data'], dtype=np.int16)
-#         # time.sleep(1.6)
-#         # sd.play(npa, response['sample-rate'], blocking=True)
-#         # sd.wait()      
-#         time.sleep(1.6) 
-#         espeak(sd,text,output_voice=output_voice)   
-
-def text_speaker_human(sd,text:str,output_voice:str="jane",vosk_params=None):
-    text_speaker_ai(text=text,output_voice=output_voice)
-    # text_chunks = slice_text_into_chunks(text)    
-    # for chunk in text_chunks:    
-    #     if _USE_VOICE_API:
-    #         api_speaker(vosk_params,chunk)
-    #     else:
-    #         librispeak(chunk,compute_style=DEFAULT_TTS_VOICE_MODEL_TALKIE_AGENT)
-    #         response = convert_text_to_speech(chunk, output_voice)
-    #         npa = np.asarray(response['data'], dtype=np.int16)
-    #         time.sleep(1.6)
-    #         sd.play(npa, response['sample-rate'], blocking=True)
-    #         sd.wait()      
-    #         #time.sleep(1.6) 
-    #         #espeak(sd,chunk,output_voice=output_voice)   
-
-# def text_speaker_ai(sd,text:str,output_voice:str="en_ryan",vosk_params=None):
-#     text_chunks = slice_text_into_chunks(text)
-#     for chunk in text_chunks:
-#         if _USE_VOICE_API:
-#             api_speaker(vosk_params,chunk)
-#         else:
-#             #librispeak(text,compute_style=SYSTEM_AI_NAME)
-#             # response = convert_text_to_speech(text, output_voice)
-#             # npa = np.asarray(response['data'], dtype=np.int16)
-#             # time.sleep(1.6)
-#             # sd.play(npa, response['sample-rate'], blocking=True)
-#             # sd.wait()      
-#             time.sleep(1.0) 
-#             espeak(sd,chunk,output_voice=output_voice)   
 
 ## -----------------------------------------
 ## LLM
@@ -200,7 +99,8 @@ def text_speaker_human(sd,text:str,output_voice:str="jane",vosk_params=None):
 
 def process_conversation(new_query:str,history:list, context_size:int=4096*2, 
                        system_prompt: str = "You are an intelligent AI assistant who can help answer user query.",
-                       stop_criterias=["</s>"],output_voice="jane"):
+                       stop_criterias=["</s>"],output_voice:str=None):
+
     history_buffer = llmtokens.HistoryTokenBuffer(history=history,max_tokens=context_size)
     history_buffer.update(new_query)
     console.print(f"[gray]context token counts available: {history_buffer.token_count} / max {history_buffer.max_tokens}[/gray]")
@@ -215,12 +115,13 @@ def process_conversation(new_query:str,history:list, context_size:int=4096*2,
         assistant_response, history = llmproxy.chat_api(user_prompt=new_query, 
                                                         history=history,system_prompt=conversation_system_prompt,
                                                         stop_criterias=stop_criterias)
+        
+        output_voice = TALKIER_USER_VOICE if output_voice is None else output_voice
         text_speaker_ai(text=assistant_response,output_voice=output_voice)       
         history_buffer.update(summary) 
         history=history_buffer.history
         history_buffer.overflow_summary=""
     # perform new query now
-    #history.append({'role': 'user', 'content': new_query})  
     assistant_response,history = llmproxy.chat_api(user_prompt=new_query, history=history,
                                                  system_prompt=conversation_system_prompt,
                                                  stop_criterias=stop_criterias)
@@ -242,7 +143,6 @@ def _get_whisper_model(model_path:str="large-v2",
 def init_whisper(model_path:str="large-v2",download_root="resources/models/whisper",local_files_only=True):
     model=None
     try:
-        # get local copy first
         model = _get_whisper_model(model_path=model_path,local_files_only=True)
     except Exception as e:
         traceback.print_exc()        
@@ -279,7 +179,7 @@ _CONVERSATION_LANGUAGE="en"
 ##_CONVERSATION_BEGIN_WORD=system_checks.DEFAULT_TTS_VOICE_MODEL_TALKIE_AGENT.lower() if system_checks.DEFAULT_TTS_VOICE_MODEL_TALKIE_AGENT is not None else "ryan"
 _CONVERSATION_BEGIN_WORD="jane"
 
-talkie_codes_okay_action=["copy","affirmative","roger","over","out","roger that","please","thank you","thanks"]
+talkie_codes_okay_action=["copy","affirmative","roger","over","out","roger that","please","thank you","thanks","got it","okay","continue"]
 talkie_codes_redo_action=["repeat"]
 talkie_codes_undo_action=["disregard"]
 talkie_codes_bad_action=["negative"]
@@ -309,7 +209,8 @@ utils = None
 whisper_model=None
 vad_audio=None
 
-def wakeup_greeting(output_voice:str="jane"):
+
+def wakeup_greeting(output_voice:str=None):
     now = datetime.now()
     time_now = get_time_of_day(now.hour)
     greeting_messages = ['hi, I am listening...', 
@@ -323,9 +224,10 @@ def wakeup_greeting(output_voice:str="jane"):
                          'yes, listening!',                         
                          'hi, what is up?']
     greeting = str(random.choice(greeting_messages))
+    output_voice = TALKIER_SYS_VOICE if output_voice is None else output_voice
     text_speaker_ai(text=greeting,output_voice=output_voice)    
-    #os.system(f"spd-say {greeting} sir!")
     console.print("\n[red]Speak now...") 
+    #os.system(f"spd-say {greeting} sir!")    
     return greeting   
 
 def system_initialization(webRTC_aggressiveness:int=3,
@@ -357,7 +259,7 @@ def system_initialization(webRTC_aggressiveness:int=3,
     # Stream from microphone to DeepSpeech using VAD
     text="[🎤] Listening... (ctrl-C to exit)..."
     #console.print("[green]"+text)   
-    console.print(f"[green]{system_checks.DEFAULT_PAVAI_TALKIE_AGENT} is ready :smiley:")    
+    console.print(f"[green]{TALKIER_USER_VOICE} is ready :smiley:")    
 
 def activate_handfree_system(reload:bool=False,nospinner:bool=False):
     """activate_handfree_system"""
@@ -409,7 +311,7 @@ def detected_audio_activity(frames:list=[]):
             IN_SPEECH_RECORDING=False
             break
 
-def moderate_conversation(whisper_model,audio_chunk,language:str=_CONVERSATION_LANGUAGE, output_voice:str="jane"):
+def moderate_conversation(whisper_model,audio_chunk,language:str=_CONVERSATION_LANGUAGE, output_voice:str=None):
     """handle_detected_speech"""
     global spinner
     global speech_buffer
@@ -419,6 +321,8 @@ def moderate_conversation(whisper_model,audio_chunk,language:str=_CONVERSATION_L
     global IN_SPEECH_RECORDING
     global IN_CONVERSATION_MODE    
     global WAIT_USER_RESPONSE        
+
+    output_voice = TALKIER_USER_VOICE if output_voice is None else output_voice
 
     #@Halo(text='conversation begin:', spinner='dots',color='green')
     def conversation_begin():
@@ -554,15 +458,6 @@ def moderate_conversation(whisper_model,audio_chunk,language:str=_CONVERSATION_L
         transcribed_text=conversation_begin()
         WAIT_USER_RESPONSE=True
         return 
-    # if "book appointment" in transcribed_text.lower():
-    #     WAIT_USER_RESPONSE=False
-    #     spinner.warn("book appointment...")          
-    #     # discard last word
-    #     transcribed_text=transcribed_text.replace(sentence_last_word,"")        
-    #     speaker_announce(instruction="book appointment...",output_voice=output_voice)          
-    #     #transcribed_text=conversation_begin()
-    #     WAIT_USER_RESPONSE=True
-    #     return     
     if _CONVERSATION_END_WORD in sentence_last_word or _CONVERSATION_CLEAR_WORD in sentence_last_word:
         spinner.warn("reset...")  
         WAIT_USER_RESPONSE=False        

@@ -87,7 +87,7 @@ SYSTEM_THEME_DEFAULT = "default"
 PRODUCT_NAME = "PAVAI"
 #DEFAULT_SYSTEM_AI_NAME = "Amy"
 
-PAVAI_APP_VOCIE="PAVAI C3PO"
+PAVAI_APP_VOCIE="PAVAI VOCIE"
 DEFAULT_PAVAI_VOCIE_AGENT="Jane"
 
 DEFAULT_PAVAI_STARTUP_MSG_INTRO = " your personal multilingual AI assistant for everyday tasks, how may I help you today?"
@@ -99,7 +99,7 @@ DEFAULT_PAVAI_STARTUP_MSG_INTRO5 = " how may I help you today?"
 
 DEFAULT_PAVAI_VOCIE_STARTUP_MSG_NEXT_STEP = "ready? let's open your browsers and type in web url http://localhost:7860; or enter a secured url to start using the system UI."
 
-PAVAI_APP_TALKIE="PavAI Talkie"
+PAVAI_APP_TALKIE="PAVAI Talkie"
 DEFAULT_PAVAI_TALKIE_AGENT="Jane"
 DEFAULT_PAVAI_TALKIE_STARTUP_MSG_INTRO = "Hi,I am Jane your personal multilingual PavAI.Talkie AI assistant for everyday tasks, how may I help you today?"
 # DEFAULT_PAVAI_TALKIE_STARTUP_MSG_INTRO_2 = "Hello, Ryan is here. how may I help you today?"

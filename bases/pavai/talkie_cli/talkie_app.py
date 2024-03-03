@@ -5,6 +5,10 @@
 #     **dotenv_values("env.secret"),  # load sensitive variables
 #     **os.environ,  # override loaded values with environment variables
 # }
+from pavai.setup import config 
+from pavai.setup import logutil
+logger = logutil.logging.getLogger(__name__)
+
 import sys
 import warnings
 import torch
@@ -41,9 +45,14 @@ USE_ONNX = False
 PIPER_AI_VOICES = ["Amy","Ryan"]
 LIBRI_AI_VOICES = ["Ryan", "Jane", "Vinay", "Nima","Yinghao", "Keith", "May", "June"]
 
+# user settings
+# TALKIER_SYS_VOICE=config["GLOBAL_TTS_LIBRETTS_VOICE"]
+# TALKIER_USER_VOICE=config["TALKIER_USER_VOICE"]
+# TALKIER_USER_WAKEUP_WORD=config["TALKIER_USER_WAKEUP_WORD"]
+
 if __name__ == '__main__':
     try:
-        system_startup(output_voice="jane")
+        system_startup()
         system_initialization()
         activate_handfree_system()
     except (KeyboardInterrupt, SystemExit):
