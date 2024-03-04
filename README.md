@@ -222,11 +222,6 @@ In [config.yml](https://github.com/yl4579/StyleTTS2/blob/main/Configs/config.yml
 Translation conver only earth languages not ready for a galaxy far far away.
  
 
-## Related Project Packages
-
-- [] hybrid-memory
-- [] world-storage
-- [] solar-network
 
 ## Acknowledgments
 many thanks to these projects for their inspiration and help, they including llamacpp-python,whisper,fasterwhisper, ollama, styledstts2, piper, vad and meta seamless communication. 
@@ -234,5 +229,11 @@ many thanks to these projects for their inspiration and help, they including lla
 ## License Agreement
 
 The source code provided at <https://github.com/PavAI-Research/pavai-c3po> is licensed under the [Apache 2.0 License](./LICENSE) that can be found at the root directory.
+
+## Pavai.Resarch Related Projects
+
+- [] hybrid-memory
+- [] world-storage
+- [] solar-network
 
 ![pavai research](./resources/images/pavai_web_logo.png) Pavai Research aims to reinvent practical applications for artificial intelligence (AI). 
