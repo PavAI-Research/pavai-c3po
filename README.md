@@ -1,28 +1,28 @@
 ![pavai research](./resources/images/pavai_web_logo.png) Pavai Research aims to reinvent practical applications for artificial intelligence (AI). 
 
-# Project Backstory
+# Backstory
 In the Star Wars universe, C-3PO was designed as a protocol droid, equipped to aid in matters of etiquette, cultural norms, and language translation. With the ability to communicate in over six million forms of language, C-3PO serves as a robotic diplomat and translator across the vast and varied cultures of Lucas' imagined galaxy. <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRFr5zvbIqOuO_lWU2WPm7oUUC1Bu8b193XKj_8jZxQ&s" alt="C-3PO" align="left" width="100"/>
 
-C-3PO is so much more important than we ever thought. C-3PO isn’t simply a bumbling sidekick translator, he is a support operative designed to keep the team on track and manage the various personalities of the heroes to keep things moving in the right direction. -- aha.  secret coach so his personal introduction always "I am C-3PO, human-cyborg relations”. 
+C-3PO is so much more important than we ever thought. C-3PO isn’t simply a bumbling sidekick translator, he is a support operative designed to keep the team on track and manage the various personalities of the heroes to keep things moving in the right direction. -- aha.  secret coach so his personal introduction always "I am C-3PO, human-cyborg relations”. Lol.
 
 <br clear="left"/>
 
-# Project Goal 
+# Goal 
 The goal of this project is to update and enhance C-3PO's technological capabilities by incorporating the most recent advancements in artificial intelligence (AI) technology in the year 2024. 
 
 This will involve modernizing his existing abilities and potentially adding new ones, all with the aim of making him even more versatile and effective in his roles as a protocol droid, robotic diplomat, and translator. By utilizing cutting-edge AI technology, we hope to ensure that C-3PO remains a relevant and valuable asset in the ever-evolving landscape of Lucas' imagined galaxy.
 
-## C3PO Technical Capabilities 
+## C-3PO Capabilities 
 - [x] Real-time automatic voice recognition (ASR)  
 - [x] Real-time voice activity detection (VAD)
 - [x] Real-time text to speech synthesis (toward human-like)
 - [x] Real-time speech-to-speech translation (STS).  
 - [x] Real-time user interface interaction with LLM.  
 - [x] Real-time handfree interaction with LLM.  
-- [-] Hybrid intelligent with memory systems (todo) 
-- [-] World storage and retrieval (todo)
+- [-] Hybrid intelligent with dual memory systems and psychological algorithms(todo) 
+- [-] Memory storage and retrieval (todo)
 - [-] Human-cyborg relations management (todo)
-- [-] Optimization and deployment upgrade (todo)
+- [-] Self-optimization and deployment upgrade (todo)
 
 ### Prerequisites
 1. Python >= 3.10
