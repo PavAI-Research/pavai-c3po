@@ -132,6 +132,13 @@ By default everytime start Vocei or talkier the application perform a start up s
 then report a summary at the end. 
 </details>
 
+<details>
+<summary><b>Important Considerations</b></summary>
+
+> Downloading translator model (facebook/seamless-m4t-v2-large) can take sometimes due larger model size 18 to 30 GB as result intial download time can be long depends on your internet connection.
+
+</details>
+
 ### Quickstart Vocei (Web UI) Locally
 ```bash
 $ poetry shell
@@ -195,8 +202,7 @@ Other character wake up words call to start conversation with them
 - ![Vocei screenshot-1](./resources/images/screenshots/Screensho_talkie_princess_leia.png) Talk to Prices Leia by using trigger word "princess leia"
 
 </details>
-
-
+ 
 ## Architecture & Design Overview
 By design Pavai.C3PO can run totally offline in a single PC or in distributed mode for each core services.
 see diagram below for a overview.
@@ -215,13 +221,12 @@ $ run_setup.sh
 ```
 </details>
 
-## Pavai.Resarch Related Projects
+## Pavai.Research Related Projects
+![pavai research](./resources/images/pavai_web_logo.png) Pavai Research aims to reinvent practical applications for artificial intelligence (AI). 
 
 - [] hybrid-memory
 - [] world-storage
 - [] solar-network
-
-![pavai research](./resources/images/pavai_web_logo.png) Pavai Research aims to reinvent practical applications for artificial intelligence (AI). 
 
 ### Important Configurations
 In [config.yml](https://github.com/yl4579/StyleTTS2/blob/main/Configs/config.yml), there are a few important configurations to take care of:
