@@ -47,13 +47,15 @@ pip install phonemizer
 sudo apt-get install espeak-ng
 
 
-```mermaid
-graph TD;
-  A-->B;
-  A-->C;
-  B-->D;
-  C-->D;
-```
+<details>
+<summary><b>Preview title</b></summary>
+
+_Markdown is valid, but add empty lines to separate from the HTML tags._
+
+- Bullet
+- Points
+
+</details>
 
 ### Important Configurations
 In [config.yml](https://github.com/yl4579/StyleTTS2/blob/main/Configs/config.yml), there are a few important configurations to take care of:
