@@ -82,6 +82,7 @@ To use microphone in browser require use url: http://localhost:7860 or a secure 
 
 <details>
 <summary><b>Vocei Screenshots</b></summary>
+
 - ![Vocei screenshot-1](./resources/images/screenshots/Screenshot_vocei_joke_luke.png) Voice Prompt - ask for a fun joke.
 
 - ![Vocei screenshot-1](./resources/images/screenshots/Screenshot_vocei_speech_translator.png) Real-time Speech-to-Speech translator dual speaker mode.
