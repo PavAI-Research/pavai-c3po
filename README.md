@@ -45,7 +45,7 @@ Also install phonemizer and espeak if you want to run the demo:
 ```bash
 pip install phonemizer
 sudo apt-get install espeak-ng
-
+```
 
 <details>
 <summary><b>Preview title</b></summary>
