@@ -13,13 +13,16 @@ The goal of this project is to update and enhance C-3PO's technological capabili
 This will involve modernizing his existing abilities and potentially adding new ones, all with the aim of making him even more versatile and effective in his roles as a protocol droid, robotic diplomat, and translator. By utilizing cutting-edge AI technology, we hope to ensure that C-3PO remains a relevant and valuable asset in the ever-evolving landscape of Lucas' imagined galaxy.
 
 ## C3PO Technical Capabilities 
-- [x] Real-time automatic voice recognition (ASR) and voice activity detection (VAD) 
+- [x] Real-time automatic voice recognition (ASR)  
+- [x] Real-time voice activity detection (VAD)
 - [x] Real-time text to speech synthesis (toward human-like)
 - [x] Real-time speech-to-speech translation (STS).  
-- [-] Hybrid intelligent with memory systems  
-- [-] World storage and retrieval
-- [-] Human-cyborg relations management
-- [-] Optimization and deployment upgrade 
+- [x] Real-time user interface interaction with LLM.  
+- [x] Real-time handfree interaction with LLM.  
+- [-] Hybrid intelligent with memory systems (todo) 
+- [-] World storage and retrieval (todo)
+- [-] Human-cyborg relations management (todo)
+- [-] Optimization and deployment upgrade (todo)
 
 ### Prerequisites
 1. Python >= 3.10
