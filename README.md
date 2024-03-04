@@ -1,7 +1,7 @@
 # Backstory
 In the Star Wars universe, C-3PO was designed as a protocol droid, equipped to aid in matters of etiquette, cultural norms, and language translation. With the ability to communicate in over six million forms of language, C-3PO serves as a robotic diplomat and translator across the vast and varied cultures of Lucas' imagined galaxy. <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRFr5zvbIqOuO_lWU2WPm7oUUC1Bu8b193XKj_8jZxQ&s" alt="C-3PO" align="left" width="100"/>
 
-C-3PO is so much more important than we ever thought. C-3PO isn’t simply a bumbling sidekick translator, he is a support operative designed to keep the team on track and manage the various personalities of the heroes to keep things moving in the right direction. -- aha.  secret coach so his personal introduction always "I am C-3PO, human-cyborg relations”. Lol.
+C-3PO is so much more important than we ever thought. C-3PO isn’t simply a bumbling sidekick translator, he is a support operative designed to keep the team on track and manage the various personalities of the heroes to keep things moving in the right direction. -- aha.  secret coach so his personal introduction always "I am C-3PO, human-cyborg relations”. lol.
 
 <br clear="left"/>
 
@@ -13,15 +13,15 @@ The goal of this project is to update and enhance C-3PO's technological capabili
 This will involve modernizing his existing abilities and potentially adding new ones, all with the aim of making him even more versatile and effective in his roles as a protocol droid, robotic diplomat, and translator. By utilizing cutting-edge AI technology, we hope to ensure that C-3PO remains a relevant and valuable asset in the ever-evolving landscape of Lucas' imagined galaxy.
 
 ## C-3PO Capabilities 
-- [x] Real-time automatic voice recognition (ASR)  
 - [x] Real-time voice activity detection (VAD)
+- [x] Real-time automatic voice recognition (ASR)  
 - [x] Real-time text to speech synthesis (toward human-like)
 - [x] Real-time speech-to-speech translation (STS).  
 - [x] Real-time user interface interaction with GenAI.  
 - [x] Real-time handfree interaction with GenAI.  
 - [-] Hybrid intelligent with dual memory systems (wip) 
-- [-] World Memory storage and retrieval (wip)
-- [-] Solar Network Integration (todo)
+- [-] World memory storage and retrieval (wip)
+- [-] Solar network integration (todo)
 - [-] Human-cyborg relations management (pending)
 - [-] Self-optimization and deployment upgrade (pending)
 
@@ -58,37 +58,97 @@ $ run_setup.sh
 ```
 </details>
 
-### Run Vocei (Web App)
+<details>
+<summary><b>LLM Provider</b></summary>
+
+1. Download Models
+```
+$ run_setup.sh
+```
+2. Download Models
+```
+$ run_setup.sh
+```
+</details>
+
+### Run Vocei (Web UI) Locally
 ```bash
 $ poetry shell
 $ ./voice_gradioapp.sh
 or 
 $ ./voice_fastapp.sh
 ```
-### Run Talkie (Handfree)
+To use microphone in browser require use url: http://localhost:7860 or a secure link 
+
+<details>
+<summary><b>Vocei Screenshots</b></summary>
+- ![Vocei screenshot-1](./resources/images/screenshots/Screenshot_vocei_joke_luke.png) Voice Prompt - ask for a fun joke.
+
+- ![Vocei screenshot-1](./resources/images/screenshots/Screenshot_vocei_speech_translator.png) Real-time Speech-to-Speech translator dual speaker mode.
+
+- ![Vocei screenshot-1](./resources/images/screenshots/Screenshot_generated_c3P0_at_office.png) Image generation - C-3PO working at office.
+
+- ![Vocei screenshot-1](./resources/images/screenshots/Screenshot_image_generation_year_of_dragon.png) Image generation - Year of Dragon 2024
+
+</details>
+
+### Run Talkie (Handfree) Locally
 ```bash
 $ poetry shell
 $ ./talkie_cli.sh
 ```
+<details>
+<summary><b>Talkie Dialog System</b></summary>
+The basic dialog system format:
 
-On Windows add:
-```bash
-pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118 -U
-```
-Also install phonemizer and espeak if you want to run the demo:
-```bash
-pip install phonemizer
-sudo apt-get install espeak-ng
-```
+1. talkie actively listening for voice activity 
+2. speak a wake up word: "hello mark" or "hi mark" to start a conversation mode.
+3. speak your question and end with a work "please" or talkie code like "roger", "over"...etc
+4. talkie generate user prompt then call LLM to respond
+5. talkie convert text to speech then play back
+
+> Jane - is the default system voice for handle system startup speech 
+> Mark - is the user voice for handle user query and response
+
+Other character user can be call during the conversation
+
+- anthony anthony 
+- skywalker
+- yoda master
+- princess leia
+- c-3po
+
+> speak "reset" to clear and start a new conversation
+> speak "say again" to repeat last response audio
+
+</details>
 
 <details>
-<summary><b>Preview title</b></summary>
+<summary><b>Talkie Screenshots</b></summary>
+- ![Vocei screenshot-1](./resources/images/screenshots/Screenshot-Talkie_Startup_health_check.png) Talkie startup system health check.
 
-_Markdown is valid, but add empty lines to separate from the HTML tags._
+- ![Vocei screenshot-1](./resources/images/screenshots/Screenshot-Talkie_active_listening.png) Talkie actively listening
 
-- Bullet
-- Points
+- ![Vocei screenshot-1](./resources/images/screenshots/Screensho_talkie_princess_leia.png) Talk to Prices Leia by using trigger word "princess leia"
 
+</details>
+
+
+
+## Architecture & Design 
+In [config.yml](https://github.com/yl4579/StyleTTS2/blob/main/Configs/config.yml), there are a few important 
+
+<details>
+<summary><b>LLM Provider</b></summary>
+
+1. 
+```
+$ run_setup.sh
+```
+2. Download Models
+```
+$ run_setup.sh
+```
 </details>
 
 ### Important Configurations
