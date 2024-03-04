@@ -27,6 +27,8 @@ This will involve modernizing his existing abilities and potentially adding new 
 - [-] Human-cyborg relations management (pending)
 - [-] Self-optimization and deployment upgrade (pending)
 
+Note: all-in-one running locally in a single PC or split into multiple.
+
 ## C-3PO Installation
 <details>
 <summary><b>Prerequisites</b></summary>
