@@ -61,15 +61,58 @@ $ run_setup.sh
 </details>
 
 <details>
-<summary><b>LLM Provider</b></summary>
+<summary><b>System Mode Configuration</b></summary>
+see `env.shared` on run mode: 
+variable: GLOBAL_SYSTEM_MODE="ollama-openai" where you can specify one of the following value:
 
-1. Download Models
+1. locally-aio - all in one locally in a single pc
+
+2. ollama-openai - ollama can be run locally or remote machine
+
+3. solar-openai - llamacpp-python openai like server serving multiple models
+
+variable: REFERENCE_VOICES="resources/config/reference_voices.json"
+
 ```
 $ run_setup.sh
 ```
-2. Download Models
+</details>
+
+<details>
+<summary><b>LLM Provider Configuration</b></summary>
+see `env.shared` on following supported setup
+
+***Local with Llamacpp-python***
 ```
-$ run_setup.sh
+GLOBAL_SYSTEM_MODE="locally-aio"
+
+DEFAULT_LLM_MODEL_PATH="resources/models/llm/"
+DEFAULT_LLM_MODEL_NAME_OR_PATH="TheBloke/zephyr-7B-beta-GGUF"
+DEFAULT_LLM_MODEL_FILE="zephyr-7b-beta.Q4_K_M.gguf"
+DEFAULT_LLM_MODEL_WEB_URL="https://huggingface.co/TheBloke/zephyr-7B-beta-GGUF/resolve/main/zephyr-7b-beta.Q4_K_M.gguf"
+DEFAULT_LLM_MODEL_CHAT_FORMAT="chatml"
+DEFAULT_LLM_MODEL_DOWNLOAD_PATH='resources/models/llm/models--TheBloke--zephyr-7B-beta-GGUF/snapshots/e4714d14e9652aa9658fa937732cceadc63ac42e/zephyr-7b-beta.Q4_K_M.gguf'
+DEFAULT_LLM_OFFLOAD_GPU_LAYERS=35
+```
+
+***Ollama local or remote***
+```
+GLOBAL_SYSTEM_MODE="ollama-openai"
+
+SOLAR_LLM_OLLAMA_HOST="http://192.168.0.18:12345"
+SOLAR_LLM_OLLAMA_SERVER_URL="http://192.168.0.18:12345/v1/"
+SOLAR_LLM_OLLAMA_API_KEY="sk-pavai"
+SOLAR_LLM_OLLAMA_MODEL_ID="zephyr:latest"
+```
+
+***Openai like LLamacpp-python server***
+```
+GLOBAL_SYSTEM_MODE="solar-openai"
+
+SOLAR_LLM_DEFAULT_HOST="http://192.168.0.29:8004"
+SOLAR_LLM_DEFAULT_SERVER_URL="http://192.168.0.29:8004/v1"
+SOLAR_LLM_DEFAULT_API_KEY="sk-pavai"
+SOLAR_LLM_DEFAULT_MODEL_ID="zephyr-7b-beta.Q4"
 ```
 </details>
 
