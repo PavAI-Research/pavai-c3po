@@ -28,20 +28,6 @@ This will involve modernizing his existing abilities and potentially adding new 
 Note: all-in-one running locally in a single PC or split into multiple.
 
 ## C-3PO Installation
-<details>
-<summary><b>Development/Testing Hardware</b></summary>
-
-> development and testing of this project only been validated on Ubuntu/Pop.OS
-```
-System: Pop.OS 22.04 (Ubuntu)
-Python: 3.11
-CPUs: 5700G x 8 CPU
-System Memory: 64 GB
-Video Card: RTX 3090 24GB
-```
-Note: Very limited testing on other hardware and os due resource constraint
-
-</details>
 
 <details>
 <summary><b>Prerequisites</b></summary>
@@ -77,7 +63,7 @@ please see llamacpp-python for your specific hardware optimization
 
 On first time setup it will automaticall download models required models
 ```
-$ first_time_setup.sh
+$ ./first_time_setup.sh
 ```
 - ![models screenshot-1](./resources/images/screenshots/Screenshot_models.png) Models.
 
@@ -143,6 +129,21 @@ SOLAR_LLM_DEFAULT_MODEL_ID="zephyr-7b-beta.Q4"
 <summary><b>Startup resource and sanity check</b></summary>
 By default everytime start Vocei or talkier the application perform a start up system checks. the check including required system resources and functionality
 then report a summary at the end. 
+</details>
+
+<details>
+<summary><b>Development/Testing Hardware</b></summary>
+
+> development and testing of this project only been validated on Ubuntu/Pop.OS
+```
+System: Pop.OS 22.04 (Ubuntu)
+Python: 3.11
+CPUs: 5700G x 8 CPU
+System Memory: 64 GB
+Video Card: RTX 3090 24GB
+```
+Note: Very limited testing on other hardware and os due resource constraint
+
 </details>
 
 <details>
