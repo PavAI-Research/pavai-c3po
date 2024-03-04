@@ -45,6 +45,19 @@ $ poetry install
 ```
 </details>
 
+<details>
+<summary><b>First Time Model Downloads</b></summary>
+
+1. Download Models
+```
+$ run_setup.sh
+```
+2. Download Models
+```
+$ run_setup.sh
+```
+</details>
+
 ### Run Vocei (Web App)
 ```bash
 poetry shell
