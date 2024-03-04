@@ -17,8 +17,8 @@ This will involve modernizing his existing abilities and potentially adding new 
 - [x] Real-time voice activity detection (VAD)
 - [x] Real-time text to speech synthesis (toward human-like)
 - [x] Real-time speech-to-speech translation (STS).  
-- [x] Real-time user interface interaction with LLM.  
-- [x] Real-time handfree interaction with LLM.  
+- [x] Real-time user interface interaction with GenAI.  
+- [x] Real-time handfree interaction with GenAI.  
 - [-] Hybrid intelligent with dual memory systems and psychological algorithms(todo) 
 - [-] Memory storage and retrieval (todo)
 - [-] Human-cyborg relations management (todo)
@@ -45,6 +45,15 @@ Also install phonemizer and espeak if you want to run the demo:
 ```bash
 pip install phonemizer
 sudo apt-get install espeak-ng
+
+
+```mermaid
+graph TD;
+  A-->B;
+  A-->C;
+  B-->D;
+  C-->D;
+```
 
 ### Important Configurations
 In [config.yml](https://github.com/yl4579/StyleTTS2/blob/main/Configs/config.yml), there are a few important configurations to take care of:
