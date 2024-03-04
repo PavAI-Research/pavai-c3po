@@ -125,6 +125,7 @@ Other character user can be call during the conversation
 
 <details>
 <summary><b>Talkie Screenshots</b></summary>
+
 - ![Vocei screenshot-1](./resources/images/screenshots/Screenshot-Talkie_Startup_health_check.png) Talkie startup system health check.
 
 - ![Vocei screenshot-1](./resources/images/screenshots/Screenshot-Talkie_active_listening.png) Talkie actively listening
