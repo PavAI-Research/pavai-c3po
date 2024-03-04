@@ -1,5 +1,3 @@
-![pavai research](./resources/images/pavai_web_logo.png) Pavai Research aims to reinvent practical applications for artificial intelligence (AI). 
-
 # Backstory
 In the Star Wars universe, C-3PO was designed as a protocol droid, equipped to aid in matters of etiquette, cultural norms, and language translation. With the ability to communicate in over six million forms of language, C-3PO serves as a robotic diplomat and translator across the vast and varied cultures of Lucas' imagined galaxy. <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRFr5zvbIqOuO_lWU2WPm7oUUC1Bu8b193XKj_8jZxQ&s" alt="C-3PO" align="left" width="100"/>
 
@@ -12,14 +10,14 @@ The goal of this project is to update and enhance C-3PO's (Commercial Crew and C
 
 This will involve modernizing his existing abilities and potentially adding new ones, all with the aim of making him even more versatile and effective in his roles as a protocol droid, robotic diplomat, and translator. By utilizing cutting-edge AI technology, we hope to ensure that C-3PO remains a relevant and valuable asset in the ever-evolving landscape of Lucas' imagined galaxy.
 
-## C-3PO Capabilities 
+## C-3PO Capabilities
 - [x] Real-time voice activity detection (VAD)
 - [x] Real-time automatic voice recognition (ASR)  
 - [x] Real-time text to speech synthesis toward human-like voice 
 - [x] Real-time speech-to-speech translation (STS) support 100+ languages.  
 - [x] Real-time user interface interaction with GenAI.  
-- [x] Real-time handfree interaction with GenAI.  
-- [x] Real-time Voice to Image generation   
+- [x] Real-time handfree voice interaction with GenAI.  
+- [x] Real-time voice-to-image generation   
 - [x] Real-time PII data security analysis on User Input and AI Output.  
 - [-] Hybrid intelligent with dual memory systems (wip) 
 - [-] World memory storage and retrieval (wip)
@@ -75,7 +73,7 @@ $ run_setup.sh
 ```
 </details>
 
-### Run Vocei (Web UI) Locally
+### Running Vocei (Web UI) Locally
 ```bash
 $ poetry shell
 $ ./voice_gradioapp.sh
@@ -97,7 +95,7 @@ To use microphone in browser require use url: http://localhost:7860 or a secure 
 
 </details>
 
-### Run Talkie (Handfree) Locally
+### Running Talkie (Handfree) Locally
 ```bash
 $ poetry shell
 $ ./talkie_cli.sh
@@ -140,7 +138,6 @@ Other character user can be call during the conversation
 </details>
 
 
-
 ## Architecture & Design 
 In [config.yml](https://github.com/yl4579/StyleTTS2/blob/main/Configs/config.yml), there are a few important 
 
@@ -174,7 +171,6 @@ CMAKE_ARGS="-DLLAMA_CUBLAS=on" poetry run pip install llama-cpp-python==0.2.27 -
 - [x] Finish demo code for multispeaker model and upload pre-trained models
 - [x] Add a finetuning script for new speakers with base pre-trained multispeaker
 
-
 ## References
 - [archinetai/audio-diffusion-pytorch](https://github.com/archinetai/audio-diffusion-pytorch)
 - [jik876/hifi-gan](https://github.com/jik876/hifi-gan)
@@ -187,12 +183,4 @@ Code: MIT License
 
 Pre-Trained Models: Before using these pre-trained models, you agree to inform the listeners that the speech samples are synthesized by the pre-trained models, unless you have the permission to use the voice you synthesize. That is, you agree to only use voices whose speakers grant the permission to have their voice cloned, either directly or by license before making synthesized voices public, or you have to publicly announce that these voices are synthesized if you do not have the permission to use these voices.
 
-# -------------------------------------
-# Environment
-# -------------------------------------
-# tested version gradio version: 4.7.1
-# print(f"use gradio version: {gr.__version__}")
-# print(f"use torch version: {torch.__version__}")
-# # pip install gradio==4.7.1
-
-# pip install faster-whisper==0.10.0
+![pavai research](./resources/images/pavai_web_logo.png) Pavai Research aims to reinvent practical applications for artificial intelligence (AI). 
