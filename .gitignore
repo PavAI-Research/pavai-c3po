@@ -6,6 +6,10 @@ resources/models/spacy*
 resources/models/styletts2/Models/LibriTTS*
 resources/models/styletts2/Models/LJSpeech*
 resources/models/whisper*
+resources/models/translator*
+resources/models/silero-vad*
+resources/models/voices*
+#resources/models/styletts2*
 #resources/StyleTTS2*
 #resources/models*
 

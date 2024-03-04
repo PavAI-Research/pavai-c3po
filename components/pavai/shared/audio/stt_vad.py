@@ -160,16 +160,18 @@ def init_vad_model(repo_or_dir:str='snakers4/silero-vad',silaro_model_name:str="
                                       reload=reload,silero_use_onnx=silero_use_onnx)
         #(get_speech_timestamps, get_language, save_audio, read_audio,VADIterator, collect_chunks) = utils
     except Exception as e:
+        print("Vad Model Missing Exception:",e.args)        
         try:
             # get files from github
+            repo_or_dir=download_root+"/silero-vad"            
             repo = git.Repo.clone_from(url='https://github.com/minyang-chen/silero-vad.git',
-                                   to_path=download_root,branch='master')
-            repo_or_dir=download_root+"/silero-vad"
+                                   to_path=repo_or_dir,branch='master')
             model, utils = _get_vad_model(repo_or_dir=repo_or_dir,
                                       silaro_model_name=silaro_model_name,
                                       source="local",
                                       reload=reload,silero_use_onnx=silero_use_onnx)
         except Exception as e:
+            print("Vad Model Clone Exception:",e.args)             
             # otherwise, attempt download from pytorch.hub         
             repo_or_dir='snakers4/silero-vad'
             model, utils = _get_vad_model(repo_or_dir=repo_or_dir,silaro_model_name=silaro_model_name,

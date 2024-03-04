@@ -7,8 +7,8 @@ from pathlib import Path
 from pavai.shared.styletts2 import LibriSpeech, LJSpeech
 import sounddevice as sd
 
-logger.warn("--GLOBAL SYSTEM MODE----")
-logger.warn(config.system_config["GLOBAL_SYSTEM_MODE"])
+#logger.warn("--GLOBAL SYSTEM MODE----")
+#logger.warn(config.system_config["GLOBAL_SYSTEM_MODE"])
 _GLOBAL_SYSTEM_MODE=config.system_config["GLOBAL_SYSTEM_MODE"]
 _GLOBAL_TTS=config.system_config["GLOBAL_TTS"]
 _GLOBAL_TTS_LIBRETTS_VOICE=config.system_config["GLOBAL_TTS_LIBRETTS_VOICE"]

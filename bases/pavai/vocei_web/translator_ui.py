@@ -1,8 +1,9 @@
 import gradio as gr
 import pavai.translator.filedata as filedata
-import pavai.translator.translator as translator
+import pavai.translator.multilingual as multilingual
 import pavai.translator.lang_list as lang_list
-import pavai.vocei_web.translator_ui
+#import pavai.translator.translator as translator
+#import pavai.vocei_web.translator_ui
 
 class CommunicationTranslator:
     def build_translator_ui(self):
@@ -61,7 +62,7 @@ class CommunicationTranslator:
                                         target_language = gr.Dropdown(
                                             label="Target Party language",
                                             choices=lang_list.S2ST_TARGET_LANGUAGE_NAMES,
-                                            value=translator.DEFAULT_TARGET_LANGUAGE,
+                                            value=multilingual.DEFAULT_TARGET_LANGUAGE,
                                         )
                                         xspeaker = gr.Slider(
                                             1,
@@ -127,11 +128,11 @@ class CommunicationTranslator:
 
                                         # handle speaker id change
                                         party_xspeaker.change(
-                                            fn=translator.update_value, inputs=xspeaker
+                                            fn=multilingual.SeamlessM4T().update_value, inputs=xspeaker
                                         )
                                 # handle
                                 btn_translate.click(
-                                    fn=translator.run_s2st,
+                                    fn=multilingual.SeamlessM4T().run_s2st,
                                     inputs=[
                                         input_audio,
                                         source_language,
@@ -144,7 +145,7 @@ class CommunicationTranslator:
 
                                 # handle
                                 party_btn_translate.click(
-                                    fn=translator.run_s2st,
+                                    fn=multilingual.SeamlessM4T().run_s2st,
                                     inputs=[
                                         party_input_audio,
                                         party_source_language,
@@ -157,7 +158,7 @@ class CommunicationTranslator:
 
                                 ## auto submit
                                 input_audio.stop_recording(
-                                    fn=translator.run_s2st,
+                                    fn=multilingual.SeamlessM4T().run_s2st,
                                     inputs=[
                                         input_audio,
                                         source_language,
@@ -168,7 +169,7 @@ class CommunicationTranslator:
 
                                 ## auto submit
                                 party_input_audio.stop_recording(
-                                    fn=translator.run_s2st,
+                                    fn=multilingual.SeamlessM4T().run_s2st,
                                     inputs=[
                                         party_input_audio,
                                         party_source_language,

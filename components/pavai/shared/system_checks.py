@@ -8,6 +8,7 @@ from rich.panel import Panel
 from rich.table import Table
 from rich.console import Console
 from rich.progress import Progress
+import pavai.translator.multilingual as multilingual
 
 import sys,os
 from pathlib import Path
@@ -27,14 +28,15 @@ from transformers.utils import is_flash_attn_2_available
 import random
 import sounddevice as sd
 from openai import OpenAI
+from pathlib import Path
+from pavai.shared.styletts2.download_models import get_styletts2_model_files
+import pavai.llmone.datasecurity as datasecurity
+from pavai.shared.audio.stt_vad import init_vad_model
 from pavai.shared.grammar import (get_or_download_grammar_model_snapshot,init_grammar_correction_model,
                           fix_grammar_error, DEFAULT_GRAMMAR_MODEL_SIZE)
 from pavai.shared.audio.transcribe import (get_or_download_whisper_model_snapshot,get_transcriber,speech_to_text, DEFAULT_WHISPER_MODEL_SIZE)
 from pavai.shared.audio.tts_client import system_tts_local
 import pavai.llmone.llmproxy as llmproxy
-from pathlib import Path
-from pavai.shared.styletts2.download_models import get_styletts2_model_files
-import pavai.llmone.datasecurity as datasecurity
 import traceback
 
 __RELEASE_VERSION__="alpha-0.0.3"
@@ -112,12 +114,8 @@ DEFAULT_STT_MODEL_SIZE = "large"
 DEFAULT_STT_MODEL_ID = "Systran/faster-whisper-large-v3"
 
 # text-to-speech Voice model
-# DEFAULT_TTS_VOICE_MODEL_PATH=/home/pop/development/mclab/talking-llama/models/voices/
 DEFAULT_TTS_VOICE_MODEL_PATH = "resources/models/voices/"
 DEFAULT_TTS_VOICE_MODEL_LANGUAGE = "en"
-# DEFAULT_TTS_VOICE_MODEL_GENDER = "Amy"
-# DEFAULT_TTS_VOICE_MODEL_ONNX_FILE = "en_US-amy-medium.onnx"
-# DEFAULT_TTS_VOICE_MODEL_ONNX_JSON = "en_US-amy-medium.onnx.json"
 
 DEFAULT_TTS_VOICE_MODEL_VOCIE="Amy"
 DEFAULT_TTS_VOICE_MODEL_VOCIE_ONNX_FILE="en_US-amy-medium.onnx"
@@ -273,59 +271,62 @@ def system_resources_check(output_voice:str="jane"):
     logger.info("***running system resources checks***")    
     with Progress(transient=True) as progress: 
         try:       
-            task = progress.add_task("checking system resources...", total=7)
+            task = progress.add_task("checking system resources...", total=8)
 
-            # 1. nltk downloads
-            logger.info("download nltk [punk] resource files")                                              
+            # 1. download VAD model 
+            logger.info("1.download VAD model files")                                                          
+            model,utils=init_vad_model() 
+            if (model is not None) and os.path.exists(DEFAULT_SYSTEM_VAD_MODEL_PATH):
+                table.add_row("resource_check", f"get VAD model file path {DEFAULT_SYSTEM_VAD_MODEL_PATH}", "[green]Found[/]")
+                logger.info(f"1.Found VAD model file {DEFAULT_SYSTEM_VAD_MODEL_PATH}")                           
+            else:
+                table.add_row("resource_check", f"get VAD model file", "[red]Missing[/]")
+                logger.error(f"Missing VAD model file!!!")                                                                                 
+            progress.advance(task)  
+
+            # 2. nltk downloads
+            logger.info("2.download nltk [punk] resource files")                                              
             nltk.download('punkt')
             table.add_row("resource_check", f"get nltk:punkt", "[green]Found[/]")
-            logger.info(f"1.Found nltk:punkt downloads ")               
+            logger.info(f"2.Found nltk:punkt downloads ")               
             progress.advance(task)
 
-            # 2. spacy en_core_web_lg model downloads
-            logger.info("download spacy en_core_web_lg model")  
+            # 3. spacy en_core_web_lg model downloads
+            logger.info("3.download spacy en_core_web_lg model")  
             download_spacy_model()                                            
             # python -m spacy download en_core_web_lg
             table.add_row("resource_check", f"get spacy en_core_web_lg model", "[green]Found[/]")
-            logger.info(f"2.Found spacy model downloads")               
+            logger.info(f"3.Found spacy model downloads")               
             progress.advance(task)
 
-            logger.info("checking text-to-speech file exist")                                  
-            # 3. voice model file        
-            # local_voice_path = system_config["DEFAULT_TTS_VOICE_MODEL_PATH"]
-            # isExist = os.path.exists(local_voice_path)
-            # if not isExist:
-            #     os.makedirs(local_voice_path)
-            # voice_onnx_file, voice_json_file = get_voice_model_file(local_voice_path=system_config["DEFAULT_TTS_VOICE_MODEL_PATH"],
-            #                                                         spoken_language="en")
-            # if voice_onnx_file is not None and voice_json_file is not None:
-            #     table.add_row("resource_check", f"get text-to-speech model file: {voice_json_file}", "[green]Found[/]")
-            #     logger.info(f"3.Found text-to-speech file {voice_json_file}")               
-            # else:
-            #     table.add_row("resource_check", f"get text-to-speech model file: {voice_json_file}", "[red]Missing[/]")        
-            #     logger.error(f"Missing text-to-speech file {voice_json_file}")                           
+            # 4. voice model file        
+            logger.info("4.download translator file")                                              
+            local_voice_path = "resources/models/translator"
+            multilingual.SeamlessM4T().load_model()
+            isExist = os.path.exists(local_voice_path)
+            if isExist:
+                ##os.makedirs(local_voice_path)
+                table.add_row("resource_check", f"get translator model file", "[green]Found[/]")
+                logger.info(f"4.Found translator model file")               
+            else:
+                table.add_row("resource_check", f"get translator model file", "[red]Missing[/]")        
+                logger.error(f"Missing translator file")                           
             
             progress.advance(task)
 
-            # 4. LLM model file        
+            # 5. LLM model file        
             if _GLOBAL_SYSTEM_MODE=="solar-openai":
-                logger.info("checking SOLAR LLM server configuration exist")
+                logger.info("5.download SOLAR LLM server configuration exist")
                 default_url=config.system_config["SOLAR_LLM_DEFAULT_SERVER_URL"] 
                 default_api_key=config.system_config["SOLAR_LLM_DEFAULT_API_KEY"]             
                 default_model_id=config.system_config["SOLAR_LLM_DEFAULT_MODEL_ID"]                             
-                skip_content_safety_check=config.system_config["SOLAR_SKIP_CONTENT_SAFETY_CHECK"]    
-                skip_data_security_check=config.system_config["SOLAR_SKIP_DATA_SECURITY_CHECK"] 
-                skip_self_critique_check=config.system_config["SOLAR_SKIP_SELF_CRITIQUE_CHECK"]
             elif _GLOBAL_SYSTEM_MODE=="ollama-openai":
-                logger.info("checking SOLAR Ollama server configuration exist")
+                logger.info("5.download SOLAR Ollama server configuration exist")
                 default_url=config.system_config["SOLAR_LLM_OLLAMA_SERVER_URL"] 
                 default_api_key=config.system_config["SOLAR_LLM_OLLAMA_API_KEY"]             
-                default_model_id=config.system_config["SOLAR_LLM_OLLAMA_MODEL_ID"]             
-                skip_content_safety_check=config.system_config["SOLAR_SKIP_CONTENT_SAFETY_CHECK"]    
-                skip_data_security_check=config.system_config["SOLAR_SKIP_DATA_SECURITY_CHECK"] 
-                skip_self_critique_check=config.system_config["SOLAR_SKIP_SELF_CRITIQUE_CHECK"]                
+                default_model_id=config.system_config["SOLAR_LLM_OLLAMA_MODEL_ID"]              
             else:
-                logger.info("checking LLM file exist")                    
+                logger.info("5.download LLM local file")                    
                 # setup LLM model file if not exist
                 local_llm_name_or_path = config.system_config["DEFAULT_LLM_MODEL_NAME_OR_PATH"]                
                 local_llm_path = config.system_config["DEFAULT_LLM_MODEL_PATH"]
@@ -341,55 +342,47 @@ def system_resources_check(output_voice:str="jane"):
                     model_path=local_llm_path)
                 if gguf_model_file is not None and gguf_chat_format is not None:
                     table.add_row("resource_check", f"get LLM model file: {gguf_model_file}", "[green]Found[/]")
-                    logger.info(f"4.Found LLM file {gguf_model_file}")                           
+                    logger.info(f"5.Found LLM file {gguf_model_file}")                           
                 else:
                     table.add_row("resource_check", f"get LLM model file: {gguf_model_file}", "[red]Missing[/]")        
                     logger.error(f"Missing LLM file {gguf_model_file}")                                       
             
             progress.advance(task)
 
-            # 5. speech-to-text model file (Whisper)        
-            logger.info("checking speech-to-text (whisper) model file exist")     
+            # 6. speech-to-text model file (Whisper)        
+            logger.info("6.download speech-to-text (whisper) model file exist")     
             model_file= get_or_download_whisper_model_snapshot()
             if model_file:
                 table.add_row("resource_check", f"get speech-to-text model file: {model_file}", "[green]Found[/]")
-                logger.info(f"5.Found speech-to-text model file {model_file}")                           
+                logger.info(f"6.Found speech-to-text model file {model_file}")                           
             else:
                 table.add_row("resource_check", f"get speech-to-text model file", "[red]Missing[/]")
                 logger.error(f"Missing speech-to-text model file!!!")                                                                                 
             progress.advance(task)
 
-            # 6. grammar_model
-            logger.info("checking grammar synthesis model file exist")     
+            # 7. grammar_model
+            logger.info("7.download grammar synthesis model file exist")     
             model_file= get_or_download_grammar_model_snapshot()
             if model_file:
                 table.add_row("resource_check", f"get grammar synthesis model file: {model_file}", "[green]Found[/]")
-                logger.info(f"6.Found grammar synthesis model file {model_file}")                           
+                logger.info(f"7.Found grammar synthesis model file {model_file}")                           
             else:
                 table.add_row("resource_check", f"get grammar synthesis model file", "[red]Missing[/]")
                 logger.error(f"Missing grammar synthesis model file!!!")                                                                                 
             progress.advance(task)
 
-            # 7. styletts2 model files
-            logger.info("download styletts2 model files")                                                          
+            # 8. styletts2 model files
+            logger.info("8.download styletts2 model files")                                                          
             get_styletts2_model_files()
             progress.advance(task)              
+
         except Exception as e:
             print(e)
             logger.error("system_resources_check error.")
-            # # 7. voice activity detection_model
-            # logger.info("checking VAD model file exist")                 
-            # model,utils=init_vad_model() 
-            # #console.print("checking silero-vad ", end="")        
-            # if (model is not None) and os.path.exists(DEFAULT_SYSTEM_VAD_MODEL_PATH):
-            #     table.add_row("resource_check", f"get VAD model file path {DEFAULT_SYSTEM_VAD_MODEL_PATH}", "[green]Found[/]")
-            #     logger.info(f"7.Found VAD model file {DEFAULT_SYSTEM_VAD_MODEL_PATH}")                           
-            # else:
-            #     table.add_row("resource_check", f"get VAD model file", "[red]Missing[/]")
-            #     logger.error(f"Missing VAD model file!!!")                                                                                 
-            # progress.advance(task)  
             current_system_mode="oops, system_resources_check error. please check the log "
             system_tts_local(text=current_system_mode,output_voice=output_voice)
+
+        logger.info("8.system_resources_check completed!")
 
 def system_sanity_tests(output_voice:str="jane"):
     global system_is_ready    
@@ -584,7 +577,17 @@ def pavai_talkie_system_health_check(output_voice:str=None):
 
 """MAIN"""
 if __name__ == "__main__":
+    try:
+        print("first time system download & check -- start")        
+        system_resources_check()
+        print("===============================================")
+        print("first time system download & check -- finished!")
+        print("===============================================")        
+        print("== ready to run applications===")
+    except Exception as e:
+        print("Exception occurred ",e)
+
     #pavai_vocie_system_health_check(output_voice="en_amy")
-    pavai_talkie_system_health_check(output_voice="jane")
+    #pavai_talkie_system_health_check(output_voice="jane")
     #intro_message="hi, I am Ryan, your personal multilingual AI assistant for everyday tasks, how may I help you today?" 
     #speak_instruction(intro_message,output_voice="en_ryan")

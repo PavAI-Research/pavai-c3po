@@ -31,7 +31,7 @@ Note: all-in-one running locally in a single PC or split into multiple.
 <details>
 <summary><b>Development/Testing Hardware</b></summary>
 
-> development and testing of this project only been validated on Ubuntu/Pop.OS only so far
+> development and testing of this project only been validated on Ubuntu/Pop.OS
 ```
 System: Pop.OS 22.04 (Ubuntu)
 Python: 3.11
