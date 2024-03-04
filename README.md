@@ -240,6 +240,10 @@ $ run_setup.sh
 ```
 </details>
 
+## Talkie Dialog System
+please see diagram below for the dual-loop ssytem.
+![pavai research](./resources/images/Pavai-C3P0-Diagram-Talkie_Dialog.png)
+
 ## Pavai.Research Related Projects
 ![pavai research](./resources/images/pavai_web_logo.png) Pavai Research aims to reinvent practical applications for artificial intelligence (AI). 
 
@@ -249,7 +253,7 @@ $ run_setup.sh
 
 ### Limitation and Common Issues
 
-> Translation conver only earth languages not ready for a galaxy far far away.
+> Translation conver only earth languages only so not ready for a galaxy far far away yet.
 
 > When running all models locally, the hardware requiements could go up to 16 GB Vram
 
