@@ -73,16 +73,14 @@ please see llamacpp-python for your specific hardware optimization
 </details>
 
 <details>
-<summary><b>First-time model downloads</b></summary>
+<summary><b>First-time Setup</b></summary>
 
-1. Download Models
+On first time setup it will automaticall download models required models
 ```
-$ run_setup.sh
+$ first_time_setup.sh
 ```
-2. Download Models
-```
-$ run_setup.sh
-```
+- ![models screenshot-1](./home/pop/software_engineer/pavai-c3po/resources/images/screenshots/Screenshot_models.png) Models.
+
 </details>
 
 <details>
