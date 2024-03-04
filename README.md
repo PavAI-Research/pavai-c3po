@@ -8,7 +8,7 @@ In the Star Wars universe, C-3PO was designed as a protocol droid, equipped to a
 <br clear="left"/>
 
 # Goal 
-The goal of this project is to update and enhance C-3PO's technological capabilities by incorporating the most recent advancements in artificial intelligence (AI) technology in the year 2024. 
+The goal of this project is to update and enhance C-3PO's (Commercial Crew and Cargo (3 C's) Program Office) technological capabilities by incorporating the most recent advancements in artificial intelligence (AI) technology in the year 2024. 
 
 This will involve modernizing his existing abilities and potentially adding new ones, all with the aim of making him even more versatile and effective in his roles as a protocol droid, robotic diplomat, and translator. By utilizing cutting-edge AI technology, we hope to ensure that C-3PO remains a relevant and valuable asset in the ever-evolving landscape of Lucas' imagined galaxy.
 
