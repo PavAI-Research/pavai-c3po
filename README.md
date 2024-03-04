@@ -28,15 +28,19 @@ This will involve modernizing his existing abilities and potentially adding new 
 Note: all-in-one running locally in a single PC or split into multiple.
 
 ## C-3PO Installation
-
+<details>
 <summary><b>Development/Testing Hardware</b></summary>
 
 > development and testing of this project only been validated on Ubuntu/Pop.OS only so far
+```
 System: Pop.OS 22.04 (Ubuntu)
 Python: 3.11
 CPUs: 5700G x 8 CPU
 System Memory: 64 GB
 Video Card: RTX 3090 24GB
+```
+Note: Very limited testing on other hardware and os due resource constraint
+
 </details>
 
 <details>
