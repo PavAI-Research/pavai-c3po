@@ -1,11 +1,15 @@
-# pavai-c3po
-the implementation of C3PO multilingual voice assistant communication capability for daily use
+# Backstory
+In the Star Wars universe, C-3PO was designed as a protocol droid, equipped to aid in matters of etiquette, cultural norms, and language translation. With the ability to communicate in over six million forms of language, C-3PO serves as a robotic diplomat and translator across the vast and varied cultures of Lucas' imagined galaxy. The objective of the project is to refresh the implementation of C-3PO technological capaibilities in 2024 using latest AI technologies.
 
-## Pre-requisites
+# Project Objective 
+The goal of this project is to update and enhance C-3PO's technological capabilities by incorporating the most recent advancements in artificial intelligence (AI) technology in the year 2024. 
+
+This will involve modernizing his existing abilities and potentially adding new ones, all with the aim of making him even more versatile and effective in his roles as a protocol droid, robotic diplomat, and translator. By utilizing cutting-edge AI technology, we hope to ensure that C-3PO remains a relevant and valuable asset in the ever-evolving landscape of Lucas' imagined galaxy.
+
+### Pre-requisites
 1. Python >= 3.10
-2. [Poetry (Poetry-Core Version: 1.8.1)](https://python-poetry.org/docs/#installation)
+2. [Poetry 1.8](https://python-poetry.org/docs/#installation)
    see your system installation
-
 3. Clone this repository:
 ```bash
 git clone https://github.com/yl4579/StyleTTS2.git
