@@ -1,4 +1,4 @@
-![pavai research](./resources/images/pavai_web_logo.png)
+![pavai research](./resources/images/pavai_web_logo.png) Pavai Research reimaginate use of AI 
 
 # Backstory
 In the Star Wars universe, C-3PO was designed as a protocol droid, equipped to aid in matters of etiquette, cultural norms, and language translation. With the ability to communicate in over six million forms of language, C-3PO serves as a robotic diplomat and translator across the vast and varied cultures of Lucas' imagined galaxy. 
