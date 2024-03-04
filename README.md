@@ -197,8 +197,10 @@ Other character wake up words call to start conversation with them
 </details>
 
 
-## Architecture & Design 
-In [config.yml](https://github.com/yl4579/StyleTTS2/blob/main/Configs/config.yml), there are a few important 
+## Architecture & Design Overview
+By design Pavai.C3PO can run totally offline in a single PC or in distributed mode for each core services.
+see diagram below for a overview.
+![Pavai.C3PO.Design](./resources/images/Pavai-C3P0-Architecture-Diagram.png) Architecture Overview
 
 <details>
 <summary><b>LLM Provider</b></summary>
@@ -213,6 +215,14 @@ $ run_setup.sh
 ```
 </details>
 
+## Pavai.Resarch Related Projects
+
+- [] hybrid-memory
+- [] world-storage
+- [] solar-network
+
+![pavai research](./resources/images/pavai_web_logo.png) Pavai Research aims to reinvent practical applications for artificial intelligence (AI). 
+
 ### Important Configurations
 In [config.yml](https://github.com/yl4579/StyleTTS2/blob/main/Configs/config.yml), there are a few important configurations to take care of:
 - `OOD_data`: The path for out-of-distribution texts for SLM adversarial training. The format should be `text|anything`.
@@ -221,8 +231,6 @@ In [config.yml](https://github.com/yl4579/StyleTTS2/blob/main/Configs/config.yml
 ### Limitation and Common Issues
 Translation conver only earth languages not ready for a galaxy far far away.
  
-
-
 ## Acknowledgments
 many thanks to these projects for their inspiration and help, they including llamacpp-python,whisper,fasterwhisper, ollama, styledstts2, piper, vad and meta seamless communication. 
 
@@ -230,10 +238,3 @@ many thanks to these projects for their inspiration and help, they including lla
 
 The source code provided at <https://github.com/PavAI-Research/pavai-c3po> is licensed under the [Apache 2.0 License](./LICENSE) that can be found at the root directory.
 
-## Pavai.Resarch Related Projects
-
-- [] hybrid-memory
-- [] world-storage
-- [] solar-network
-
-![pavai research](./resources/images/pavai_web_logo.png) Pavai Research aims to reinvent practical applications for artificial intelligence (AI). 
