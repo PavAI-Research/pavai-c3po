@@ -28,6 +28,19 @@ This will involve modernizing his existing abilities and potentially adding new 
 Note: all-in-one running locally in a single PC or split into multiple.
 
 ## C-3PO Installation
+
+<summary><b>Development/Testing Hardware</b></summary>
+
+> development and testing of this project only been validated on Ubuntu/Pop.OS only so far
+```
+System: Pop.OS 22.04 (Ubuntu)
+Python: 3.11
+CPUs: 5700G x 8 CPU
+System Memory: 64 GB
+Video Card: RTX 3090 24GB
+``` 
+</details>
+
 <details>
 <summary><b>Prerequisites</b></summary>
 
@@ -141,8 +154,9 @@ then report a summary at the end.
 
 > 3. Workspace folder store user specific working files
 
-
 </details>
+
+<details>
 
 ### Quickstart Vocei (Web UI) Locally
 ```bash
@@ -233,14 +247,14 @@ $ run_setup.sh
 - [] world-storage
 - [] solar-network
 
-### Important Configurations
-In [config.yml](https://github.com/yl4579/StyleTTS2/blob/main/Configs/config.yml), there are a few important configurations to take care of:
-- `OOD_data`: The path for out-of-distribution texts for SLM adversarial training. The format should be `text|anything`.
-- `min_length`: Minimum length of OOD texts for training. This is to make sure the synthesized speech has a minimum length.
-
 ### Limitation and Common Issues
-Translation conver only earth languages not ready for a galaxy far far away.
- 
+
+> Translation conver only earth languages not ready for a galaxy far far away.
+
+> When running all models locally, the hardware requiements could go up to 16 GB Vram
+
+> Development and Testing of this project only been validated in Ubuntu only 
+
 ## Acknowledgments
 many thanks to these projects for their inspiration and help, they including llamacpp-python,whisper,fasterwhisper, ollama, styledstts2, piper, vad and meta seamless communication. 
 
