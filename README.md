@@ -135,7 +135,12 @@ then report a summary at the end.
 <details>
 <summary><b>Important Considerations</b></summary>
 
-> Downloading translator model (facebook/seamless-m4t-v2-large) can take sometimes due larger model size 18 to 30 GB as result intial download time can be long depends on your internet connection.
+> 1. Downloading translator model (facebook/seamless-m4t-v2-large) can take sometimes due larger model size 18 to 30 GB as result intial download time can be long depends on your internet connection.
+
+> 2. Resource folder store downloaded models files
+
+> 3. Workspace folder store user specific working files
+
 
 </details>
 
