@@ -141,7 +141,7 @@ class VoceiApp(VoicePrompt,CommunicationTranslator,ScratchPad):
         self.app_ui = gr.TabbedInterface(
             theme=theme,
             interface_list=[voice_prompt_ui,translator_ui,scratchpad_ui],
-            tab_names=["Voice Prompt", "Seamless Multilingual Communication","Scratch Pad"],
+            tab_names=["Human to Machine Voice Prompt", "Inter-Human Communication (Multilingual)","Scratch Pad"],
             analytics_enabled=False,
             js=js,
             css=css,
