@@ -19,23 +19,43 @@ This will involve modernizing his existing abilities and potentially adding new 
 - [x] Real-time speech-to-speech translation (STS).  
 - [x] Real-time user interface interaction with GenAI.  
 - [x] Real-time handfree interaction with GenAI.  
-- [-] Hybrid intelligent with dual memory systems and psychological algorithms(todo) 
-- [-] Memory storage and retrieval (todo)
-- [-] Human-cyborg relations management (todo)
-- [-] Self-optimization and deployment upgrade (todo)
+- [-] Hybrid intelligent with dual memory systems (wip) 
+- [-] World Memory storage and retrieval (wip)
+- [-] Solar Network Integration (todo)
+- [-] Human-cyborg relations management (pending)
+- [-] Self-optimization and deployment upgrade (pending)
 
-### Prerequisites
-1. Python >= 3.10
-2. [Poetry 1.8](https://python-poetry.org/docs/#installation)
-   see your system installation
-3. Clone this repository:
+<details>
+<summary><b>Prerequisites</b></summary>
+1. Install Python >= 3.10
+2. Install [Poetry 1.8](https://python-poetry.org/docs/#installation) system installation
+- Clone this repository:
 ```bash
-git clone https://github.com/yl4579/StyleTTS2.git
-cd StyleTTS2
+git clone https://github.com/PavAI-Research/pavai-c3po.git
+cd pavai-c3po
 ```
-3. Install python requirements: 
+3. poetry shell
 ```bash
-pip install -r requirements.txt
+poetry shell
+```
+4. poetry install
+```bash
+poetry shell
+```
+</details>
+
+### Run Vocei (Web App)
+```bash
+poetry shell
+./voice_gradioapp.sh
+or 
+./voice_fastapp.sh
+```
+### Run Talkie (Handfree)
+```bash
+poetry shell
+./talkie_cli.sh
+```
 
 On Windows add:
 ```bash
