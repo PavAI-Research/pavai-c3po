@@ -39,10 +39,10 @@ git clone https://github.com/PavAI-Research/pavai-c3po.git
 cd pavai-c3po
 ```
 3. poetry shell
-
-> poetry shell
-> poetry install
-
+```
+$ poetry shell
+$ poetry install
+```
 </details>
 
 ### Run Vocei (Web App)
