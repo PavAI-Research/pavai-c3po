@@ -27,20 +27,17 @@ This will involve modernizing his existing abilities and potentially adding new 
 
 <details>
 <summary><b>Prerequisites</b></summary>
+```
 1. Install Python >= 3.10
 2. Install [Poetry 1.8](https://python-poetry.org/docs/#installation) system installation
 - Clone this repository:
-```bash
+
 git clone https://github.com/PavAI-Research/pavai-c3po.git
 cd pavai-c3po
-```
+
 3. poetry shell
-```bash
-poetry shell
-```
-4. poetry install
-```bash
-poetry shell
+> poetry shell
+> poetry install
 ```
 </details>
 
