@@ -45,6 +45,16 @@ cd pavai-c3po
 $ poetry shell
 $ poetry install
 ```
+
+4. llamacpp-python hardward optimized installation
+
+example: cuda optimized 
+```
+CMAKE_ARGS="-DLLAMA_CUBLAS=on" poetry run pip install llama-cpp-python==0.2.27 --force-reinstall --no-cache-dir
+```
+please see llamacpp-python for your specific hardware optimization
+![llamacpp-python](https://github.com/abetlen/llama-cpp-python)
+
 </details>
 
 <details>
