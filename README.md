@@ -20,12 +20,12 @@ This will involve modernizing his existing abilities and potentially adding new 
 - [x] Real-time user interface interaction with GenAI.  
 - [x] Real-time handfree interaction with GenAI.  
 - [x] Real-time Voice to Image generation   
-- [x] Real-time PII data security check in User Input and AI Output.  
+- [x] Real-time PII data security analysis on User Input and AI Output.  
 - [-] Hybrid intelligent with dual memory systems (wip) 
 - [-] World memory storage and retrieval (wip)
 - [-] Solar network integration (todo)
 - [-] Human-cyborg relations management (pending)
-- [-] Self-optimization and deployment upgrade (pending)
+- [-] Self-learning and deployment updates (pending)
 
 Note: all-in-one running locally in a single PC or split into multiple.
 
