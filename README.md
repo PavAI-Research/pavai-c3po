@@ -132,7 +132,7 @@ By default everytime start Vocei or talkier the application perform a start up s
 then report a summary at the end. 
 </details>
 
-### Running Vocei (Web UI) Locally
+### Quickstart Vocei (Web UI) Locally
 ```bash
 $ poetry shell
 $ ./voice_gradioapp.sh
@@ -154,7 +154,7 @@ To use microphone in browser require use url: http://localhost:7860 or a secure 
 
 </details>
 
-### Running Talkie (Handfree) Locally
+### Quickstart Talkie (Handfree) Locally
 ```bash
 $ poetry shell
 $ ./talkie_cli.sh
@@ -240,8 +240,6 @@ CMAKE_ARGS="-DLLAMA_CUBLAS=on" poetry run pip install llama-cpp-python==0.2.27 -
 - [nii-yamagishilab/project-NN-Pytorch-scripts/project/01-nsf](https://github.com/nii-yamagishilab/project-NN-Pytorch-scripts/tree/master/project/01-nsf)
 
 
-## License
+## License Agreement
 
-Code: MIT License
-
-Pre-Trained Models: Before using these pre-trained models, you agree to inform the listeners that the speech samples are synthesized by the pre-trained models, unless you have the permission to use the voice you synthesize. That is, you agree to only use voices whose speakers grant the permission to have their voice cloned, either directly or by license before making synthesized voices public, or you have to publicly announce that these voices are synthesized if you do not have the permission to use these voices.
+The source code provided at <https://github.com/PavAI-Research/pavai-c3po> is licensed under the [Apache 2.0 License](./LICENSE) that can be found at the root directory.
