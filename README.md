@@ -165,22 +165,24 @@ CMAKE_ARGS="-DLLAMA_CUBLAS=on" poetry run pip install llama-cpp-python==0.2.27 -
 ### Common Issues
 [@Kreevoz](https://github.com/Kreevoz) has made detailed notes on common issues in finetuning, with suggestions in maximizing audio quality: [#81](https://github.com/yl4579/StyleTTS2/discussions/81). Some of these also apply to training from scratch. [@IIEleven11](https://github.com/IIEleven11) has also made 
 
-## TODO
-- [x] Training and inference demo code for single-speaker models (LJSpeech)
-- [x] Test training code for multi-speaker models (VCTK and LibriTTS)
-- [x] Finish demo code for multispeaker model and upload pre-trained models
-- [x] Add a finetuning script for new speakers with base pre-trained multispeaker
 
-## References
+## Pavai Research Projects
+
+![pavai research](./resources/images/pavai_web_logo.png) Pavai Research aims to reinvent practical applications for artificial intelligence (AI). 
+
+- [] hybrid-memory
+- [] world-storage
+- [] solar-network
+
+## Credits
 - [archinetai/audio-diffusion-pytorch](https://github.com/archinetai/audio-diffusion-pytorch)
 - [jik876/hifi-gan](https://github.com/jik876/hifi-gan)
 - [rishikksh20/iSTFTNet-pytorch](https://github.com/rishikksh20/iSTFTNet-pytorch)
 - [nii-yamagishilab/project-NN-Pytorch-scripts/project/01-nsf](https://github.com/nii-yamagishilab/project-NN-Pytorch-scripts/tree/master/project/01-nsf)
+
 
 ## License
 
 Code: MIT License
 
 Pre-Trained Models: Before using these pre-trained models, you agree to inform the listeners that the speech samples are synthesized by the pre-trained models, unless you have the permission to use the voice you synthesize. That is, you agree to only use voices whose speakers grant the permission to have their voice cloned, either directly or by license before making synthesized voices public, or you have to publicly announce that these voices are synthesized if you do not have the permission to use these voices.
-
-![pavai research](./resources/images/pavai_web_logo.png) Pavai Research aims to reinvent practical applications for artificial intelligence (AI). 
