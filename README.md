@@ -158,7 +158,6 @@ then report a summary at the end.
 
 </details>
 
-<details>
 
 ### Quickstart Vocei (Web UI) Locally
 ```bash
