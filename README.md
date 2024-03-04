@@ -58,7 +58,7 @@ please see llamacpp-python for your specific hardware optimization
 </details>
 
 <details>
-<summary><b>First Time Model Downloads</b></summary>
+<summary><b>First-time model downloads</b></summary>
 
 1. Download Models
 ```
@@ -71,7 +71,7 @@ $ run_setup.sh
 </details>
 
 <details>
-<summary><b>System Mode Configuration</b></summary>
+<summary><b>System run-mode configuration</b></summary>
 see `env.shared` on run mode: 
 variable: GLOBAL_SYSTEM_MODE="ollama-openai" where you can specify one of the following value:
 
@@ -89,7 +89,7 @@ $ run_setup.sh
 </details>
 
 <details>
-<summary><b>LLM Provider Configuration</b></summary>
+<summary><b>LLM provider configuration</b></summary>
 see `env.shared` on following supported setup
 
 ***Local with Llamacpp-python***
@@ -124,6 +124,12 @@ SOLAR_LLM_DEFAULT_SERVER_URL="http://192.168.0.29:8004/v1"
 SOLAR_LLM_DEFAULT_API_KEY="sk-pavai"
 SOLAR_LLM_DEFAULT_MODEL_ID="zephyr-7b-beta.Q4"
 ```
+</details>
+
+<details>
+<summary><b>Startup resource and sanity check</b></summary>
+By default everytime start Vocei or talkier the application perform a start up system checks. the check including required system resources and functionality
+then report a summary at the end. 
 </details>
 
 ### Running Vocei (Web UI) Locally
@@ -166,13 +172,13 @@ The basic dialog system format:
 > Jane - is the default system voice for handle system startup speech 
 > Mark - is the user voice for handle user query and response
 
-Other character user can be call during the conversation
+Other character wake up words call to start conversation with them
 
-- anthony anthony 
-- skywalker
-- yoda master
-- princess leia
-- c-3po
+- "anthony anthony" 
+- "skywalker"
+- "yoda master"
+- "princess leia"
+- "c-3po"
 
 > speak "reset" to clear and start a new conversation
 > speak "say again" to repeat last response audio
