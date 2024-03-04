@@ -19,6 +19,8 @@ This will involve modernizing his existing abilities and potentially adding new 
 - [x] Real-time speech-to-speech translation (STS) support 100+ languages.  
 - [x] Real-time user interface interaction with GenAI.  
 - [x] Real-time handfree interaction with GenAI.  
+- [x] Real-time Voice to Image generation   
+- [x] Real-time PII data security check in User Input and AI Output.  
 - [-] Hybrid intelligent with dual memory systems (wip) 
 - [-] World memory storage and retrieval (wip)
 - [-] Solar network integration (todo)
