@@ -15,8 +15,8 @@ This will involve modernizing his existing abilities and potentially adding new 
 ## C-3PO Capabilities 
 - [x] Real-time voice activity detection (VAD)
 - [x] Real-time automatic voice recognition (ASR)  
-- [x] Real-time text to speech synthesis (toward human-like)
-- [x] Real-time speech-to-speech translation (STS).  
+- [x] Real-time text to speech synthesis toward human-like voice 
+- [x] Real-time speech-to-speech translation (STS) support 100+ languages.  
 - [x] Real-time user interface interaction with GenAI.  
 - [x] Real-time handfree interaction with GenAI.  
 - [-] Hybrid intelligent with dual memory systems (wip) 
