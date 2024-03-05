@@ -47,7 +47,8 @@ $ poetry shell
 $ poetry install
 ```
 
-4. llamacpp-python hardward optimized installation
+4. llamacpp-python hardward optimized local installation
+see link here for more details: https://github.com/abetlen/llama-cpp-python
 
 example: cuda optimized 
 ```
@@ -55,6 +56,7 @@ CMAKE_ARGS="-DLLAMA_CUBLAS=on" poetry run pip install llama-cpp-python==0.2.27 -
 ```
 please see llamacpp-python for your specific hardware optimization
 ![llamacpp-python](https://github.com/abetlen/llama-cpp-python)
+
 
 </details>
 
@@ -132,15 +134,13 @@ then report a summary at the end.
 </details>
 
 <details>
-<summary><b>Development/Testing Hardware</b></summary>
-
-> development and testing of this project only been validated on Ubuntu/Pop.OS
+<summary><b>Hardware Requirements</b></summary>
 ```
-System: Pop.OS 22.04 (Ubuntu)
-Python: 3.11
-CPUs: 5700G x 8 CPU
-System Memory: 64 GB
-Video Card: RTX 3090 24GB
+CPU: 6+ cores
+Memory: 32+ GB if you plan to run real-time translation with limited GPU vram
+Harddrive: 60+ GB if you plan to download and run all models locally
+GPU: 16+ GB if you plan to run all models in GPU as fast as possible
+Operating System: only tested in linux so far
 ```
 Note: Very limited testing on other hardware and os due resource constraint
 
