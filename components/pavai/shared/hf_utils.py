@@ -1,6 +1,3 @@
-# # For download the models
-# !pip -q install huggingface_hub
-
 import os
 os.environ['HF_HUB_DISABLE_TELEMETRY']='1'
 os.environ['HF_TOKEN']='1'

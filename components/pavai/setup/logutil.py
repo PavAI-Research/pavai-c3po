@@ -7,4 +7,3 @@ pretty.install()
 logging.basicConfig(level=logging.INFO, format="%(message)s", datefmt="[%X]", handlers=[RichHandler(rich_tracebacks=True)])
 warnings.filterwarnings("ignore")
 
-##logger = logging.getLogger(__name__)

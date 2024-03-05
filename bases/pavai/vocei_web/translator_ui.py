@@ -2,8 +2,6 @@ import gradio as gr
 import pavai.translator.filedata as filedata
 import pavai.translator.multilingual as multilingual
 import pavai.translator.lang_list as lang_list
-#import pavai.translator.translator as translator
-#import pavai.vocei_web.translator_ui
 
 class CommunicationTranslator:
     def build_translator_ui(self):
@@ -178,8 +176,6 @@ class CommunicationTranslator:
                                     outputs=[party_output_audio, party_output_text],
                                 )
         return self.blocks_translator
-
-# # theme=gr.themes.Monochrome()
 
 class AppMain(CommunicationTranslator):
 

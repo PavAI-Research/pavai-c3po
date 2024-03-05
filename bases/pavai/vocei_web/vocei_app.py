@@ -17,17 +17,10 @@ from pavai.vocei_web.scratchpad_ui import ScratchPad
 from pavai.vocei_web.voice_prompt_ui import VoicePrompt
 import pavai.setup.versions as versions
 
-__author__ = "mychen76@gmail.com"
-__copyright__ = "Copyright 2024"
-__version__ = "0.0.3"
-
 logger.warning("--GLOBAL SYSTEM MODE----")
 logger.warning(config.system_config["GLOBAL_SYSTEM_MODE"])
 _GLOBAL_SYSTEM_MODE=config.system_config["GLOBAL_SYSTEM_MODE"]
 _GLOBAL_TTS=config.system_config["GLOBAL_TTS"]
-
-# tested version gradio version: 4.7.1
-# pip install gradio==4.7.1
 
 # whisper model
 DEFAULT_COMPUTE_TYPE = "float16" if torch.cuda.is_available() else "int8"

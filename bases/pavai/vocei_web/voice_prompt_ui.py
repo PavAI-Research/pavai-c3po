@@ -16,20 +16,10 @@ from pavai.vocei_web.system_settings_ui import SystemSetting
 import pavai.llmone.remote.chatmodels as chatmodels
 import pavai.llmone.chatprompt as chatprompt
 import sounddevice as sd
-# from pavai.shared.fileutil import get_text_file_content
-# from pavai.shared.commands import filter_commmand_keywords
-#import cleantext
-#import os, sys
+import os, sys
 import traceback
-# pip install python-dotenv
-# tested version gradio version: 4.7.1
-# pip install gradio==4.7.1
 
-__author__ = "mychen76@gmail.com"
-__copyright__ = "Copyright 2024"
-__version__ = "0.0.3"
-
-logger.warn(f"--SYSTEM MODE--:{config.system_config['GLOBAL_SYSTEM_MODE']}")
+logger.info(f"--SYSTEM MODE--:{config.system_config['GLOBAL_SYSTEM_MODE']}")
 
 _GLOBAL_SYSTEM_MODE=config.system_config["GLOBAL_SYSTEM_MODE"]
 _GLOBAL_TTS=config.system_config["GLOBAL_TTS"]
@@ -39,7 +29,6 @@ DEFAULT_COMPUTE_TYPE = "float16" if torch.cuda.is_available() else "int8"
 DEFAULT_DEVICE_TYPE = "cuda" if torch.cuda.is_available() else "cpu"
 INT16_MAX_ABS_VALUE = 32768.0
 DEFAULT_MAX_MIC_RECORD_LENGTH_IN_SECONDS = 30*60*60  # 30 miniutes
-#DEFAULT_WORKING_DIR = "./workspace"
 
 # Global variables
 system_is_ready = True
@@ -49,9 +38,6 @@ use_flash_attention_2 = is_flash_attn_2_available()
 
 faster_transcriber = FasterTranscriber(model_id_or_path=DEFAULT_WHISPER_MODEL_SIZE)
 stablediffusion_model = StableDiffusionXL(model_id_or_path=DEFAULT_TEXT_TO_IMAGE_MODEL)
-
-# Knowledge experts and Domain Models
-# knowledge_experts = list(chatprompt.knowledge_experts_system_prompts.keys())
 
 # global settings
 _QUERY_ASK_EXPERT_ID=None  # planner

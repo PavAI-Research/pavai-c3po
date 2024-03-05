@@ -21,17 +21,6 @@ from pavai.shared.audio.transcribe import (transcriber_client, get_transcriber,
 from .fileutil import (get_system_working_path, get_system_download_path, get_system_youtube_path,
                            load_text_file, save_text_file, save_text_file)
 
-__author__ = "mychen76@gmail.com"
-__copyright__ = "Copyright 2023, "
-__version__ = "0.0.3"
-
-# duckduckgo setup
-# ----------------
-# pip install duckduckgo-search==4.1.1
-# pip install retrying==1.3.4
-# limitation:
-# Thcommandse default rate limit for DuckDuckGo is 20 requests per second.
-
 # Youtube commands
 _youtube_transcribe_command = "/ytranscribe:"
 _youtube_summarize_command = "/ysummarize:"

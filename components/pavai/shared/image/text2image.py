@@ -9,10 +9,6 @@ import gc
 import traceback
 import pavai.shared.system_types as system_types
 
-__author__ = "mychen76@gmail.com"
-__copyright__ = "Copyright 2024"
-__version__ = "0.0.3"
-
 DEFAULT_TEXT_TO_IMAGE_MODEL="segmind/SSD-1B"
 
 class AbstractImageGenerationClass(ABC):

@@ -15,12 +15,6 @@ from bs4 import BeautifulSoup
 from markdown import markdown  
 import html2text  
 import fitz  
-#import asyncio
-# pip install PyMuPDF
-# pip install html2text
-# pip install aiofiles==0.6.0
-# pip install bs4
-# pip install markdown
 
 _DEFAULT_SYSTEM_DOWNLOADS_PATH=config.system_config["DEFAULT_SYSTEM_DOWNLOADS_PATH"]
 

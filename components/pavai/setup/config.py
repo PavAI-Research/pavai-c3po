@@ -18,6 +18,11 @@ torch.backends.cudnn.benchmark = True
 torch.backends.cudnn.deterministic = True
 torch.set_num_threads(int(system_cpus_count/2))
 
+## disable telemetry
+os.environ['HF_HUB_DISABLE_TELEMETRY']='1'
+os.environ['HF_TOKEN']='1'
+
+## get hardward info
 omp_cpus_usage=str(int(os.cpu_count()/2))
 os.environ["OMP_NUM_THREADS"] = omp_cpus_usage
 device = "cuda" if torch.cuda.is_available() else "cpu"

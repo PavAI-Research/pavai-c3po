@@ -7,8 +7,6 @@ from pathlib import Path
 from pavai.shared.styletts2 import LibriSpeech, LJSpeech
 import sounddevice as sd
 
-#logger.warn("--GLOBAL SYSTEM MODE----")
-#logger.warn(config.system_config["GLOBAL_SYSTEM_MODE"])
 _GLOBAL_SYSTEM_MODE=config.system_config["GLOBAL_SYSTEM_MODE"]
 _GLOBAL_TTS=config.system_config["GLOBAL_TTS"]
 _GLOBAL_TTS_LIBRETTS_VOICE=config.system_config["GLOBAL_TTS_LIBRETTS_VOICE"]
@@ -26,13 +24,10 @@ onelibrispeech = LibriSpeech()
 def lpad_text(text:str, max_length:int=43, endingchar:str="c")->str:
     if len(text) < max_length:
         text=text.ljust(max_length, '…')
-    #print("lpad_text size:", len(text))
     return text+"."
 
 def get_speaker_audio_file(workspace_temp:str="workspace/temp")->str:
     Path.mkdir(workspace_temp, exist_ok=True)
-    # if not os.path.exists(workspace_temp):
-    #     os.mkdir(workspace_temp)
     return workspace_temp+"/espeak_text_to_speech.mp3"
 
 def system_tts_local(text:str,output_voice:str=None,vosk_params=None,autoplay:bool=True):

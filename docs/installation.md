@@ -16,3 +16,7 @@ or Usage instruction
 
 # pip install faster-whisper==0.10.0
 ```
+# pip install python-dotenv
+# tested version gradio version: 4.7.1
+# pip install gradio==4.7.1
+

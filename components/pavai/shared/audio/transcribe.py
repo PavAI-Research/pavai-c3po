@@ -18,10 +18,6 @@ import os
 import time
 import pavai.shared.system_types as system_types
 
-__author__ = "mychen76@gmail.com"
-__copyright__ = "Copyright 2023, "
-__version__ = "0.0.3"
-
 # global
 DEFAULT_WHISPER_MODEL_SIZE = "large"
 DISTILLED_WHISPER_MODEL_SIZE = "distil-whisper/distil-large-v2"

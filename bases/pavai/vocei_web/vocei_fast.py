@@ -24,17 +24,11 @@ from pavai.vocei_web.scratchpad_ui import ScratchPad
 from pavai.vocei_web.voice_prompt_ui import VoicePrompt
 import pavai.setup.versions as versions
 
-__author__ = "mychen76@gmail.com"
-__copyright__ = "Copyright 2024"
-__version__ = "0.0.3"
 
-logger.warning("--GLOBAL SYSTEM MODE----")
-logger.warning(config.system_config["GLOBAL_SYSTEM_MODE"])
+logger.info("--GLOBAL SYSTEM MODE----")
+logger.info(config.system_config["GLOBAL_SYSTEM_MODE"])
 _GLOBAL_SYSTEM_MODE=config.system_config["GLOBAL_SYSTEM_MODE"]
 _GLOBAL_TTS=config.system_config["GLOBAL_TTS"]
-
-# tested version gradio version: 4.7.1
-# pip install gradio==4.7.1
 
 # whisper model
 DEFAULT_COMPUTE_TYPE = "float16" if torch.cuda.is_available() else "int8"
@@ -153,7 +147,7 @@ class VoceiApp(VoicePrompt,CommunicationTranslator,ScratchPad):
         translator_ui=self.build_translator_ui()
         scratchpad_ui=self.build_scratchpad_ui()        
         """APP UI"""
-        css = ".gradio-container {background: url(https://upload.wikimedia.org/wikipedia/commons/4/49/Abstract_-_Coconut_Leaf_%28Imagicity_186%29.jpg)}"        
+        css = ".gradio-container {background: url(https://w0.peakpx.com/wallpaper/249/289/HD-wallpaper-c3po-and-r2d2-star-wars-c3po-movies-r2d2.jpg)}"               
         ##            title="Vocie (C-3PO real assistant) 💬",
         #css=".gradio-container {background: url('file=http://localhost:7860/resources/images/pavai_logo_large.png')}",
 

@@ -10,18 +10,6 @@ from transformers import AutoModelForCausalLM
 import time
 import torch
 import os
-# logger.info("---WHISPER---")
-# logger.info(transformers.__version__)
-# logger.info(torch.__version__)
-
-# # When running on CPU, make sure to set the same number of threads.
-# cpus=str(int(os.cpu_count()/2))
-# os.environ["OMP_NUM_THREADS"] = cpus
-# device = "cuda" if torch.cuda.is_available() else "cpu"
-# compute_type = "float16" if torch.cuda.is_available() else "int8"
-# logger.info("CPUs:",cpus)
-# logger.info("device:",device)
-# logger.info("compute_type:",compute_type)
 
 # model_size = "large-v3"
 # Run on GPU with FP16
