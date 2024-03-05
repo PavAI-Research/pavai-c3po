@@ -163,8 +163,7 @@ class VoceiApp(VoicePrompt,CommunicationTranslator,ScratchPad):
             tab_names=["Voice Prompt", "Multilingual Communication","Scratch Pad"],
             analytics_enabled=False,
             title="Vocie(C-3P0) 💬",
-            css=css,
-            head="Pavai Vocei"            
+            css=css    
         )
         with self.app_ui:
             with gr.Group():
