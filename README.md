@@ -262,6 +262,10 @@ Pavai Research aims to reinvent practical applications for artificial intelligen
 ## Voice Synthesized Usage & Consensus
 you agree to only use voices whose speakers grant the permission to have their voice cloned, either directly or by license before making synthesized voices public, or you have to publicly announce that these voices are synthesized if you do not have the permission to use these voices.
 
+## Generate requirement.txt
+```
+poetry export --without-hashes --format=requirements.txt > requirements.txt
+```
 ## Acknowledgments
 many thanks to these projects for their inspiration and help, they including llamacpp-python,whisper,fasterwhisper, ollama, styledstts2, piper, vad and meta seamless communication. 
 
