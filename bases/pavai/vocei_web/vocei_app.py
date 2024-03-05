@@ -128,7 +128,7 @@ class VoceiApp(VoicePrompt,CommunicationTranslator,ScratchPad):
         translator_ui=self.build_translator_ui()
         scratchpad_ui=self.build_scratchpad_ui()        
         """APP UI""" 
-        ##    title="Vocie (C-3PO real assistant) 💬",
+        ##    title="Vocie(C-3P0) 💬",
         ##    css=".gradio-container {background: url('file=pavai_logo_large.png')}",
         css = ".gradio-container {background: url(https://w0.peakpx.com/wallpaper/249/289/HD-wallpaper-c3po-and-r2d2-star-wars-c3po-movies-r2d2.jpg)}"       
         self.app_ui = gr.TabbedInterface(
@@ -136,9 +136,8 @@ class VoceiApp(VoicePrompt,CommunicationTranslator,ScratchPad):
             interface_list=[voice_prompt_ui,translator_ui,scratchpad_ui],
             tab_names=["Human to Machine Voice Prompt", "Inter-Human Communication (Multilingual)","Scratch Pad"],
             analytics_enabled=False,
-            js=js,
+            title="Vocie(C-3P0) 💬",
             css=css,
-            head="Pavai-Vocei"            
         )
         with self.app_ui:
             with gr.Group():
