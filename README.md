@@ -244,8 +244,8 @@ $ run_setup.sh
 please see diagram below for the dual-loop ssytem.
 ![pavai research](./resources/images/Pavai-C3P0-Diagram-Talkie_Dialog.png)
 
-## Pavai.Research Related Projects
-![pavai research](./resources/images/pavai_web_logo.png) Pavai Research aims to reinvent practical applications for artificial intelligence (AI). 
+## Related Projects
+Pavai Research aims to reinvent practical applications for artificial intelligence (AI). 
 
 - [] hybrid-memory
 - [] world-storage
