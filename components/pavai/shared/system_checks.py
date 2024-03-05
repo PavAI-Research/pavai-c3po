@@ -268,7 +268,15 @@ def download_spacy_model(model_size:str="en_core_web_sm",storage_dir:str="resour
         nlp.to_disk(os.path.join(cache_dir,model_path))  
    
 def system_resources_check(output_voice:str="jane"):
-    logger.info("***running system resources checks***")    
+    logger.info("***running system resources checks***")   
+
+    ## require workspace folder
+    if not os.path.exists("workspace/temp/"):
+        os.mkdir("workspace/temp/")
+
+    if not os.path.exists("workspace/downloads/"):
+        os.mkdir("workspace/downloads/")
+
     with Progress(transient=True) as progress: 
         try:       
             task = progress.add_task("checking system resources...", total=8)
@@ -507,18 +515,10 @@ def activate_system_agent(system_agent:str=None, startup_message:str=None, syste
             agen_name = config.system_config["DEFAULT_PAVAI_VOCIE_AGENT"]
         agen_greeting = f"hi, i am {agen_name} from PAVAI a galaxy far far away."
         system_tts_local(text=agen_greeting,output_voice=output_voice)
-        #time.sleep(0.5)              
-        #rand_idx = random.randrange(len(DEFAULT_PAVAI_STARTUP_MSG_INTROS))
-        #intro_message = DEFAULT_PAVAI_STARTUP_MSG_INTROS[rand_idx]                    
-        #time.sleep(0.5)              
-        #system_tts_local(sd,text=startup_message,output_voice=output_voice)
-        #time.sleep(0.25)       
-        #system_tts_local(sd,text=intro_message,output_voice=output_voice)
         if "DEFAULT_SYSTEM_STARTUP_MSG_OPEN_BROWSER" not in config.system_config.keys():
             launch_message = DEFAULT_PAVAI_VOCIE_STARTUP_MSG_NEXT_STEP
         else:
             launch_message = config.system_config["DEFAULT_SYSTEM_STARTUP_MSG_OPEN_BROWSER"]
-        #time.sleep(0.25)       
         system_tts_local(text=launch_message,output_voice=output_voice)    
     elif system_agent==PAVAI_APP_TALKIE:
         if "DEFAULT_PAVAI_VOCIE_AGENT" not in config.system_config.keys():
@@ -527,22 +527,16 @@ def activate_system_agent(system_agent:str=None, startup_message:str=None, syste
             agen_name = config.system_config["DEFAULT_PAVAI_TALKIE_AGENT"]
         agen_greeting = f"hi, i am {agen_name} from PAVAI a galaxy far far away."
         system_tts_local(text=agen_greeting,output_voice=output_voice)
-        #time.sleep(0.25)                      
         if "DEFAULT_PAVAI_STARTUP_MSG_INTRO" not in config.system_config.keys():
             intro_message = DEFAULT_PAVAI_STARTUP_MSG_INTRO
         else:
             intro_message = config.system_config["DEFAULT_PAVAI_STARTUP_MSG_INTRO"]        
-        ##system_tts_local(text=startup_message,output_voice=output_voice)
-        #time.sleep(0.25)       
         rand_idx = random.randrange(len(DEFAULT_PAVAI_STARTUP_MSG_INTROS))
         intro_message = DEFAULT_PAVAI_STARTUP_MSG_INTROS[rand_idx]                    
-        ##intro_message=".your personal multilingual AI assistant for everyday tasks." 
-        ##system_tts_local(text=intro_message,output_voice=output_voice)        
         if "DEFAULT_SYSTEM_STARTUP_MSG_OPEN_BROWSER" not in config.system_config.keys():
             launch_message = DEFAULT_PAVAI_TALKIE_STARTUP_MSG_NEXT_STEP
         else:
             launch_message = config.system_config["DEFAULT_SYSTEM_STARTUP_MSG_OPEN_BROWSER"]
-        ##system_tts_local(text=launch_message,output_voice=output_voice)            
     logger.info(f"system funtional check - completed")         
 
 def pavai_vocie_system_health_check(output_voice:str="en_amy"):

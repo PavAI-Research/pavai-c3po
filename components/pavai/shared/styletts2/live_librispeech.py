@@ -477,6 +477,8 @@ class LibriSpeech(speech_type.Singleton):
             ## putting them rogether    
             combined= np.concatenate(wavs) 
             scaled = np.int16(combined / np.max(np.abs(combined)) * 32767)
+            if not os.path.exists("workspace/temp/"):
+                os.mkdir("workspace/temp/")            
             write(output_audiofile, samplerate, scaled)
             if autoplay:
                 sd.play(scaled,samplerate=samplerate,blocking=blocking_flag)       
@@ -537,6 +539,8 @@ class LibriSpeech(speech_type.Singleton):
             ## putting them rogether    
             combined= np.concatenate(wavs) 
             scaled = np.int16(combined / np.max(np.abs(combined)) * 32767)
+            if not os.path.exists("workspace/temp/"):
+                os.mkdir("workspace/temp/")
             write(output_audiofile, samplerate, scaled)
             if autoplay:
                 sd.play(scaled,samplerate=samplerate,blocking=blocking_flag)       

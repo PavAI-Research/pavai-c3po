@@ -6,6 +6,7 @@ try:
 except:
     nltk.download('punkt')
     import nltk
+import os
 import gc
 import time
 import yaml
@@ -230,7 +231,6 @@ class LJSpeech(speech_type.Singleton):
             text=text.ljust(max_length, '…')
         return text+"."
 
-
     def ljspeech_v2(self,text:str, alpha:int=0.7,
                     diffusion_steps:int=random.randint(1, 10), 
                     embedding_scale:int=random.randint(1, 2), 
@@ -243,8 +243,6 @@ class LJSpeech(speech_type.Singleton):
         """
         try:
             t0=time.perf_counter()
-            ##device = 'cuda' if torch.cuda.is_available() else 'cpu'
-            ##sentences = text.split('.') # simple split by comma
             sentences = self.sentence_word_splitter(text=text,num_of_words=49)
             wavs = []
             s_prev = None
@@ -259,16 +257,11 @@ class LJSpeech(speech_type.Singleton):
                 rtf = (time.time() - start) / (len(wav) / samplerate)
                 t1=time.perf_counter()    
                 logger.info(f"rtf inference took = {rtf:5f} elapsed {t1-t0:.2f} seconds")            
-            #if autoplay:
-            #    for wav in wavs:
-            #        sd.play(wav,samplerate=samplerate,blocking=blocking_flag)    
-            ## combine approach-1
-            # combined=[]
-            # for wav in wavs:
-            #     combined=np.append(combined,wav)
-            ## combine approach-2
+
             combined= np.concatenate(wavs) 
             scaled = np.int16(combined / np.max(np.abs(combined)) * 32767)
+            if not os.path.exists("workspace/temp/"):
+                os.mkdir("workspace/temp/")            
             write(output_audiofile, samplerate, scaled)
             if autoplay:
                 sd.play(scaled,samplerate=samplerate,blocking=blocking_flag)       
