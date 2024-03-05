@@ -47,7 +47,7 @@ $ poetry shell
 $ poetry install
 ```
 
-4. llamacpp-python hardward optimized local installation
+4. Run llamacpp-python hardward optimized local installation
 see link here for more details: https://github.com/abetlen/llama-cpp-python
 
 example: cuda optimized 
