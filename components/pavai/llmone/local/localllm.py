@@ -1,3 +1,4 @@
+from dotenv import set_key
 from pavai.setup import config 
 from pavai.setup import logutil
 logger = logutil.logging.getLogger(__name__)
@@ -936,13 +937,13 @@ def _free_gpu_resources():
 def load_default_client(runtime_file:str="resources/config/llm_defaults.json")->LLMClient:
     global llm_defaults
 
-    if "DEFAULT_LLM_MODEL_FILE" in system_config.keys(): 
-        if "DEFAULT_LLM_MODEL_DOWNLOAD_PATH" in system_config.keys():
+    if "DEFAULT_LLM_MODEL_FILE" in config.system_config.keys(): 
+        if "DEFAULT_LLM_MODEL_DOWNLOAD_PATH" in config.system_config.keys():
             if not os.path.exists(runtime_file):
                 runtime_file=get_llm_local_defaults()
-                default_model_path = hf_hub_download(repo_id=system_config["DEFAULT_LLM_MODEL_NAME_OR_PATH"], 
-                                                    filename=system_config["DEFAULT_LLM_MODEL_FILE"], 
-                                                    cache_dir=system_config["DEFAULT_LLM_MODEL_PATH"])
+                default_model_path = hf_hub_download(repo_id=config.system_config["DEFAULT_LLM_MODEL_NAME_OR_PATH"], 
+                                                    filename=config.system_config["DEFAULT_LLM_MODEL_FILE"], 
+                                                    cache_dir=config.system_config["DEFAULT_LLM_MODEL_PATH"])
                 # Write changes to env file.
                 set_key("env_config", "DEFAULT_LLM_MODEL_DOWNLOAD_PATH", default_model_path)
                 llm_defaults["model_download_path"]=default_model_path           
@@ -950,7 +951,7 @@ def load_default_client(runtime_file:str="resources/config/llm_defaults.json")->
                     json.dump(llm_defaults, f, indent=4)
                 logger.info(f"created llm_defaults.json  LLM file: {default_model_path}")
             else:
-                default_model_path = system_config["DEFAULT_LLM_MODEL_DOWNLOAD_PATH"]  
+                default_model_path = config.system_config["DEFAULT_LLM_MODEL_DOWNLOAD_PATH"]  
                 logger.info(f"load llm_defaults.json LLM file: {default_model_path}")                
 
         # initialize default llm settings if missing configuration in dotenv file
