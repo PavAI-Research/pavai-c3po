@@ -2,9 +2,7 @@
 
 ## gradio mode
 gradio bases/pavai/vocei_web/vocei_app.py
-
-## fastapi 
-## uvicorn "vocei:app" --host "0.0.0.0" --port 7860 --reload
+print("Vocei Web Gardio App is ready!")
 
 # import argparse
 # parser = argparse.ArgumentParser()
