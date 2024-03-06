@@ -161,6 +161,13 @@ Note: Very limited testing on other hardware and os due resource constraint
 ### Quickstart Vocei (Web UI) Locally
 ```bash
 $ poetry shell
+$ poetry install
+## install LLamaCPP optimized for your hardware or default to cpu
+## example for nvidia GPU card
+$ CMAKE_ARGS="-DLLAMA_CUBLAS=on" poetry run pip install llama-cpp-python==0.2.27 --force-reinstall --no-cache-dir
+## to get all the models locally (ONE TIME ONLY)
+$ bash first_time_downloads.sh   
+
 $ ./voice_gradioapp.sh
 or 
 $ ./voice_fastapp.sh
