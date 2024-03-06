@@ -475,6 +475,9 @@ class LibriSpeech(speech_type.Singleton):
                 wavs.append(wav)
                 logger.info(f"librispeech_v2 rtf took {rtf:5f} in {t1-t0:.2f} seconds")
             ## putting them rogether    
+            if len(wavs)==0:
+                logger.warn("librispeech_v2: no audio generated!")
+                return
             combined= np.concatenate(wavs) 
             scaled = np.int16(combined / np.max(np.abs(combined)) * 32767)
             if not os.path.exists("workspace/temp/"):
@@ -537,6 +540,9 @@ class LibriSpeech(speech_type.Singleton):
                 t1=time.perf_counter()
                 logger.info(f"librispeech_v3 rtf took {rtf:5f} in {t1-t0:.2f} seconds")
             ## putting them rogether    
+            if len(wavs)==0:
+                logger.warn("librispeech_v3: no audio generated!")
+                return                
             combined= np.concatenate(wavs) 
             scaled = np.int16(combined / np.max(np.abs(combined)) * 32767)
             if not os.path.exists("workspace/temp/"):

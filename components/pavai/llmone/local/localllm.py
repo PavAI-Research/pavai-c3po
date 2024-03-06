@@ -110,6 +110,21 @@ By understanding human voice conversation elements and emulating human-like conv
 If the text does not contain sufficient information to answer the question, do not make up information. Instead, respond with "I don't know," and please be specific.
 """
 
+system_prompt_default = """
+You are an intelligent AI assistant. You are helping user answer query.
+
+If the text does not contain sufficient information to answer the question, do not make up information and give the answer as "I don't know, please be specific.".
+
+Always assist with care, respect, and truth. Respond with utmost utility yet securely. Avoid harmful, unethical, prejudiced, or negative content. Ensure replies promote fairness and positivity.
+"""
+
+guard_system_prompt=".Always assist with care, respect, and truth. Respond with utmost utility yet securely. Avoid harmful, unethical, prejudiced, or negative content. Ensure replies promote fairness and positivity."
+
+guard_system_prompt_assistant=system_prompt_assistant+"\n"+guard_system_prompt+"\n"
+
+safe_system_prompt=system_prompt_default+".\n"+guard_system_prompt+"\n"
+
+
 system_prompt_basic = """
 You are an intelligent AI assistant. You are helping user answer query.
 If the text does not contain sufficient information to answer the question, do not make up information and give the answer as "I don't know, please be specific.".
@@ -945,7 +960,7 @@ def load_default_client(runtime_file:str="resources/config/llm_defaults.json")->
                                                     filename=config.system_config["DEFAULT_LLM_MODEL_FILE"], 
                                                     cache_dir=config.system_config["DEFAULT_LLM_MODEL_PATH"])
                 # Write changes to env file.
-                set_key("env_config", "DEFAULT_LLM_MODEL_DOWNLOAD_PATH", default_model_path)
+                set_key("env.shared", "DEFAULT_LLM_MODEL_DOWNLOAD_PATH", default_model_path)
                 llm_defaults["model_download_path"]=default_model_path           
                 with open(runtime_file, 'w') as f:
                     json.dump(llm_defaults, f, indent=4)
@@ -978,7 +993,7 @@ def new_llm_instance(target_model_info:list=None):
     llm_copy["model_name_or_path"]=target_model_info[0]
     llm_copy["model_file_name"]=target_model_info[1]
     llm_copy["use_download_root"]=target_model_info[2]
-    llm_copy["model_architecure"]=target_model_info[3]  
+    #llm_copy["model_architecure"]=target_model_info[3]  
 
     # load and get model
     AbstractLLMClass.get_llm_model(model_name_or_path=llm_copy["model_name_or_path"], 
@@ -990,22 +1005,23 @@ def new_llm_instance(target_model_info:list=None):
     return llm_client
 
 def chat_completion(user_Prompt: str, history: list = [],
-                        system_prompt: str = system_prompt_assistant,
+                        system_prompt: str = safe_system_prompt,
                         stop_criterias=["</s>"],
                         ask_expert: str = None,                      
                         target_model_info:list=None,
+                        model_id:str=None,
                         user_settings:dict=None                        
                         ):
     global llm_client
     reply = None
     try:
-        system_prompt=system_prompt_assistant if system_prompt is None else system_prompt
+        system_prompt=safe_system_prompt if system_prompt is None else system_prompt
         if target_model_info is not None and len(target_model_info)>0:
             """load new model"""
             if llm_client is not None:
                 llm_client._llm._pipeline=None
                 llm_client._llm=None
-                del llm_client
+                #del llm_client
              ## release previous model gpu resources
             _free_gpu_resources()            
             llm_client = new_llm_instance(target_model_info)
@@ -1022,9 +1038,6 @@ def chat_completion(user_Prompt: str, history: list = [],
             present_penalty=user_settings["_QUERY_PRESENT_PENALTY"] 
             stop_criterias=user_settings["_QUERY_STOP_WORDS"] 
             frequency_penalty= user_settings["_QUERY_FREQUENCY_PENALTY"] 
-            #system_prompt = user_settings["_QUERY_SYSTEM_PROMPT"] = str(system_prompt).strip()
-            #self.user_settings["_QUERY_DOMAIN_EXPERT"] = str(domain_expert).strip()
-            #self.user_settings["_QUERY_RESPONSE_STYLE"] = str(response_style).strip()
             gpu_offload_layers = user_settings["_QUERY_GPU_OFFLOADING_LAYERS"]        
             messages, history, reply = llm_client.simple_chat(prompt=user_Prompt, 
                                                             history=history,

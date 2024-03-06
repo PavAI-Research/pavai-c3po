@@ -166,7 +166,7 @@ def chat_api_remote(user_prompt: str = None, history: list = [],
     return reply_text, reply_messages
 
 def chat_api_local(user_Prompt: str, history: list = [],
-                   system_prompt: str = localllm.system_prompt_assistant,
+                   system_prompt: str = localllm.safe_system_prompt,
                    stop_criterias=["</s>"],
                    ask_expert: str = None,
                    target_model_info: list = None,
@@ -176,7 +176,7 @@ def chat_api_local(user_Prompt: str, history: list = [],
     global llm_client
     reply = None
     try:
-        system_prompt = localllm.system_prompt_assistant if system_prompt is None else system_prompt
+        system_prompt = localllm.safe_system_prompt if system_prompt is None else system_prompt
         if target_model_info is not None and len(target_model_info) > 0:
             """load new model"""
             if llm_client is not None:
@@ -187,7 +187,9 @@ def chat_api_local(user_Prompt: str, history: list = [],
             localllm._free_gpu_resources()
             llm_client = localllm.new_llm_instance(target_model_info)
         # make call
-        llm_client = localllm.get_llm_instance()
+        llm_client = create_llm_local()
+        #messages, xhistory, reply = llmproxy.chat_api_local("hello", history=[])            
+        # llm_client = localllm.get_llm_instance()
         history = [] if history is None else history
 
         # model parameters

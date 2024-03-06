@@ -95,7 +95,8 @@ class SystemSetting:
         _QUERY_LLM_MODEL_ID=user_settings["_QUERY_MODEL_ID"]
         _QUERY_LLM_MODEL_BASE=user_settings["_QUERY_API_BASE"]
         _QUERY_LLM_MODEL_KEY=user_settings["_QUERY_API_KEY"]     
-        target_model_info=[_QUERY_LLM_MODEL_ID,_QUERY_LLM_MODEL_BASE,_QUERY_LLM_MODEL_KEY]   
+        target_model_info=[_QUERY_LLM_MODEL_ID,_QUERY_LLM_MODEL_BASE,_QUERY_LLM_MODEL_KEY] 
+        target_model_info=None  
 
         _QUERY_ENABLE_PII_ANALYSIS=user_settings["_QUERY_ENABLE_PII_ANALYSIS"]
         _QUERY_ENABLE_PII_ANONYMIZATION=user_settings["_QUERY_ENABLE_PII_ANONYMIZATION"]

@@ -257,7 +257,9 @@ class LJSpeech(speech_type.Singleton):
                 rtf = (time.time() - start) / (len(wav) / samplerate)
                 t1=time.perf_counter()    
                 logger.info(f"rtf inference took = {rtf:5f} elapsed {t1-t0:.2f} seconds")            
-
+            if len(wavs)==0:
+                logger.warn("librispeech_v3: no audio generated!")
+                return                
             combined= np.concatenate(wavs) 
             scaled = np.int16(combined / np.max(np.abs(combined)) * 32767)
             if not os.path.exists("workspace/temp/"):
